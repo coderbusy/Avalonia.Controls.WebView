@@ -53,20 +53,21 @@ public class TinyMceView : Decorator
 
     private void NativeWebViewOnWebMessageReceived(object? sender, WebMessageReceivedEventArgs e)
     {
-        if (_ignoreChanges)
-        {
-            return;
-        }
+        if (_ignoreChanges) return;
 
+        _ignoreChanges = true;
         var payload = JsonSerializer.Deserialize<JsPayload>(e.Body!);
         if (payload?.type == "textChanged")
         {
             SetCurrentValue(HtmlTextProperty, payload.body);
         }
+        _ignoreChanges = false;
     }
 
     private void SendCurrentText()
     {
+        if (_ignoreChanges) return;
+
         _ignoreChanges = true;
         var payload = JsonSerializer.Serialize(new JsPayload("textChanging", HtmlText ?? ""));
         _nativeWebView.InvokeScript($"sendPayload('{JsonEncodedText.Encode(payload)}')");

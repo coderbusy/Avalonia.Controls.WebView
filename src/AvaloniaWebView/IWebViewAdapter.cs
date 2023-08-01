@@ -40,7 +40,7 @@ internal interface IWebView
     event EventHandler<WebViewNavigationStartingEventArgs>? NavigationStarted;
 
     /// <summary>
-    /// WebMessageReceived dispatches after web content sends a message to the app host via chrome.webview.postMessage.
+    /// WebMessageReceived dispatches after web content sends a message to the app host via invokeCSharpAction(body).
     /// </summary>
     event EventHandler<WebMessageReceivedEventArgs> WebMessageReceived; 
 

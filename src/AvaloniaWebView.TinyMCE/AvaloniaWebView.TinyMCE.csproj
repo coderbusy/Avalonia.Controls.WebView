@@ -11,8 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="tiny_mce.min.js" />
       <AvaloniaResource Include="tiny_mce.min.js" />
+      <AvaloniaResource Include="tiny_mce.lightgray.css" />
     </ItemGroup>
 
 </Project>

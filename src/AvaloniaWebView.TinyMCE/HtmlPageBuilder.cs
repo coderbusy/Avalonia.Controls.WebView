@@ -7,25 +7,35 @@ internal static class HtmlPageBuilder
     public static string Build()
     {
         using var scriptStream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce.min.js"));
-        using var streamReader = new StreamReader(scriptStream);
-        var tinyMceScript = streamReader.ReadToEnd();
+        using var scriptStreamReader = new StreamReader(scriptStream);
+        var tinyMceScript = scriptStreamReader.ReadToEnd();
+        
+        using var styleStream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce.lightgray.css"));
+        using var styleStreamReader = new StreamReader(styleStream);
+        var tinyMceStyle = styleStreamReader.ReadToEnd();
 
         var initScript = """
-tinyMCE.init({
-    mode : "textareas"
-});
-
-var textarea = document.querySelector("textarea");
-textarea.onchange = function() {
-    var obj = {
-        'type': 'textChanged',
-        'body': textarea.value
-    };
-    invokeCSharpAction(JSON.stringify(obj));
-}
 function sendPayload(json) {
     var obj = JSON.parse(json);
+    console.log("received payload", obj);
+    if (obj.type === 'textChanging')
+        tinymce.get("mytextarea").setContent(obj.body);
 }
+tinymce.init({
+    selector: '#mytextarea',
+    paste_data_images: true,
+    skin: false,
+    setup: function(ed){
+         ed.on('Paste Change input Undo Redo', function(e){
+            var obj = {
+                'type': 'textChanged',
+                'body': ed.getContent()
+            };
+            console.log("sending payload", obj);
+            invokeCSharpAction(JSON.stringify(obj));
+         });
+    }
+});
 """;
         
         return $"""
@@ -34,11 +44,13 @@ function sendPayload(json) {
     <head>
         <title>TinyMCE</title>
         <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=11" />
 
         <script type="text/javascript">{tinyMceScript}</script>
+        <style>{tinyMceStyle}</style>
     </head>
     <body>
-        <textarea name="content" cols="50" rows="15">This is some content that will be editable with TinyMCE.</textarea>
+        <textarea id="mytextarea"></textarea>
         <script type="text/javascript">{initScript}</script>
     </body>
 </html>
