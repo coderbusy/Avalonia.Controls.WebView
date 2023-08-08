@@ -26,7 +26,8 @@ COMINTERFACE(INativeWebView, e5aca67b, 02b7, 4129, aa, 79, d6, e4, 17, 21, 0b, d
         IAvnString* url
     ) = 0;
     virtual HRESULT NavigateToString (
-        IAvnString* text
+        IAvnString* text, 
+        IAvnString* baseUrl
     ) = 0;
     virtual bool Refresh () = 0;
     virtual bool Stop () = 0;

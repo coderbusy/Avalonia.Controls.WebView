@@ -78,7 +78,8 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapter
     public void NavigateToString(string text)
     {
         using var str = new AvnString(text);
-        _nativeWebView.NavigateToString(str);
+        using var baseUrl = new AvnString("http://localhost:12345/");
+        _nativeWebView.NavigateToString(str, baseUrl);
     }
 
     public bool Refresh() => _nativeWebView.Refresh() == 1;

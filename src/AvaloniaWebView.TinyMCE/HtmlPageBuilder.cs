@@ -1,67 +1,75 @@
+using Avalonia.Media;
 using Avalonia.Platform;
 
 namespace AvaloniaWebView.TinyMCE;
 
 internal static class HtmlPageBuilder
 {
-    public static string Build()
+    static HtmlPageBuilder()
     {
-        using var scriptStream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce.min.js"));
-        using var scriptStreamReader = new StreamReader(scriptStream);
-        var tinyMceScript = scriptStreamReader.ReadToEnd();
-        
-        using var styleStream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce.lightgray.css"));
-        using var styleStreamReader = new StreamReader(styleStream);
-        var tinyMceStyle = styleStreamReader.ReadToEnd();
+        using (var htmlStream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce4/tiny_mce.html")))
+        using (var htmlStreamReader = new StreamReader(htmlStream))
+        using (var scriptStream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce4/tiny_mce.min.js")))
+        using (var scriptStreamReader = new StreamReader(scriptStream))
+        {
+            HtmlBaseContent = htmlStreamReader.ReadToEnd()
+                .Replace("/*${tinyMceScript}*/", scriptStreamReader.ReadToEnd());
+        }
 
-        var initScript = """
-function sendPayload(json) {
-    var obj = JSON.parse(json);
-    console.log("received payload", obj);
-    if (obj.type === 'textChanging')
-        tinymce.get("mytextarea").setContent(obj.body);
-}
-tinymce.init({
-    selector: '#mytextarea',
-    paste_data_images: true,
-    skin: false,
-    menubar: false,
-    statusbar: false,
-    plugins: 'autoresize',
-    toolbar: 'bold italic underline bullist numlist fontselect fontsizeselect',
-    setup: function(ed){
-         ed.on('Init', function(e) {
-            ed.execCommand("fontName", false, "Arial");
-            ed.execCommand("fontSize", false, "12");
-         });
-         ed.on('Paste Change input Undo Redo', function(e){
-            var obj = {
-                'type': 'textChanged',
-                'body': ed.getContent()
-            };
-            console.log("sending payload", obj);
-            invokeCSharpAction(JSON.stringify(obj));
-         });
+        using (var stream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce4/tiny_mce.lightgray.css")))
+        using (var reader = new StreamReader(stream))
+        {
+            LightGrayStyle = reader.ReadToEnd();
+        }
+        
+        using (var stream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce4/tiny_mce.charcoal.css")))
+        using (var reader = new StreamReader(stream))
+        {
+            CharcoalStyle = reader.ReadToEnd();
+        }
+        
+        using (var stream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce4/tiny_mce.charcoal.css")))
+        using (var reader = new StreamReader(stream))
+        {
+            CharcoalStyle = reader.ReadToEnd();
+        }
+        
+        using (var stream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce4/tiny_mce.content.dark.css")))
+        using (var reader = new StreamReader(stream))
+        {
+            ContentDarkStyle = reader.ReadToEnd();
+        }
+        
+        using (var stream = AssetLoader.Open(new Uri($"avares://{nameof(AvaloniaWebView)}.{nameof(TinyMCE)}/tiny_mce4/tiny_mce.content.light.css")))
+        using (var reader = new StreamReader(stream))
+        {
+            ContentLightStyle = reader.ReadToEnd();
+        }
     }
-});
-""";
-        
-        return $"""
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>TinyMCE</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-        <meta http-equiv="X-UA-Compatible" content="IE=11" />
 
-        <script type="text/javascript">{tinyMceScript}</script>
-        <style>{tinyMceStyle}</style>
-    </head>
-    <body>
-        <textarea id="mytextarea"></textarea>
-        <script type="text/javascript">{initScript}</script>
-    </body>
-</html>
-""";
+    private static string HtmlBaseContent { get; }
+    internal static string LightGrayStyle { get; }
+    internal static string CharcoalStyle { get; } 
+    internal static string ContentLightStyle { get; }
+    internal static string ContentDarkStyle { get; } 
+
+    public static string Build(
+        string style,
+        string contentStyle,
+        string? fontName,
+        int fontSize,
+        Color? background,
+        Color? foreground,
+        string toolbarOptions,
+        string plugins)
+    {
+        return HtmlBaseContent
+            .Replace("/*${tinyMceStyle}*/", style)
+            .Replace("/*${tinyMceContentStyle}*/", contentStyle)
+            .Replace("/*${rootStyles}*/", $"margin: 0; background: {background}; color: {foreground};")
+            .Replace("/*${toolbar}*/", toolbarOptions)
+            .Replace("/*${plugins}*/", plugins)
+            .Replace("/*${fontName}*/", fontName ?? "Arial")
+            .Replace("/*${fontSize}*/", fontSize.ToString());
     }
 }

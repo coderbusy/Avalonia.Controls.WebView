@@ -25,7 +25,7 @@ interface INativeWebView : IUnknown
     bool GoForward();
     HRESULT GetSource(IAvnString**ppv);
     HRESULT Navigate(IAvnString* url);
-    HRESULT NavigateToString(IAvnString* text);
+    HRESULT NavigateToString(IAvnString* text, IAvnString* baseUrl);
     bool Refresh();
     bool Stop();
     HRESULT InvokeScript(IAvnString* script, int id);

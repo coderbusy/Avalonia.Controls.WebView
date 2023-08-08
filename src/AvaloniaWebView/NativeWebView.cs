@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -8,17 +9,16 @@ namespace AvaloniaWebView;
 
 public class NativeWebView : NativeControlHost, IWebView
 {
-    private static readonly Uri s_emptyPageLink = new("about:blank");
-    
-    private IWebViewAdapter? _webViewAdapter;
-    private TaskCompletionSource _webViewReadyCompletion = new();
+    private bool _ignoreNavigation = false;
+    private TaskCompletionSource<IWebViewAdapter> _webViewReadyCompletion = new();
 
     public event EventHandler<WebViewNavigationCompletedEventArgs>? NavigationCompleted;
 
     public event EventHandler<WebViewNavigationStartingEventArgs>? NavigationStarted;
     public event EventHandler<WebMessageReceivedEventArgs>? WebMessageReceived;
 
-    public static readonly StyledProperty<Uri?> SourceProperty = AvaloniaProperty.Register<NativeWebView, Uri?>(nameof(Source));
+    public static readonly StyledProperty<Uri?> SourceProperty = AvaloniaProperty.Register<NativeWebView, Uri?>(
+        nameof(Source), new Uri("about:blank"));
 
     public Uri? Source
     {
@@ -26,36 +26,54 @@ public class NativeWebView : NativeControlHost, IWebView
         set => SetValue(SourceProperty, value);
     }
     
-    public bool CanGoBack => _webViewAdapter?.CanGoBack ?? false;
+    public bool CanGoBack => TryGetAdapter()?.CanGoBack ?? false;
 
-    public bool CanGoForward => _webViewAdapter?.CanGoForward ?? false;
+    public bool CanGoForward => TryGetAdapter()?.CanGoForward ?? false;
 
-    public bool GoBack() => _webViewAdapter?.GoBack() ?? false;
+    public bool GoBack() => TryGetAdapter()?.GoBack() ?? false;
 
-    public bool GoForward() => _webViewAdapter?.GoForward() ?? false;
+    public bool GoForward() => TryGetAdapter()?.GoForward() ?? false;
 
-    public Task<string?> InvokeScript(string scriptName)
+    public async Task<string?> InvokeScript(string scriptName)
     {
-        return _webViewAdapter is null
-            ? throw new InvalidOperationException("Control was not initialized")
-            : _webViewAdapter.InvokeScript(scriptName);
+        try
+        {
+            var adapter = await _webViewReadyCompletion.Task;
+            return await adapter.InvokeScript(scriptName);
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
     }
 
-    public void Navigate(Uri url)
+    public async void Navigate(Uri url)
     {
-        (_webViewAdapter ?? throw new InvalidOperationException("Control was not initialized"))
-            .Navigate(url);
+        try
+        {
+            var adapter = await _webViewReadyCompletion.Task;
+            adapter.Navigate(url);
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
-    public void NavigateToString(string text)
+    public async void NavigateToString(string text)
     {
-        (_webViewAdapter ?? throw new InvalidOperationException("Control was not initialized"))
-            .NavigateToString(text);
+        try
+        {
+            var adapter = await _webViewReadyCompletion.Task;
+            adapter.NavigateToString(text);
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
-    public bool Refresh() => _webViewAdapter?.Refresh() ?? false;
+    public bool Refresh() => TryGetAdapter()?.Refresh() ?? false;
 
-    public bool Stop() => _webViewAdapter?.Stop() ?? false;
+    public bool Stop() => TryGetAdapter()?.Stop() ?? false;
 
     protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
     {
@@ -64,14 +82,16 @@ public class NativeWebView : NativeControlHost, IWebView
             return base.CreateNativeControlCore(parent);
         }
 
+        IWebViewAdapter adapter;
+        
 #if WINDOWS
         if (WebViewCapabilities.IsMsWebView2Available)
         {
-            _webViewAdapter = new Win.WebView2Adapter(base.CreateNativeControlCore(parent));
+            adapter = new Win.WebView2Adapter(base.CreateNativeControlCore(parent));
         }
         else if (WebViewCapabilities.IsMsWebView1Available)
         {
-            _webViewAdapter = new Win.WebView1Adapter(base.CreateNativeControlCore(parent));
+            adapter = new Win.WebView1Adapter(base.CreateNativeControlCore(parent));
         }
         else
         {
@@ -80,18 +100,18 @@ public class NativeWebView : NativeControlHost, IWebView
 #else
         if (OperatingSystem.IsMacOS())
         {
-            _webViewAdapter = new NativeWebViewAdapter();
+            adapter = new NativeWebViewAdapter();
         }
         // if (OperatingSystem.IsLinux())
         // {
         //     new Gtk.GtkWebView2Adapter();
         //
         //     return base.CreateNativeControlCore(parent);
-        //     // _webViewAdapter = new Gtk.GtkWebView2Adapter();
+        //     // adapter = new Gtk.GtkWebView2Adapter();
         // }
         // else if (OperatingSystem.IsBrowser())
         // {
-        //     _webViewAdapter = new BrowserIFrameAdapter();
+        //     adapter = new BrowserIFrameAdapter();
         // }
         // else
         else
@@ -100,29 +120,21 @@ public class NativeWebView : NativeControlHost, IWebView
         }
 #endif
 
-        SubscribeOnEvents();
-        
-        if (_webViewAdapter.IsInitialized)
+        if (adapter.IsInitialized)
         {
-            WebViewAdapterOnInitialized(_webViewAdapter, EventArgs.Empty);
+            WebViewAdapterOnInitialized(adapter, EventArgs.Empty);
         }
         else
         {
-            _webViewAdapter.Initialized += WebViewAdapterOnInitialized;
+            adapter.Initialized += WebViewAdapterOnInitialized;
         }
 
-        return _webViewAdapter;
+        return adapter;
     }
 
-    private void SubscribeOnEvents()
-    {
-        if (_webViewAdapter is not null)
-        {
-            _webViewAdapter.NavigationStarted += WebViewAdapterOnNavigationStarted;
-            _webViewAdapter.NavigationCompleted += WebViewAdapterOnNavigationCompleted;
-            _webViewAdapter.WebMessageReceived += WebViewAdapterOnWebMessageReceived;
-        }
-    }
+    private IWebViewAdapter? TryGetAdapter() => _webViewReadyCompletion.Task.IsCompletedSuccessfully ?
+        _webViewReadyCompletion.Task.Result :
+        null;
 
     private void WebViewAdapterOnWebMessageReceived(object? sender, WebMessageReceivedEventArgs e)
     {
@@ -136,20 +148,34 @@ public class NativeWebView : NativeControlHost, IWebView
 
     private void WebViewAdapterOnNavigationCompleted(object? sender, WebViewNavigationCompletedEventArgs e)
     {
-        SetCurrentValue(SourceProperty, e.Request);
-        NavigationCompleted?.Invoke(this, e);
+        _ignoreNavigation = true;
+        try
+        {
+            SetCurrentValue(SourceProperty, e.Request);
+            NavigationCompleted?.Invoke(this, e);
+        }
+        finally
+        {
+            _ignoreNavigation = false;
+        }
     }
     
     private void WebViewAdapterOnInitialized(object? sender, EventArgs e)
     {
         var adapter = (IWebViewAdapter)sender!;
         adapter.Initialized -= WebViewAdapterOnInitialized;
-        if (Source is not null)
-        {
-            adapter.Source = Source;
-        }
+        adapter.NavigationStarted += WebViewAdapterOnNavigationStarted;
+        adapter.NavigationCompleted += WebViewAdapterOnNavigationCompleted;
+        adapter.WebMessageReceived += WebViewAdapterOnWebMessageReceived;
 
-        _webViewReadyCompletion.TrySetResult();
+        _webViewReadyCompletion.TrySetResult(adapter);
+
+        if (IsSet(SourceProperty)
+            && Source is { } source
+            && adapter.Source != source)
+        {
+            adapter.Navigate(source);
+        }
     }
     
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -158,29 +184,26 @@ public class NativeWebView : NativeControlHost, IWebView
 
         if (change.Property == SourceProperty)
         {
-            if (_webViewAdapter is { IsInitialized: true })
+            if (!_ignoreNavigation
+                && change.GetNewValue<Uri?>() is { } source)
             {
-                //_webViewAdapter.Source = change.GetNewValue<Uri?>() ?? s_emptyPageLink;
+                Navigate(source);
             }
         }
         else if (change.Property == BoundsProperty)
         {
-            _webViewAdapter?.SizeChanged();
+            TryGetAdapter()?.SizeChanged();
         }
     }
 
     protected override void DestroyNativeControlCore(IPlatformHandle control)
     {
-        DestroyWebViewAdapter();
-    }
-
-    private void DestroyWebViewAdapter()
-    {
-        if (_webViewAdapter is not null)
+        if (control is IWebViewAdapter adapter)
         {
-            _webViewReadyCompletion = new TaskCompletionSource();
-            var adapter = _webViewAdapter;
-            _webViewAdapter = null;
+            Debug.Assert(!(TryGetAdapter() is { } oldAdapter && oldAdapter != adapter));
+            
+            _webViewReadyCompletion.TrySetCanceled();
+            _webViewReadyCompletion = new TaskCompletionSource<IWebViewAdapter>();
             adapter.NavigationStarted -= WebViewAdapterOnNavigationStarted;
             adapter.NavigationCompleted -= WebViewAdapterOnNavigationCompleted;
             adapter.WebMessageReceived -= WebViewAdapterOnWebMessageReceived;

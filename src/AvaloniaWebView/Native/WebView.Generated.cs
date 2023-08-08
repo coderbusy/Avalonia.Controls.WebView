@@ -40,7 +40,7 @@ namespace AvaloniaWebView.Interop
         IAvnString Source { get; }
 
         void Navigate(IAvnString url);
-        void NavigateToString(IAvnString text);
+        void NavigateToString(IAvnString text, IAvnString baseUrl);
         int Refresh();
         int Stop();
         void InvokeScript(IAvnString script, int id);
@@ -230,10 +230,10 @@ namespace AvaloniaWebView.Interop.Impl
                 throw new System.Runtime.InteropServices.COMException("Navigate failed", __result);
         }
 
-        public void NavigateToString(IAvnString text)
+        public void NavigateToString(IAvnString text, IAvnString baseUrl)
         {
             int __result;
-            __result = (int)((delegate* unmanaged[Stdcall]<void*, void*, int>)(*PPV)[base.VTableSize + 7])(PPV, global::MicroCom.Runtime.MicroComRuntime.GetNativePointer(text));
+            __result = (int)((delegate* unmanaged[Stdcall]<void*, void*, void*, int>)(*PPV)[base.VTableSize + 7])(PPV, global::MicroCom.Runtime.MicroComRuntime.GetNativePointer(text), global::MicroCom.Runtime.MicroComRuntime.GetNativePointer(baseUrl));
             if (__result != 0)
                 throw new System.Runtime.InteropServices.COMException("NavigateToString failed", __result);
         }
@@ -460,18 +460,18 @@ namespace AvaloniaWebView.Interop.Impl
         }
 
         [System.Runtime.InteropServices.UnmanagedFunctionPointer(System.Runtime.InteropServices.CallingConvention.StdCall)]
-        delegate int NavigateToStringDelegate(void* @this, void* text);
+        delegate int NavigateToStringDelegate(void* @this, void* text, void* baseUrl);
 #if NET5_0_OR_GREATER
         [System.Runtime.InteropServices.UnmanagedCallersOnly(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvStdcall) })] 
 #endif
-        static int NavigateToString(void* @this, void* text)
+        static int NavigateToString(void* @this, void* text, void* baseUrl)
         {
             INativeWebView __target = null;
             try
             {
                 {
                     __target = (INativeWebView)global::MicroCom.Runtime.MicroComRuntime.GetObjectFromCcw(new IntPtr(@this));
-                    __target.NavigateToString(global::MicroCom.Runtime.MicroComRuntime.CreateProxyOrNullFor<IAvnString>(text, false));
+                    __target.NavigateToString(global::MicroCom.Runtime.MicroComRuntime.CreateProxyOrNullFor<IAvnString>(text, false), global::MicroCom.Runtime.MicroComRuntime.CreateProxyOrNullFor<IAvnString>(baseUrl, false));
                 }
             }
             catch (System.Runtime.InteropServices.COMException __com_exception__)
@@ -603,7 +603,7 @@ namespace AvaloniaWebView.Interop.Impl
             base.AddMethod((NavigateDelegate)Navigate); 
 #endif
 #if NET5_0_OR_GREATER
-            base.AddMethod((delegate* unmanaged[Stdcall]<void*, void*, int>)&NavigateToString); 
+            base.AddMethod((delegate* unmanaged[Stdcall]<void*, void*, void*, int>)&NavigateToString); 
 #else
             base.AddMethod((NavigateToStringDelegate)NavigateToString); 
 #endif

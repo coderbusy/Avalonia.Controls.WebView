@@ -120,14 +120,20 @@ public:
         }
     }
 
-    virtual HRESULT NavigateToString (IAvnString* text) override
+    virtual HRESULT NavigateToString (IAvnString* text, IAvnString* baseUrl) override
     {
         START_COM_CALL;
         
         @autoreleasepool
         {
             if (text == nullptr) return E_POINTER;
-            auto navigation = [_webView loadHTMLString: GetNSStringWithoutRelease(text) baseURL: nullptr];
+            NSURL* baseNsUrl = nullptr;
+            if (baseUrl != nullptr)
+            {
+                baseNsUrl = [NSURL URLWithString: GetNSStringWithoutRelease(baseUrl)];
+            }
+            
+            auto navigation = [_webView loadHTMLString: GetNSStringWithoutRelease(text) baseURL: baseNsUrl];
             return S_OK;
         }
     }
