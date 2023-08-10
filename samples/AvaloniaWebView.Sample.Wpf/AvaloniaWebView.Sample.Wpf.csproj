@@ -1,0 +1,14 @@
+﻿<Project Sdk="Xpf.Sdk/9999.0.0-localbuild">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AvaloniaWebView.Wpf\AvaloniaWebView.Wpf.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿#if WINDOWS
+﻿#if WINDOWS || NETFRAMEWORK
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
@@ -8,7 +8,9 @@ using Microsoft.Web.WebView2.Core;
 
 namespace AvaloniaWebView.Win;
 
+#if !NETFRAMEWORK
 [SupportedOSPlatform("Windows10.0.17134")]
+#endif
 internal class WebView2Adapter : IWebViewAdapter
 {
     private CoreWebView2Controller? _controller;
@@ -51,7 +53,9 @@ internal class WebView2Adapter : IWebViewAdapter
 
     public Uri Source
     {
+#if !NETFRAMEWORK
         [return: MaybeNull]
+#endif
         get
         {
             if (Uri.TryCreate(_controller?.CoreWebView2?.Source, UriKind.Absolute, out var url))

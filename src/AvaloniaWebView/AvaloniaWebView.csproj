@@ -1,36 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <PackAvaloniaNative Condition="'$(PackAvaloniaNative)' == ''">$([MSBuild]::IsOSPlatform(OSX))</PackAvaloniaNative>
     <TargetFrameworks>net6.0;net6.0-windows10.0.22621</TargetFrameworks>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
-  <!-- Common group -->
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0" />
-
-    <PackageReference Include="MicroCom.CodeGenerator.MSBuild" Version="0.11.0" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(PackAvaloniaNative)' == 'true'">
-    <Content Include="../../build/Products/Release/libWebView.Native.OSX.dylib">
-      <Link>libWebView.dylib</Link>
-      <PackagePath>runtimes/osx/native/libWebView.dylib</PackagePath>
-      <Pack>true</Pack>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <MicroComIdl Include="Native/webview.idl" CSharpInteropPath="Native/WebView.Generated.cs" />
-    <MicroComIdl Include="Win/win32.idl" CSharpInteropPath="Win/Win32.Generated.cs" />
-  </ItemGroup>
-  
-  <!-- Windows only group -->
-  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.902.49" />
-    <PackageReference Include="Dongle.WindowsSDK.NET" Version="10.0.22621.756" />
+    <ProjectReference Include="..\AvaloniaWebView.Shared\AvaloniaWebView.Shared.csproj" />
   </ItemGroup>
 </Project>

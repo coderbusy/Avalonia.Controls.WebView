@@ -16,14 +16,6 @@
 
   <PropertyGroup>
     <Title>AvaloniaWebView</Title>
-    <Authors>Max Katz</Authors>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Condition="'$(IsTestProject)' == ''">
-      <Version>3.4.194</Version>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
 
 </Project>

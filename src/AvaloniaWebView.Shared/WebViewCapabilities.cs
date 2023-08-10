@@ -7,7 +7,12 @@ public class WebViewCapabilities
     private static bool? _isMsWebView2Available;
     public static bool IsMsWebView2Available => _isMsWebView2Available ??= IsMsWebView2AvailableInternal();
 
-    public static bool IsMsWebView1Available => OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17134);
+//     public static bool IsMsWebView1Available =>
+// #if NETFRAMEWORK
+//         false;
+// #else
+//         OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17134);
+// #endif
 
     private static bool IsMsWebView2AvailableInternal()
     {

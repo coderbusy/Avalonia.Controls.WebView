@@ -1,11 +1,11 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Controls;
+using System.Windows;
 using Avalonia.Platform;
+using NativeControlHost = AvaloniaUI.Xpf.WpfAbstractions.NativeControlHost;
 
-namespace AvaloniaWebView;
+namespace AvaloniaWebView.Wpf;
 
 public class NativeWebView : NativeControlHost, IWebView
 {
@@ -17,15 +17,15 @@ public class NativeWebView : NativeControlHost, IWebView
     public event EventHandler<WebViewNavigationStartingEventArgs>? NavigationStarted;
     public event EventHandler<WebMessageReceivedEventArgs>? WebMessageReceived;
 
-    public static readonly StyledProperty<Uri?> SourceProperty = AvaloniaProperty.Register<NativeWebView, Uri?>(
-        nameof(Source), new Uri("about:blank"));
+    public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
+        nameof(Source), typeof(Uri), typeof(NativeWebView), new PropertyMetadata(new Uri("about:blank"), SourcePropertyChangedCallback));
 
-    public Uri? Source
+    public Uri Source
     {
-        get => GetValue(SourceProperty);
+        get => (Uri)GetValue(SourceProperty);
         set => SetValue(SourceProperty, value);
     }
-    
+
     public bool CanGoBack => TryGetAdapter()?.CanGoBack ?? false;
 
     public bool CanGoForward => TryGetAdapter()?.CanGoForward ?? false;
@@ -77,49 +77,44 @@ public class NativeWebView : NativeControlHost, IWebView
 
     protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
     {
-        if (Design.IsDesignMode)
-        {
-            return base.CreateNativeControlCore(parent);
-        }
+        IWebViewAdapter? adapter = null;
 
-        IWebViewAdapter adapter;
-        
-#if WINDOWS
-        if (WebViewCapabilities.IsMsWebView2Available)
-        {
-            adapter = new Win.WebView2Adapter(base.CreateNativeControlCore(parent));
-        }
-        // else if (WebViewCapabilities.IsMsWebView1Available)
-        // {
-        //     adapter = new Win.WebView1Adapter(base.CreateNativeControlCore(parent));
-        // }
-        else
-        {
-            return base.CreateNativeControlCore(parent);
-            //adapter = new Win.WebBrowserAdapter();
-        }
-#else
-        if (OperatingSystem.IsMacOS())
+        if (OperatingSystemEx.IsMacOS())
         {
             adapter = new NativeWebViewAdapter();
         }
-        // if (OperatingSystem.IsLinux())
+        // if (OperatingSystemEx.IsLinux())
         // {
         //     new Gtk.GtkWebView2Adapter();
         //
         //     return base.CreateNativeControlCore(parent);
         //     // adapter = new Gtk.GtkWebView2Adapter();
         // }
-        // else if (OperatingSystem.IsBrowser())
+        // else if (OperatingSystemEx.IsBrowser())
         // {
         //     adapter = new BrowserIFrameAdapter();
         // }
-        // else
-        else
+#if WINDOWS || NETFRAMEWORK
+        else if (OperatingSystemEx.IsWindows())
+        {
+            if (WebViewCapabilities.IsMsWebView2Available)
+            {
+                adapter = new Win.WebView2Adapter(base.CreateNativeControlCore(parent));
+            }
+            // else if (WebViewCapabilities.IsMsWebView1Available)
+            // {
+            //     adapter = new Win.WebView1Adapter(base.CreateNativeControlCore(parent));
+            // }
+            // else if (IE Supported)
+            // {
+            //    adapter = new Win.WebBrowserAdapter();
+            // }
+        }
+#endif
+        if (adapter is null)
         {
             return base.CreateNativeControlCore(parent);
         }
-#endif
 
         if (adapter.IsInitialized)
         {
@@ -133,7 +128,7 @@ public class NativeWebView : NativeControlHost, IWebView
         return adapter;
     }
 
-    private IWebViewAdapter? TryGetAdapter() => _webViewReadyCompletion.Task.IsCompletedSuccessfully ?
+    private IWebViewAdapter? TryGetAdapter() => _webViewReadyCompletion.Task.Status == TaskStatus.RanToCompletion ?
         _webViewReadyCompletion.Task.Result :
         null;
 
@@ -171,7 +166,7 @@ public class NativeWebView : NativeControlHost, IWebView
 
         _webViewReadyCompletion.TrySetResult(adapter);
 
-        if (IsSet(SourceProperty)
+        if (ReadLocalValue(SourceProperty) != DependencyProperty.UnsetValue
             && Source is { } source
             && adapter.Source != source)
         {
@@ -179,21 +174,13 @@ public class NativeWebView : NativeControlHost, IWebView
         }
     }
     
-    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    private static void SourcePropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        base.OnPropertyChanged(change);
-
-        if (change.Property == SourceProperty)
+        var @this = (NativeWebView)d;
+        if (!@this._ignoreNavigation
+            && e.NewValue is Uri source)
         {
-            if (!_ignoreNavigation
-                && change.GetNewValue<Uri?>() is { } source)
-            {
-                Navigate(source);
-            }
-        }
-        else if (change.Property == BoundsProperty)
-        {
-            TryGetAdapter()?.SizeChanged();
+            @this.Navigate(source);
         }
     }
 
