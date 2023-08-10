@@ -12,7 +12,8 @@ namespace AvaloniaUI.WebView.Core.Browser
     [SupportedOSPlatform("browser")]
     internal class BrowserIFrameAdapter : JSObjectControlHandle, IWebViewAdapter
     {
-        private static readonly Lazy<Task> _importModule = new(() => JSHost.ImportAsync("avwebview.js", "avwebview.js"));
+        private static readonly Lazy<Task> _importModule =
+                                                                                                                                                                                                                                                                                                                                                                                                                       new(() => JSHost.ImportAsync("avwebview.js", "avwebview.js"));
         private Action? _subscriptions;
         private Uri? _lastSrc;
 

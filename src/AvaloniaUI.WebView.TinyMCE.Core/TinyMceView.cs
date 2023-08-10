@@ -3,6 +3,7 @@ using System.Text.Json;
 using AvaloniaUI.WebView.TinyMCE.Core;
 #if WPF
 using IBrush = System.Windows.Media.Brush;
+
 #elif AVALONIA
 using Avalonia.Media;
 #endif
@@ -11,7 +12,7 @@ namespace AvaloniaUI.WebView.TinyMCE;
 
 public enum TinyMceThemeVariant
 {
-    Light, 
+    Light,
     Dark
 }
 
@@ -24,37 +25,37 @@ public partial class TinyMceView
 
     private readonly NativeWebView _nativeWebView;
     private bool _ignoreChanges;
-    
+
     public string? HtmlText
     {
         get => (string?)GetValue(HtmlTextProperty);
         set => SetValue(HtmlTextProperty, value);
     }
-    
+
     public double FontSize
     {
         get => (double)GetValue(FontSizeProperty);
         set => SetValue(FontSizeProperty, value);
     }
-    
+
     public IBrush? Background
     {
         get => (IBrush?)GetValue(BackgroundProperty);
         set => SetValue(BackgroundProperty, value);
     }
-    
+
     public IBrush? Foreground
     {
         get => (IBrush?)GetValue(ForegroundProperty);
         set => SetValue(ForegroundProperty, value);
     }
-    
+
     public string ToolBar
     {
         get => (string)GetValue(ToolBarProperty);
         set => SetValue(ToolBarProperty, value);
     }
-    
+
     public string Plugins
     {
         get => (string)GetValue(PluginsProperty);
@@ -65,12 +66,14 @@ public partial class TinyMceView
     {
         return variant == TinyMceThemeVariant.Dark ? HtmlPageBuilder.CharcoalStyle : HtmlPageBuilder.LightGrayStyle;
     }
-    
+
     protected virtual string LoadTinyMceContentStyle(TinyMceThemeVariant variant)
     {
-        return variant == TinyMceThemeVariant.Dark ? HtmlPageBuilder.ContentDarkStyle : HtmlPageBuilder.ContentLightStyle;
+        return variant == TinyMceThemeVariant.Dark ?
+            HtmlPageBuilder.ContentDarkStyle :
+            HtmlPageBuilder.ContentLightStyle;
     }
-    
+
     private void NativeWebViewOnNavigationCompleted(object? sender, WebViewNavigationCompletedEventArgs e)
     {
         SendCurrentText();
@@ -86,6 +89,7 @@ public partial class TinyMceView
         {
             SetCurrentValue(HtmlTextProperty, payload.body);
         }
+
         _ignoreChanges = false;
     }
 

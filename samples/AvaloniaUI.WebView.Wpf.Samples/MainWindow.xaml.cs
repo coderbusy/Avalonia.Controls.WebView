@@ -12,7 +12,7 @@ namespace AvaloniaUI.WebView.Wpf.Samples
         {
             InitializeComponent();
         }
-        
+
         private async void NativeWebView_OnNavigationCompleted(object? sender, WebViewNavigationCompletedEventArgs e)
         {
             LogList.Text += "\r\nNativeWebView_OnNavigationCompleted " + e.Request;

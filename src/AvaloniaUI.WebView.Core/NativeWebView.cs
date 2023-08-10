@@ -28,7 +28,8 @@ public class NativeWebView : NativeControlHost, IWebView
 
 #if WPF
     public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
-        nameof(Source), typeof(Uri), typeof(NativeWebView), new PropertyMetadata(new Uri("about:blank"), SourcePropertyChangedCallback));
+        nameof(Source), typeof(Uri), typeof(NativeWebView),
+        new PropertyMetadata(new Uri("about:blank"), SourcePropertyChangedCallback));
 #elif AVALONIA
     public static readonly StyledProperty<Uri> SourceProperty = AvaloniaProperty.Register<NativeWebView, Uri>(
         nameof(Source), new Uri("about:blank"));
@@ -169,7 +170,7 @@ public class NativeWebView : NativeControlHost, IWebView
             _ignoreNavigation = false;
         }
     }
-    
+
     private void WebViewAdapterOnInitialized(object? sender, EventArgs e)
     {
         var adapter = (IWebViewAdapter)sender!;
@@ -227,7 +228,7 @@ public class NativeWebView : NativeControlHost, IWebView
         if (control is IWebViewAdapter adapter)
         {
             Debug.Assert(!(TryGetAdapter() is { } oldAdapter && oldAdapter != adapter));
-            
+
             _webViewReadyCompletion.TrySetCanceled();
             _webViewReadyCompletion = new TaskCompletionSource<IWebViewAdapter>();
             adapter.NavigationStarted -= WebViewAdapterOnNavigationStarted;

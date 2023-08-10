@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AvaloniaUI.WebView.Core\AvaloniaUI.WebView.Core.csproj" />
+    <ProjectReference Include="..\AvaloniaUI.WebView.Core\AvaloniaUI.WebView.Core.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

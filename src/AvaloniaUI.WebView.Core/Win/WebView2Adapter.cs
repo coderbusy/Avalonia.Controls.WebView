@@ -1,7 +1,6 @@
 ﻿#if WINDOWS || NETFRAMEWORK
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Versioning;
+using System.Drawing;
 using System.Threading.Tasks;
 using Avalonia.Platform;
 using Microsoft.Web.WebView2.Core;
@@ -25,24 +24,6 @@ internal class WebView2Adapter : IWebViewAdapter
 
     public IntPtr Handle { get; }
     public string? HandleDescriptor => "HWDN";
-    
-    private async void Initialize()
-    {
-        var env = await CoreWebView2Environment.CreateAsync();
-        var controller = await env.CreateCoreWebView2ControllerAsync(Handle);
-        await controller.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync("function invokeCSharpAction(data){window.chrome.webview.postMessage(data);}");
-
-        controller.IsVisible = true;
-
-        _controller = controller;
-
-        SizeChanged();
-
-        _subscriptions = AddHandlers(_controller.CoreWebView2);
-
-        IsInitialized = true;
-        Initialized?.Invoke(this, EventArgs.Empty);
-    }
 
     public bool IsInitialized { get; private set; }
 
@@ -58,10 +39,7 @@ internal class WebView2Adapter : IWebViewAdapter
 #endif
         get
         {
-            if (Uri.TryCreate(_controller?.CoreWebView2?.Source, UriKind.Absolute, out var url))
-            {
-                return url;
-            }
+            if (Uri.TryCreate(_controller?.CoreWebView2?.Source, UriKind.Absolute, out var url)) return url;
             return null!;
         }
         set => _controller?.CoreWebView2?.Navigate(value.AbsoluteUri);
@@ -115,48 +93,68 @@ internal class WebView2Adapter : IWebViewAdapter
         _controller?.CoreWebView2?.Stop();
         return true;
     }
-    
+
     public void SizeChanged()
     {
         WinApiHelpers.GetWindowRect(Handle, out var rect);
-        
+
         if (_controller is not null)
         {
             _controller.BoundsMode = CoreWebView2BoundsMode.UseRawPixels;
-            _controller.Bounds = new System.Drawing.Rectangle(0, 0, rect.Right - rect.Left, rect.Bottom - rect.Top);
+            _controller.Bounds = new Rectangle(0, 0, rect.Right - rect.Left, rect.Bottom - rect.Top);
         }
     }
-    
+
+    private async void Initialize()
+    {
+        var env = await CoreWebView2Environment.CreateAsync();
+        var controller = await env.CreateCoreWebView2ControllerAsync(Handle);
+        await controller.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
+            "function invokeCSharpAction(data){window.chrome.webview.postMessage(data);}");
+
+        controller.IsVisible = true;
+
+        _controller = controller;
+
+        SizeChanged();
+
+        _subscriptions = AddHandlers(_controller.CoreWebView2);
+
+        IsInitialized = true;
+        Initialized?.Invoke(this, EventArgs.Empty);
+    }
+
     private Action AddHandlers(CoreWebView2 webView)
     {
         webView.NavigationStarting += WebViewOnNavigationStarting;
+
         void WebViewOnNavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
         {
             if (Uri.TryCreate(e.Uri, UriKind.Absolute, out var uri))
             {
                 var args = new WebViewNavigationStartingEventArgs { Request = uri };
                 NavigationStarted?.Invoke(this, args);
-                if (args.Cancel)
-                {
-                    e.Cancel = true;
-                }
+                if (args.Cancel) e.Cancel = true;
             }
         }
 
         webView.NavigationCompleted += WebViewOnNavigationCompleted;
+
         void WebViewOnNavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-            NavigationCompleted?.Invoke(this, new WebViewNavigationCompletedEventArgs
-            {
-                Request = new Uri(((CoreWebView2)sender!).Source),
-                IsSuccess = e.IsSuccess
-            });
+            NavigationCompleted?.Invoke(this,
+                new WebViewNavigationCompletedEventArgs
+                {
+                    Request = new Uri(((CoreWebView2)sender!).Source), IsSuccess = e.IsSuccess
+                });
         }
-        
+
         webView.WebMessageReceived += WebViewOnWebMessageReceived;
+
         void WebViewOnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
-            WebMessageReceived?.Invoke(this, new WebMessageReceivedEventArgs { Body = e.TryGetWebMessageAsString() ?? e.WebMessageAsJson });
+            WebMessageReceived?.Invoke(this,
+                new WebMessageReceivedEventArgs { Body = e.TryGetWebMessageAsString() ?? e.WebMessageAsJson });
         }
 
         return () =>

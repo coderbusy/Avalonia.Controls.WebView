@@ -11,8 +11,8 @@
     <TabItem Header="Google">
       <Grid>
         <Grid.RowDefinitions>
-          <RowDefinition Height="3*"/>
-          <RowDefinition Height="1*"/>
+          <RowDefinition Height="3*" />
+          <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <wpf:NativeWebView Source="https://google.com"
                            NavigationCompleted="NativeWebView_OnNavigationCompleted"
@@ -24,8 +24,8 @@
     <TabItem Header="TinyMCE">
       <Grid>
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="2*"/>
-          <ColumnDefinition Width="1*"/>
+          <ColumnDefinition Width="2*" />
+          <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
         <tinyMce:TinyMceView Grid.Column="0" x:Name="MceView" />
         <TextBox Grid.Column="1" Text="{Binding HtmlText, ElementName=MceView}" />

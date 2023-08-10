@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AvaloniaUI.WebView.Core\AvaloniaUI.WebView.Core.csproj" Publish="true" />
+    <ProjectReference Include="..\AvaloniaUI.WebView.Core\AvaloniaUI.WebView.Core.csproj" Publish="true"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AvaloniaUI.Xpf.WpfAbstractions" Version="0.0.1-cibuild000019" />
+    <PackageReference Include="AvaloniaUI.Xpf.WpfAbstractions" Version="0.0.1-cibuild000019"/>
   </ItemGroup>
 
   <ItemGroup>

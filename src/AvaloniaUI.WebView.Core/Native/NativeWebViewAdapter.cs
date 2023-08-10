@@ -4,15 +4,11 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AvaloniaUI.WebView.Core.Interop;
 using MicroCom.Runtime;
-using IAvnString = AvaloniaUI.WebView.Core.Interop.IAvnString;
 
 namespace AvaloniaUI.WebView.Core.Native;
 
 internal sealed class NativeWebViewAdapter : IWebViewAdapter
 {
-    [DllImport("libWebView")]
-    private static extern IntPtr CreateWebViewNativeFactory();
-
     private readonly NativeWebViewCallbacks _callbacks;
     private readonly INativeWebView _nativeWebView;
     private readonly Dictionary<int, TaskCompletionSource<string?>> _scriptResults = new();
@@ -26,7 +22,7 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapter
             factory.InvalidateAllManagedReferences();
         };
     }
-    
+
     public NativeWebViewAdapter()
     {
         using var factory = MicroComRuntime.CreateProxyFor<IWebViewFactory>(CreateWebViewNativeFactory(), true);
@@ -55,9 +51,15 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapter
         set => Navigate(value!);
     }
 
-    public bool GoBack() => _nativeWebView.GoBack() == 1;
+    public bool GoBack()
+    {
+        return _nativeWebView.GoBack() == 1;
+    }
 
-    public bool GoForward() => _nativeWebView.GoForward() == 1;
+    public bool GoForward()
+    {
+        return _nativeWebView.GoForward() == 1;
+    }
 
     public async Task<string?> InvokeScript(string script)
     {
@@ -82,9 +84,15 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapter
         _nativeWebView.NavigateToString(str, baseUrl);
     }
 
-    public bool Refresh() => _nativeWebView.Refresh() == 1;
+    public bool Refresh()
+    {
+        return _nativeWebView.Refresh() == 1;
+    }
 
-    public bool Stop() => _nativeWebView.Refresh() == 1;
+    public bool Stop()
+    {
+        return _nativeWebView.Refresh() == 1;
+    }
 
     public void Dispose()
     {
@@ -98,7 +106,10 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapter
     public string? HandleDescriptor => "NSView";
     public event EventHandler? Initialized;
     public bool IsInitialized => true;
-    public void SizeChanged() {}
+    public void SizeChanged() { }
+
+    [DllImport("libWebView")]
+    private static extern IntPtr CreateWebViewNativeFactory();
 
     private void OnScriptResult(int id, bool isError, string? result)
     {
@@ -106,26 +117,20 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapter
         _scriptResults.Remove(id);
 
         if (isError)
-        {
             tcs.TrySetException(new Exception(result ?? "Unknown script execution error"));
-        }
         else
-        {
             tcs.TrySetResult(result);
-        }
     }
-    
+
     private async void OnNavigationCompleted(string url, bool success)
     {
-        await InvokeScript("function invokeCSharpAction(data){window.webkit.messageHandlers.postWebViewMessage.postMessage(data);}");
+        await InvokeScript(
+            "function invokeCSharpAction(data){window.webkit.messageHandlers.postWebViewMessage.postMessage(data);}");
 
-        NavigationCompleted?.Invoke(this, new WebViewNavigationCompletedEventArgs
-        {
-            IsSuccess = success,
-            Request = new Uri(url)
-        });
+        NavigationCompleted?.Invoke(this,
+            new WebViewNavigationCompletedEventArgs { IsSuccess = success, Request = new Uri(url) });
     }
-    
+
     private bool OnNavigationStarted(string url)
     {
         var args = new WebViewNavigationStartingEventArgs { Request = new Uri(url) };
@@ -137,12 +142,12 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapter
     {
         WebMessageReceived?.Invoke(this, new WebMessageReceivedEventArgs { Body = body });
     }
-    
+
     private void CurrentDomainOnProcessExit(object? sender, EventArgs e)
     {
         Dispose();
     }
-    
+
     private class NativeWebViewCallbacks : CallbackBase, INativeWebViewHandlers
     {
         private readonly NativeWebViewAdapter _adapter;

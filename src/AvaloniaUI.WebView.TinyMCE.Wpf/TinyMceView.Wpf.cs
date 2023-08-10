@@ -10,21 +10,32 @@ namespace AvaloniaUI.WebView.TinyMCE;
 public partial class TinyMceView : ContentControl
 {
     public static readonly DependencyProperty HtmlTextProperty = DependencyProperty.Register(
-        nameof(HtmlText), typeof(string), typeof(TinyMceView), new PropertyMetadata(default(string?), OnHtmlTextChanged));
+        nameof(HtmlText), typeof(string), typeof(TinyMceView),
+        new PropertyMetadata(default(string?), OnHtmlTextChanged));
 
     public static readonly DependencyProperty ToolBarProperty = DependencyProperty.Register(
-        nameof(ToolBar), typeof(string), typeof(TinyMceView), new PropertyMetadata(ToolBarDefaultValue, OnOtherPropertyChanged));
-    
+        nameof(ToolBar), typeof(string), typeof(TinyMceView),
+        new PropertyMetadata(ToolBarDefaultValue, OnOtherPropertyChanged));
+
     public static readonly DependencyProperty PluginsProperty = DependencyProperty.Register(
-        nameof(Plugins), typeof(string), typeof(TinyMceView), new PropertyMetadata(PluginsDefaultValue, OnOtherPropertyChanged));
+        nameof(Plugins), typeof(string), typeof(TinyMceView),
+        new PropertyMetadata(PluginsDefaultValue, OnOtherPropertyChanged));
 
     public static readonly DependencyProperty RequestedThemeVariantProperty = DependencyProperty.Register(
-        nameof(RequestedThemeVariant), typeof(TinyMceThemeVariant), typeof(TinyMceView), new PropertyMetadata(TinyMceThemeVariant.Light, OnOtherPropertyChanged));
-    
-    public static readonly DependencyProperty FontSizeProperty = TextElement.FontSizeProperty.AddOwner(typeof(TinyMceView), new FrameworkPropertyMetadata(OnOtherPropertyChanged));
-    public static readonly DependencyProperty BackgroundProperty = Border.BackgroundProperty.AddOwner(typeof(TinyMceView), new FrameworkPropertyMetadata(OnOtherPropertyChanged));
-    public static readonly DependencyProperty ForegroundProperty = TextElement.ForegroundProperty.AddOwner(typeof(TinyMceView), new FrameworkPropertyMetadata(OnOtherPropertyChanged));
-    
+        nameof(RequestedThemeVariant), typeof(TinyMceThemeVariant), typeof(TinyMceView),
+        new PropertyMetadata(TinyMceThemeVariant.Light, OnOtherPropertyChanged));
+
+    public static readonly DependencyProperty FontSizeProperty =
+        TextElement.FontSizeProperty.AddOwner(typeof(TinyMceView),
+            new FrameworkPropertyMetadata(OnOtherPropertyChanged));
+
+    public static readonly DependencyProperty BackgroundProperty =
+        Border.BackgroundProperty.AddOwner(typeof(TinyMceView), new FrameworkPropertyMetadata(OnOtherPropertyChanged));
+
+    public static readonly DependencyProperty ForegroundProperty =
+        TextElement.ForegroundProperty.AddOwner(typeof(TinyMceView),
+            new FrameworkPropertyMetadata(OnOtherPropertyChanged));
+
     public TinyMceView()
     {
         Content = _nativeWebView = new NativeWebView();
@@ -32,18 +43,18 @@ public partial class TinyMceView : ContentControl
         _nativeWebView.Loaded += (_, _) => RebuildPage();
         _nativeWebView.NavigationCompleted += NativeWebViewOnNavigationCompleted;
     }
-    
+
     public TinyMceThemeVariant RequestedThemeVariant
     {
         get { return (TinyMceThemeVariant)GetValue(RequestedThemeVariantProperty); }
         set { SetValue(RequestedThemeVariantProperty, value); }
     }
-    
+
     private static void OnHtmlTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         ((TinyMceView)d).SendCurrentText();
     }
-    
+
     private static void OnOtherPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         ((TinyMceView)d).RebuildPage();

@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-
 using System;
 
 namespace AvaloniaUI.WebView.Avalonia.Samples;

@@ -11,13 +11,24 @@ namespace AvaloniaUI.WebView.TinyMCE;
 
 public partial class TinyMceView : ThemeVariantScope
 {
-    public static readonly StyledProperty<string?> HtmlTextProperty = AvaloniaProperty.Register<TinyMceView, string?>(nameof(HtmlText));
-    public static readonly StyledProperty<double> FontSizeProperty = TextElement.FontSizeProperty.AddOwner<TinyMceView>();
-    public static readonly StyledProperty<IBrush?> BackgroundProperty = Border.BackgroundProperty.AddOwner<TinyMceView>();
-    public static readonly StyledProperty<IBrush?> ForegroundProperty = TextElement.ForegroundProperty.AddOwner<TinyMceView>();
-    public static readonly StyledProperty<string> ToolBarProperty = AvaloniaProperty.Register<TinyMceView, string>(nameof(ToolBar), ToolBarDefaultValue);
-    public static readonly StyledProperty<string> PluginsProperty = AvaloniaProperty.Register<TinyMceView, string>(nameof(Plugins), PluginsDefaultValue);
-    
+    public static readonly StyledProperty<string?> HtmlTextProperty =
+        AvaloniaProperty.Register<TinyMceView, string?>(nameof(HtmlText));
+
+    public static readonly StyledProperty<double> FontSizeProperty =
+        TextElement.FontSizeProperty.AddOwner<TinyMceView>();
+
+    public static readonly StyledProperty<IBrush?> BackgroundProperty =
+        Border.BackgroundProperty.AddOwner<TinyMceView>();
+
+    public static readonly StyledProperty<IBrush?> ForegroundProperty =
+        TextElement.ForegroundProperty.AddOwner<TinyMceView>();
+
+    public static readonly StyledProperty<string> ToolBarProperty =
+        AvaloniaProperty.Register<TinyMceView, string>(nameof(ToolBar), ToolBarDefaultValue);
+
+    public static readonly StyledProperty<string> PluginsProperty =
+        AvaloniaProperty.Register<TinyMceView, string>(nameof(Plugins), PluginsDefaultValue);
+
     public TinyMceView()
     {
         Child = _nativeWebView = new NativeWebView();
@@ -25,7 +36,7 @@ public partial class TinyMceView : ThemeVariantScope
         _nativeWebView.AttachedToVisualTree += (_, _) => RebuildPage();
         _nativeWebView.NavigationCompleted += NativeWebViewOnNavigationCompleted;
     }
-    
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -41,6 +52,7 @@ public partial class TinyMceView : ThemeVariantScope
             RebuildPage();
         }
     }
+
     private void RebuildPage()
     {
         if (!this.IsAttachedToVisualTree())
@@ -49,12 +61,15 @@ public partial class TinyMceView : ThemeVariantScope
         }
 
         var topLevel = TopLevel.GetTopLevel(this);
-        
+
         var html = HtmlPageBuilder.Build(
-            LoadTinyMceStyle((PlatformThemeVariant?)ActualThemeVariant == PlatformThemeVariant.Dark
-                ? TinyMceThemeVariant.Dark : TinyMceThemeVariant.Light),
-            JsonEncodedText.Encode(LoadTinyMceContentStyle((PlatformThemeVariant?)ActualThemeVariant == PlatformThemeVariant.Dark
-                ? TinyMceThemeVariant.Dark : TinyMceThemeVariant.Light)).ToString(),
+            LoadTinyMceStyle((PlatformThemeVariant?)ActualThemeVariant == PlatformThemeVariant.Dark ?
+                TinyMceThemeVariant.Dark :
+                TinyMceThemeVariant.Light),
+            JsonEncodedText
+                .Encode(LoadTinyMceContentStyle((PlatformThemeVariant?)ActualThemeVariant == PlatformThemeVariant.Dark ?
+                    TinyMceThemeVariant.Dark :
+                    TinyMceThemeVariant.Light)).ToString(),
             "Arial",
             (int)FontSize,
             (Background as ISolidColorBrush ?? topLevel?.Background as ISolidColorBrush)?.Color.ToString(),

@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>net7.0;net7.0-windows</TargetFrameworks>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\AvaloniaUI.WebView.TinyMCE.Avalonia\AvaloniaUI.WebView.TinyMCE.Avalonia.csproj" />
-    <ProjectReference Include="..\..\src\AvaloniaUI.WebView.Avalonia\AvaloniaUI.WebView.Avalonia.csproj" />
-  </ItemGroup>
-  
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net7.0;net7.0-windows</TargetFrameworks>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
+        <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)"/>
+        <PackageReference Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\AvaloniaUI.WebView.TinyMCE.Avalonia\AvaloniaUI.WebView.TinyMCE.Avalonia.csproj"/>
+        <ProjectReference Include="..\..\src\AvaloniaUI.WebView.Avalonia\AvaloniaUI.WebView.Avalonia.csproj"/>
+    </ItemGroup>
+
 </Project>

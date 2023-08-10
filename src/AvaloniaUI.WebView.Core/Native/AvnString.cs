@@ -10,7 +10,7 @@ namespace AvaloniaUI.WebView.Core.Interop
         public string String { get; }
         public byte[] Bytes { get; }
     }
-    
+
     internal class AvnString : CallbackBase, IAvnString
     {
         private IntPtr _native;
@@ -20,7 +20,7 @@ namespace AvaloniaUI.WebView.Core.Interop
 
         public string String { get; }
         public byte[] Bytes => Encoding.UTF8.GetBytes(String);
-        
+
         public unsafe void* Pointer()
         {
             EnsureNative();
@@ -41,7 +41,7 @@ namespace AvaloniaUI.WebView.Core.Interop
                 _native = IntPtr.Zero;
             }
         }
-        
+
         private unsafe void EnsureNative()
         {
             if (string.IsNullOrEmpty(String))
@@ -58,6 +58,7 @@ namespace AvaloniaUI.WebView.Core.Interop
         }
     }
 }
+
 namespace AvaloniaUI.WebView.Core.Interop.Impl
 {
     unsafe partial class __MicroComIAvnStringProxy

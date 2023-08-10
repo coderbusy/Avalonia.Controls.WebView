@@ -13,7 +13,6 @@ internal abstract class CallbackBase : IUnknown, IMicroComShadowContainer
 
     protected virtual void Destroyed()
     {
-
     }
 
     public void Dispose()
@@ -27,7 +26,7 @@ internal abstract class CallbackBase : IUnknown, IMicroComShadowContainer
 
     void DestroyIfNeeded()
     {
-        if(_destroyed)
+        if (_destroyed)
             return;
         if (_referencedFromManaged == false && _referencedFromNative == false)
         {
@@ -39,9 +38,10 @@ internal abstract class CallbackBase : IUnknown, IMicroComShadowContainer
     }
 
     public MicroComShadow? Shadow { get; set; }
+
     public void OnReferencedFromNative()
     {
-        lock (_lock) 
+        lock (_lock)
             _referencedFromNative = true;
     }
 

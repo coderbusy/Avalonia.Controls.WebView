@@ -2,8 +2,7 @@
     try {
         iframe.contentWindow.history.back();
         return true;
-    }
-    catch {
+    } catch {
         return false;
     }
 }
@@ -12,8 +11,7 @@ export function goForward(iframe) {
     try {
         iframe.contentWindow.history.forward();
         return true;
-    }
-    catch {
+    } catch {
         return false;
     }
 }
@@ -21,8 +19,7 @@ export function goForward(iframe) {
 export function canGoBack(iframe) {
     try {
         return iframe.contentWindow.history.length > 0;
-    }
-    catch {
+    } catch {
         return false;
     }
 }
@@ -31,8 +28,7 @@ export function refresh(iframe) {
     try {
         iframe.contentWindow.location.reload();
         return true;
-    }
-    catch {
+    } catch {
         return false;
     }
 }
@@ -41,8 +37,7 @@ export function stop(iframe) {
     try {
         iframe.contentWindow.stop();
         return true;
-    }
-    catch {
+    } catch {
         return false;
     }
 }
@@ -54,8 +49,7 @@ export async function eval(iframe, script) {
             return await result;
         }
         return result;
-    }
-    catch {
+    } catch {
         return null;
     }
 }
@@ -63,8 +57,7 @@ export async function eval(iframe, script) {
 export function getActualLocation(iframe) {
     try {
         return iframe.contentWindow.location.href;
-    }
-    catch {
+    } catch {
         return null;
     }
 }

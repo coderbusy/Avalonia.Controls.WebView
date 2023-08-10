@@ -10,13 +10,13 @@
   <!-- Common group -->
   <ItemGroup>
     <PackageReference Include="MicroCom.CodeGenerator.MSBuild" Version="0.11.0" PrivateAssets="all"/>
-    <PackageReference Include="Avalonia" Version="11.0" />
+    <PackageReference Include="Avalonia" Version="11.0"/>
   </ItemGroup>
 
   <!-- Windows only group -->
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' OR '$(TargetFramework)' == 'net462'">
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.902.49"/>
-<!--    <PackageReference Include="Dongle.WindowsSDK.NET" Version="10.0.22621.756"/>-->
+    <!--    <PackageReference Include="Dongle.WindowsSDK.NET" Version="10.0.22621.756"/>-->
   </ItemGroup>
 
   <ItemGroup>
@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="AvaloniaUI.WebView.Avalonia" />
-    <InternalsVisibleTo Include="AvaloniaUI.WebView.Wpf" />
+    <InternalsVisibleTo Include="AvaloniaUI.WebView.Avalonia"/>
+    <InternalsVisibleTo Include="AvaloniaUI.WebView.Wpf"/>
   </ItemGroup>
 </Project>

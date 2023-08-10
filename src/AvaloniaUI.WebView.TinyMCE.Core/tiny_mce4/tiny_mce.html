@@ -3,45 +3,46 @@
 <head>
     <title>TinyMCE</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 
     <script type="text/javascript">/*${tinyMceScript}*/</script>
     <style>/*${tinyMceStyle}*/</style>
 </head>
 <body style="/*${rootStyles}*/">
-    <textarea id="maintextarea"></textarea>
-    <script type="text/javascript">
-        function sendPayload(json) {
-            var obj = JSON.parse(json);
-            console.log("received payload", obj);
-            if (obj.type === 'textChanging')
-                tinymce.get("maintextarea").setContent(obj.body);
+<textarea id="maintextarea"></textarea>
+<script type="text/javascript">
+    function sendPayload(json) {
+        var obj = JSON.parse(json);
+        console.log("received payload", obj);
+        if (obj.type === 'textChanging')
+            tinymce.get("maintextarea").setContent(obj.body);
+    }
+
+    tinymce.init({
+        selector: '#maintextarea',
+        paste_data_images: true,
+        skin: false,
+        menubar: false,
+        statusbar: false,
+        branding: false,
+        plugins: '/*${plugins}*/',
+        toolbar: '/*${toolbar}*/',
+        content_style: '/*${tinyMceContentStyle}*/',
+        setup: function (ed) {
+            ed.on('Init', function (e) {
+                ed.execCommand("fontName", false, "/*${fontName}*/");
+                ed.execCommand("fontSize", false, "/*${fontSize}*/");
+            });
+            ed.on('Paste Change input Undo Redo', function (e) {
+                var obj = {
+                    'type': 'textChanged',
+                    'body': ed.getContent()
+                };
+                console.log("sending payload", obj);
+                invokeCSharpAction(JSON.stringify(obj));
+            });
         }
-        tinymce.init({
-            selector: '#maintextarea',
-            paste_data_images: true,
-            skin: false,
-            menubar: false,
-            statusbar: false,
-            branding: false,
-            plugins: '/*${plugins}*/',
-            toolbar: '/*${toolbar}*/',
-            content_style: '/*${tinyMceContentStyle}*/',
-            setup: function(ed){
-                ed.on('Init', function(e) {
-                    ed.execCommand("fontName", false, "/*${fontName}*/");
-                    ed.execCommand("fontSize", false, "/*${fontSize}*/");
-                });
-                ed.on('Paste Change input Undo Redo', function(e){
-                    var obj = {
-                        'type': 'textChanged',
-                        'body': ed.getContent()
-                    };
-                    console.log("sending payload", obj);
-                    invokeCSharpAction(JSON.stringify(obj));
-                });
-            }
-        });
-    </script>
+    });
+</script>
 </body>
 </html>

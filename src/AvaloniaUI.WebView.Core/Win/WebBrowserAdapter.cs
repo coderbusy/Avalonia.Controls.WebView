@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using AvaloniaUI.WebView.Core.Interop;
 using MicroCom.Runtime;
@@ -20,16 +17,13 @@ internal unsafe class WebBrowserAdapter : IWebViewAdapter
         var iunknown = Guid.Parse("00000000-0000-0000-C000-000000000046");
         IntPtr result;
         var res = WinApiHelpers.CoCreateInstance(guid, default, 0x1, iunknown, &result);
-        if (res != 0)
-        {
-            throw new Win32Exception(res);
-        }
+        if (res != 0) throw new Win32Exception(res);
 
         var browser = MicroComRuntime.CreateProxyFor<IWebBrowser>(result, false);
         _webBrowser = browser.QueryInterface<IWebBrowser2>();
         Handle = result;
     }
-    
+
     public IntPtr Handle { get; }
     public string? HandleDescriptor => "HWDN";
     public event EventHandler<WebViewNavigationCompletedEventArgs>? NavigationCompleted;
@@ -59,9 +53,12 @@ internal unsafe class WebBrowserAdapter : IWebViewAdapter
     public void Navigate(Uri url)
     {
         var bstr = Marshal.StringToBSTR(url.AbsoluteUri);
-        int[] arr = new[] { 0 };
+        int[] arr = { 0 };
         fixed (void* p = arr)
+        {
             _webBrowser.Navigate(bstr, p, null, null, null);
+        }
+
         Marshal.FreeBSTR(bstr);
     }
 
@@ -82,11 +79,11 @@ internal unsafe class WebBrowserAdapter : IWebViewAdapter
 
     public void Dispose()
     {
-        
     }
 
     public event EventHandler? Initialized;
     public bool IsInitialized => true;
+
     public void SizeChanged()
     {
     }
