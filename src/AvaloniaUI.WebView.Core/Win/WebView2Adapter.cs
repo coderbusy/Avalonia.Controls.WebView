@@ -1,6 +1,8 @@
 ﻿#if WINDOWS || NETFRAMEWORK
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Avalonia.Platform;
 using Microsoft.Web.WebView2.Core;

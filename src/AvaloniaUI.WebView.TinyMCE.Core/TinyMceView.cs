@@ -1,4 +1,5 @@
 #if AVALONIA || WPF
+using System;
 using System.Text.Json;
 using AvaloniaUI.WebView.TinyMCE.Core;
 #if WPF
@@ -25,6 +26,8 @@ public partial class TinyMceView
 
     private readonly NativeWebView _nativeWebView;
     private bool _ignoreChanges;
+
+    public event EventHandler? HtmlTextChanged;
 
     public string? HtmlText
     {
@@ -88,6 +91,7 @@ public partial class TinyMceView
         if (payload?.type == "textChanged")
         {
             SetCurrentValue(HtmlTextProperty, payload.body);
+            HtmlTextChanged?.Invoke(this, EventArgs.Empty);
         }
 
         _ignoreChanges = false;
