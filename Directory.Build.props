@@ -14,7 +14,12 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 
     <AvaloniaVersion>11.0.1</AvaloniaVersion>
-    <Version>0.0.1-preview7</Version>
+
+    <CiVersionSuffix Condition="'$(CiRunNumber)' != ''"
+    >$([System.String]::Format('-cibuild{0:000000}', $([MSBuild]::Add($(CiRunNumber), 0))))</CiVersionSuffix>
+    <CiVersionSuffix Condition="'$(CiVersionSuffix)' == ''">-debug</CiVersionSuffix>
+    <PackageVersion>1.0.0$(CiVersionSuffix)</PackageVersion>
+    <PackageOutputPath>$(RepoRoot)\artifacts\packages</PackageOutputPath>
   </PropertyGroup>
 
 </Project>

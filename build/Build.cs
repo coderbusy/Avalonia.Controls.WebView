@@ -1,6 +1,7 @@
 using System.IO;
 using MicroCom.CodeGenerator;
 using Nuke.Common;
+using Nuke.Common.IO;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using static Nuke.Common.EnvironmentInfo;
@@ -18,12 +19,19 @@ class Build : NukeBuild
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = Configuration.Release;
 
+    [Parameter]
+    readonly AbsolutePath Output = RootDirectory / "artifacts" / "packages";
+
+    [Parameter(Name = "cirunnumber")]
+    readonly string CiRunNumber = "0";
+
     Target Compile => _ => _
         .DependsOn(CompileNative)
         .Executes(() =>
         {
             DotNetBuild(c => c
                 .SetConfiguration(Configuration)
+                .SetProperty("CiRunNumber", CiRunNumber)
                 .SetProjectFile(RootDirectory / "AvaloniaUI.WebView.sln")
             );
         });
@@ -34,6 +42,7 @@ class Build : NukeBuild
         {
             DotNetPack(c => c
                 .SetConfiguration(Configuration)
+                .SetOutputDirectory(Output)
                 .SetProject(RootDirectory / "AvaloniaUI.WebView.sln"));
         });
     
