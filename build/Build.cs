@@ -22,6 +22,9 @@ class Build : NukeBuild
     [Parameter]
     readonly AbsolutePath Output = RootDirectory / "artifacts" / "packages";
 
+    [Parameter]
+    readonly AbsolutePath ProjectFile = RootDirectory / "AvaloniaUI.WebView.Packages.slnf";
+    
     [Parameter(Name = "cirunnumber")]
     readonly string CiRunNumber = "0";
 
@@ -32,7 +35,7 @@ class Build : NukeBuild
             DotNetBuild(c => c
                 .SetConfiguration(Configuration)
                 .SetProperty("CiRunNumber", CiRunNumber)
-                .SetProjectFile(RootDirectory / "AvaloniaUI.WebView.sln")
+                .SetProjectFile(ProjectFile)
             );
         });
 
@@ -43,7 +46,7 @@ class Build : NukeBuild
             DotNetPack(c => c
                 .SetConfiguration(Configuration)
                 .SetOutputDirectory(Output)
-                .SetProject(RootDirectory / "AvaloniaUI.WebView.sln"));
+                .SetProject(ProjectFile));
         });
     
     Target GenerateCppHeaders => _ => _.Executes(() =>
