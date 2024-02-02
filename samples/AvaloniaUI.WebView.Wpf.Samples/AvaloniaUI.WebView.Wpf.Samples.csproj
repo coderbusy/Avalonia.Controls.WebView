@@ -5,10 +5,10 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <XpfReplaceSystemDrawing>false</XpfReplaceSystemDrawing>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AvaloniaUI.WebView.TinyMCE.Wpf\AvaloniaUI.WebView.TinyMCE.Wpf.csproj"/>
     <ProjectReference Include="..\..\src\AvaloniaUI.WebView.Wpf\AvaloniaUI.WebView.Wpf.csproj"/>
   </ItemGroup>
 

@@ -204,6 +204,11 @@ public class NativeWebView : NativeControlHost, IWebView
             @this.Navigate(source);
         }
     }
+
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    {
+        TryGetAdapter()?.SizeChanged();
+    }
 #elif AVALONIA
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {

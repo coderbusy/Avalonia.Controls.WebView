@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using AvaloniaUI.WebView.Core;
+using AvaloniaUI.WebView;
 
 namespace AvaloniaUI.WebView.Wpf.Samples
 {
