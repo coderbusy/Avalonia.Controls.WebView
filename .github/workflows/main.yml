@@ -22,7 +22,7 @@ jobs:
       run: rm -rf ${{github.workspace}}/artifacts/packages
  
     - name: CreateNugetPackages
-      run: nuke --target CreateNugetPackages --configuration Release --output ${{github.workspace}}/artifacts/packages/ --cirunnumber ${{github.run_number}}
+      run: dotnet run --project ${{github.workspace}}/build/_build.csproj --target CreateNugetPackages --configuration Release --output ${{github.workspace}}/artifacts/packages/ --cirunnumber ${{github.run_number}}
 
     - uses: actions/upload-artifact@v4
       with:
