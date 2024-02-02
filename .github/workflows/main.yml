@@ -10,7 +10,7 @@ jobs:
 
   cicd:
 
-    runs-on: [macOS]
+    runs-on: [macos-latest]
 
     steps:
     - uses: actions/checkout@v3
