@@ -1,9 +1,11 @@
+using System;
 using System.IO;
 using MicroCom.CodeGenerator;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Serilog;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
@@ -24,17 +26,30 @@ class Build : NukeBuild
 
     [Parameter]
     readonly AbsolutePath ProjectFile = RootDirectory / "AvaloniaUI.WebView.Packages.slnf";
+
+    string CiRunNumber => Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
     
-    [Parameter(Name = "cirunnumber")]
-    readonly string CiRunNumber = "0";
+    string RefName => Environment.GetEnvironmentVariable("GITHUB_REF_NAME");
+
+    Target OutputParameters => _ => _
+        .Executes(() =>
+        {
+            Log.Information($"Configuration: {Configuration}");
+            Log.Information($"Output: {Output}");
+            Log.Information($"ProjectFile: {ProjectFile}");
+            Log.Information($"CiRunNumber: {CiRunNumber}");
+            Log.Information($"CiRunNumber: {RefName}");
+            Log.Information($"Version: {GetVersion()}");
+        });
 
     Target Compile => _ => _
+        .DependsOn(OutputParameters)
         .DependsOn(CompileNative)
         .Executes(() =>
         {
             DotNetBuild(c => c
                 .SetConfiguration(Configuration)
-                .SetProperty("CiRunNumber", CiRunNumber)
+                .AddProperty("PackageVersion", GetVersion())
                 .SetProjectFile(ProjectFile)
             );
         });
@@ -67,4 +82,16 @@ class Build : NukeBuild
                 $"-project {project} -configuration {Configuration} CONFIGURATION_BUILD_DIR={RootDirectory}/Build/Products/Release";
             ProcessTasks.StartProcess("xcodebuild", args).AssertZeroExitCode();
         });
+
+    string GetVersion()
+    {
+        if (Version.TryParse(RefName, out var version))
+        {
+            return RefName;
+        }
+        else
+        {
+            return "1.0.999-cibuild" + int.Parse(CiRunNumber).ToString("0000000") + "-alpha";
+        }
+    }
 }

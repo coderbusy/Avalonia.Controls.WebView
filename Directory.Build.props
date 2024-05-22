@@ -15,10 +15,6 @@
 
     <AvaloniaVersion>11.0.1</AvaloniaVersion>
 
-    <CiVersionSuffix Condition="'$(CiRunNumber)' != ''"
-    >$([System.String]::Format('-cibuild{0:000000}', $([MSBuild]::Add($(CiRunNumber), 0))))</CiVersionSuffix>
-    <CiVersionSuffix Condition="'$(CiVersionSuffix)' == ''">-debug</CiVersionSuffix>
-    <PackageVersion>1.0.0$(CiVersionSuffix)</PackageVersion>
     <PackageOutputPath>$(RepoRoot)\artifacts\packages</PackageOutputPath>
   </PropertyGroup>
 
