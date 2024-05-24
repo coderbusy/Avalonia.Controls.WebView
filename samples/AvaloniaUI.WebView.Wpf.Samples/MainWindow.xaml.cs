@@ -16,6 +16,7 @@ namespace AvaloniaUI.WebView.Wpf.Samples
         private async void NativeWebView_OnNavigationCompleted(object? sender, WebViewNavigationCompletedEventArgs e)
         {
             LogList.Text += "\r\nNativeWebView_OnNavigationCompleted " + e.Request;
+            LogList.Text += "\r\nInvoking JS script with invokeCSharpAction";
 
             await ((NativeWebView)sender!).InvokeScript(""" invokeCSharpAction("{'key': 10}") """);
         }
