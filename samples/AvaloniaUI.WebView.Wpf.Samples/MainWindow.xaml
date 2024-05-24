@@ -13,7 +13,7 @@
           <RowDefinition Height="3*" />
           <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <wpf:NativeWebView Source="https://google.com"
+        <wpf:NativeWebView Source="https://avaloniaui.net/"
                            NavigationCompleted="NativeWebView_OnNavigationCompleted"
                            NavigationStarted="NativeWebView_OnNavigationStarted"
                            WebMessageReceived="NativeWebView_OnWebMessageReceived" />
