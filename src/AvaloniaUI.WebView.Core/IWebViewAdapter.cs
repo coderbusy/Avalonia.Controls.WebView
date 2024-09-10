@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Platform;
 
 namespace AvaloniaUI.WebView;
@@ -134,4 +136,9 @@ internal interface IWebViewAdapterWithFocus : IWebViewAdapter
     bool Focus();
     event EventHandler? GotFocus;
     event EventHandler? LostFocus;
+}
+
+internal interface IWebViewAdapterWithInputRedirect : IWebViewAdapter
+{
+    event Action<RoutedEventArgs> Input;
 }

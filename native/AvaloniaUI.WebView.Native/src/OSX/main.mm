@@ -2,7 +2,7 @@
 #define COM_GUIDS_MATERIALIZE
 #include "common.h"
 #include "AvnString.h"
-
+#include "KeyTransform.h"
 
 @interface AvaloniaWKWebView : WKWebView
 @property (nonatomic,strong) id localEventHandler;
@@ -14,6 +14,8 @@
 -(void)onScriptResult:(int)index withResult:(id)result withError:(NSError*)error;
 -(void)onBecameFirstResponder;
 -(void)onResignedFirstResponder;
+-(bool)onKeyDown: (AvnPhysicalKey) key withMods: (AvnInputModifiers) mod;
+-(bool)onKeyUp: (AvnPhysicalKey) key withMods: (AvnInputModifiers) mod;
 @end
 
 NSMutableArray* _handlersArray = [[NSMutableArray alloc] init];
@@ -217,81 +219,105 @@ public:
 
 @implementation AvaloniaWKWebView
 
-- (void)viewDidMoveToSuperview {
-    // When embed in Avalonia, webview for some reason stops receiving any hotkey events.
-    // keyDown is also ignored, even though firstResponder is correct.
-    // Work around that:
-    if ([self superview] != nil) {
-        NSEvent * (^monitorHandler)(NSEvent *);
-        monitorHandler = ^NSEvent * (NSEvent * theEvent) {
-            auto firstResponder = [[self window] firstResponder];
-            if (firstResponder != self) {
-                return theEvent;
-            }
-            
-            auto modifier = [theEvent modifierFlags];
-            if ([theEvent type] == NSEventTypeKeyDown)
-            {
-                SEL selector = NULL;
-                auto isCommandFlag = (modifier & NSEventModifierFlagCommand) != 0;
-                auto chars = [theEvent charactersIgnoringModifiers];
-                
-                if (isCommandFlag) {
-                    if ([chars isEqualToString:@"c"]) {
-                        selector = @selector(copy:);
-                    } else if ([chars isEqualToString:@"v"]) {
-                        selector = @selector(paste:);
-                    } else if ([chars isEqualToString:@"x"]) {
-                        selector = @selector(cut:);
-                    } else if ([chars isEqualToString:@"a"]) {
-                        selector = @selector(selectAll:);
-                    }
-                }
-
-                if (selector != NULL) {
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                    [self performSelector:selector];
-    #pragma clang diagnostic pop
-                    return nil;
-                }
-            }
-
-            // Redirect back to Avalonia, but only keys with modifiers because WKWebView seems to swallow them.
-            // Normal key events without modifiers work already.
-            if (modifier & NSEventModifierFlagControl
-                || modifier & NSEventModifierFlagShift
-                || modifier & NSEventModifierFlagOption
-                || modifier & NSEventModifierFlagCommand
-                || modifier & NSEventModifierFlagFunction)
-            {
-                auto avView = [[self superview] superview];
-                if ([theEvent type] == NSEventTypeKeyDown)
-                    [avView keyDown: theEvent];
-                else if ([theEvent type] == NSEventTypeKeyUp)
-                    [avView keyUp: theEvent];
-                else if ([theEvent type] == NSEventTypeFlagsChanged)
-                    [avView flagsChanged: theEvent];
-                return nil;
-            }
-
-            return theEvent;
-        };
-        auto mask = NSEventMaskKeyDown | NSEventMaskKeyUp | NSEventMaskFlagsChanged;
-        self.localEventHandler = [NSEvent
-                                  addLocalMonitorForEventsMatchingMask:mask
-                                  handler:monitorHandler];
-    }
-    else {
-        [NSEvent removeMonitor:self.localEventHandler];
-        self.localEventHandler = nil;
-    }
-}
-
 - (BOOL)acceptsFirstResponder {
     return true;
 }
+- (BOOL)performKeyEquivalent:(NSEvent *)theEvent {
+    auto firstResponder = [[self window] firstResponder];
+    if (firstResponder != self)
+        return [super performKeyEquivalent: theEvent];
 
+    auto chars = [theEvent charactersIgnoringModifiers];
+    auto code = [theEvent keyCode];
+
+    auto modifier = [theEvent modifierFlags];
+    if ([theEvent type] == NSEventTypeKeyDown)
+    {
+        SEL selector = NULL;
+        auto isCommandFlag = (modifier & NSEventModifierFlagCommand) != 0;
+        
+        if (isCommandFlag) {
+            if ([chars isEqualToString:@"c"]) {
+                selector = @selector(copy:);
+            } else if ([chars isEqualToString:@"v"]) {
+                selector = @selector(paste:);
+            } else if ([chars isEqualToString:@"x"]) {
+                selector = @selector(cut:);
+            } else if ([chars isEqualToString:@"a"]) {
+                selector = @selector(selectAll:);
+            }
+        }
+
+        if (selector != NULL) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            [self performSelector:selector];
+#pragma clang diagnostic pop
+            return true;
+        }
+    }
+
+    unsigned int modifiers = 0;
+    if (modifier & NSEventModifierFlagControl)
+        modifiers |= Control;
+    if (modifier & NSEventModifierFlagShift)
+        modifiers |= Shift;
+    if (modifier & NSEventModifierFlagOption)
+        modifiers |= Alt;
+    if (modifier & NSEventModifierFlagCommand)
+        modifiers |= Windows;
+    auto physicalKey = getAvnPhysicalKeyForCode(code);
+
+    if (physicalKey != 0
+        && (modifiers != 0 || (physicalKey >= AvnPhysicalKeyF1 && physicalKey <= AvnPhysicalKeyF12)))
+    {
+        auto delegate = [self navigationDelegate];
+        auto handler = (WebViewDelegate*)delegate;
+        if (handler)
+        {
+            bool handled = false;
+
+            if (modifiers != 0) {
+                if (modifier & NSEventModifierFlagControl)
+                    [handler onKeyDown: AvnPhysicalKeyControlLeft withMods:AvnInputModifiersNone];
+                if (modifier & NSEventModifierFlagShift)
+                    [handler onKeyDown: AvnPhysicalKeyShiftLeft withMods:AvnInputModifiersNone];
+                if (modifier & NSEventModifierFlagOption)
+                    [handler onKeyDown: AvnPhysicalKeyAltLeft withMods:AvnInputModifiersNone];
+                if (modifier & NSEventModifierFlagCommand)
+                    [handler onKeyDown: AvnPhysicalKeyMetaLeft withMods:AvnInputModifiersNone];
+            }
+
+            handled = [handler onKeyDown: physicalKey withMods:(AvnInputModifiers)modifiers]
+                && [handler onKeyUp: physicalKey withMods:(AvnInputModifiers)modifiers];
+
+            if (modifiers != 0) {
+                if (modifier & NSEventModifierFlagControl)
+                    [handler onKeyUp: AvnPhysicalKeyControlLeft withMods:AvnInputModifiersNone];
+                if (modifier & NSEventModifierFlagShift)
+                    [handler onKeyUp: AvnPhysicalKeyShiftLeft withMods:AvnInputModifiersNone];
+                if (modifier & NSEventModifierFlagOption)
+                    [handler onKeyUp: AvnPhysicalKeyAltLeft withMods:AvnInputModifiersNone];
+                if (modifier & NSEventModifierFlagCommand)
+                    [handler onKeyUp: AvnPhysicalKeyMetaLeft withMods:AvnInputModifiersNone];
+            }
+
+            if (handled)
+                return true;
+        }
+    }
+
+    return [super performKeyEquivalent: theEvent];
+}
+- (void)keyDown:(NSEvent *)event {
+    [super keyDown: event];
+}
+- (void)keyUp:(NSEvent *)event {
+    [super keyUp: event];
+}
+- (void)flagsChanged:(NSEvent *)event {
+    [super flagsChanged: event];
+}
 - (BOOL)becomeFirstResponder {
     if (![super becomeFirstResponder])
         return false;
@@ -342,7 +368,12 @@ public:
 - (void)onResignedFirstResponder {
     handler->OnResignedFirstResponder();
 }
-
+- (BOOL)onKeyDown: (AvnPhysicalKey) key withMods: (AvnInputModifiers) mod {
+    return handler->OnKeyDown(mod, key);
+}
+- (BOOL)onKeyUp: (AvnPhysicalKey) key withMods: (AvnInputModifiers) mod {
+    return handler->OnKeyUp(mod, key);
+}
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
     if (handler == nullptr) return;

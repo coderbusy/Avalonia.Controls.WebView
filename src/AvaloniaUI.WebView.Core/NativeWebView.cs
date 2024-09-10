@@ -1,6 +1,5 @@
 #if AVALONIA || WPF
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using AvaloniaUI.WebView.NativeMac;
@@ -16,6 +15,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 #endif
 
 namespace AvaloniaUI.WebView;
@@ -233,6 +233,24 @@ public class NativeWebView : NativeControlHost, IWebView
         // no-op?
     }
 
+    private void WithInputOnInput(Avalonia.Interactivity.RoutedEventArgs obj)
+    {
+        Avalonia.Input.IInputElement element;
+#if AVALONIA
+        element = this;
+#elif WPF
+        var window = Window.GetWindow(this)!;
+        var avWindow = XpfWpfAbstraction.GetAvaloniaWindowForWindow(window);
+        if (avWindow is null)
+        {
+            return;
+        }
+
+        element = avWindow.FocusManager?.GetFocusedElement() ?? avWindow;
+#endif
+        element.RaiseEvent(obj);
+    }
+
     private void WebViewAdapterOnInitialized(object? sender, EventArgs e)
     {
         var adapter = (IWebViewAdapter)sender!;
@@ -244,6 +262,11 @@ public class NativeWebView : NativeControlHost, IWebView
         {
             withFocus.LostFocus += WithFocusOnLostFocus;
             withFocus.GotFocus += WithFocusOnGotFocus;
+        }
+
+        if (adapter is IWebViewAdapterWithInputRedirect withInput)
+        {
+            withInput.Input += WithInputOnInput;
         }
 
         _webViewReadyCompletion.TrySetResult(adapter);
@@ -348,6 +371,10 @@ public class NativeWebView : NativeControlHost, IWebView
             {
                 withFocus.LostFocus -= WithFocusOnLostFocus;
                 withFocus.GotFocus -= WithFocusOnGotFocus;
+            }
+            if (adapter is IWebViewAdapterWithInputRedirect withInput)
+            {
+                withInput.Input -= WithInputOnInput;
             }
             adapter.Dispose();
         }

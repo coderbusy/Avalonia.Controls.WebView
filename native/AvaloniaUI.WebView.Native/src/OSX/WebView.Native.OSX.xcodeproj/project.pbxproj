@@ -19,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		ED0BC0512C8FCF8100BDD38C /* KeyTransform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeyTransform.h; sourceTree = "<group>"; };
 		ED1EA5CD2C8154840048C44C /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		ED8346FF2A7354FC00B5DE07 /* libWebView.Native.OSX.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libWebView.Native.OSX.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED83470B2A73559B00B5DE07 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -47,6 +48,7 @@
 		ED8346F62A7354FC00B5DE07 = {
 			isa = PBXGroup;
 			children = (
+				ED0BC0512C8FCF8100BDD38C /* KeyTransform.h */,
 				ED8347142A7355A600B5DE07 /* headers */,
 				ED83470C2A73559B00B5DE07 /* AvnString.h */,
 				ED83470E2A73559C00B5DE07 /* AvnString.mm */,

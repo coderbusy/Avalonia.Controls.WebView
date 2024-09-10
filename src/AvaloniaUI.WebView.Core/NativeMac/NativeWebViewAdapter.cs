@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Platform;
+using Avalonia.Threading;
 
 namespace AvaloniaUI.WebView.NativeMac;
 
 [SupportedOSPlatform("macOS")]
-internal sealed class NativeWebViewAdapter : IWebViewAdapterWithFocus
+internal sealed class NativeWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWithInputRedirect
 {
     private readonly NativeWebViewCallbacks _callbacks;
     private readonly INativeWebView _nativeWebView;
@@ -35,8 +37,10 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapterWithFocus
     public event EventHandler<WebViewNavigationCompletedEventArgs>? NavigationCompleted;
     public event EventHandler<WebViewNavigationStartingEventArgs>? NavigationStarted;
     public event EventHandler<WebMessageReceivedEventArgs>? WebMessageReceived;
+
     public event EventHandler? GotFocus;
     public event EventHandler? LostFocus;
+    public event Action<RoutedEventArgs>? Input;
     public bool CanGoBack => _nativeWebView.CanGoBack == 1;
     public bool CanGoForward => _nativeWebView.CanGoForward == 1;
 
@@ -157,6 +161,11 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapterWithFocus
         GotFocus?.Invoke(this, EventArgs.Empty);
     }
 
+    private void OnInput(RoutedEventArgs args)
+    {
+        Input?.Invoke(args);
+    }
+
     private void CurrentDomainOnProcessExit(object? sender, EventArgs e)
     {
         Dispose();
@@ -164,6 +173,8 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapterWithFocus
 
     private class NativeWebViewCallbacks(NativeWebViewAdapter adapter) : CallbackBase, INativeWebViewHandlers
     {
+        private INativeWebViewHandlers _nativeWebViewHandlersImplementation;
+
         public void OnScriptResult(int id, int isError, IAvnString ppv)
         {
             using (ppv)
@@ -196,14 +207,42 @@ internal sealed class NativeWebViewAdapter : IWebViewAdapterWithFocus
             }
         }
 
-        public unsafe void OnBecameFirstResponder()
+        public void OnBecameFirstResponder()
         {
             adapter.OnGotFocus();
         }
 
-        public unsafe void OnResignedFirstResponder()
+        public void OnResignedFirstResponder()
         {
             adapter.OnLostFocus();
+        }
+
+        public int OnKeyDown(AvnInputModifiers modifiers, AvnPhysicalKey physicalKey)
+        {
+            var args = new KeyEventArgs
+            {
+                RoutedEvent = InputElement.KeyDownEvent,
+                Route = RoutingStrategies.Bubble,
+                PhysicalKey = (PhysicalKey)physicalKey,
+                Key = ((PhysicalKey)physicalKey).ToQwertyKey(),
+                KeyModifiers = (KeyModifiers)modifiers
+            };
+            Dispatcher.UIThread.Invoke(() => adapter.OnInput(args), DispatcherPriority.Input);
+            return args.Handled ? 1 : 0;
+        }
+
+        public int OnKeyUp(AvnInputModifiers modifiers, AvnPhysicalKey physicalKey)
+        {
+            var args = new KeyEventArgs
+            {
+                RoutedEvent = InputElement.KeyUpEvent,
+                Route = RoutingStrategies.Bubble,
+                PhysicalKey = (PhysicalKey)physicalKey,
+                Key = ((PhysicalKey)physicalKey).ToQwertyKey(),
+                KeyModifiers = (KeyModifiers)modifiers
+            };
+            Dispatcher.UIThread.Invoke(() => adapter.OnInput(args), DispatcherPriority.Input);
+            return args.Handled ? 1 : 0;
         }
     }
 }
