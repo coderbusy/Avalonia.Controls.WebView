@@ -24,6 +24,7 @@ jobs:
         name: packages
         path: ${{github.workspace}}/artifacts/packages
         if-no-files-found: error
+        retention-days: 1 # we consume this artifact right away, no need to keep it longer
 
   upload:
     runs-on: [self-hosted, Linux]
