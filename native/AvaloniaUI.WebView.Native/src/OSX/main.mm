@@ -391,24 +391,33 @@ public:
     handler = nil;
 }
 - (void)onBecameFirstResponder {
-    handler->OnBecameFirstResponder();
+    if (handler)
+        handler->OnBecameFirstResponder();
 }
 - (void)onResignedFirstResponder {
-    handler->OnResignedFirstResponder();
+    if (handler)
+        handler->OnResignedFirstResponder();
 }
 - (BOOL)onKeyDown: (AvnPhysicalKey) key withMods: (AvnInputModifiers) mod {
-    return handler->OnKeyDown(mod, key);
+    if (handler)
+        return handler->OnKeyDown(mod, key);
+    return false;
 }
 - (BOOL)onKeyUp: (AvnPhysicalKey) key withMods: (AvnInputModifiers) mod {
-    return handler->OnKeyUp(mod, key);
+    if (handler)
+        return handler->OnKeyUp(mod, key);
+    return false;
 }
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
 {
-    if (handler == nullptr) return;
+    if (handler == nil) return;
 
     [self notifyOnNavigationCompleted: webView.URL.absoluteString];
 }
-- (void) notifyOnNavigationCompleted:(NSString*)url {
+- (void) notifyOnNavigationCompleted:(NSString*)url
+{
+    if (handler == nil) return;
+
     @autoreleasepool
     {
         auto str = CreateAvnString(url);
@@ -420,7 +429,7 @@ public:
     decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
     decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    if (handler == nullptr) return;
+    if (handler == nil) return;
 
     bool cancel = false;
     [self notifyOnNavigationStarted: webView.URL.absoluteString withCancel: &cancel];
@@ -435,6 +444,8 @@ public:
 }
 - (void) notifyOnNavigationStarted:(NSString*)url withCancel:(bool*) cancel {
     
+    if (handler == nil) return;
+
     @autoreleasepool
     {
         auto str = CreateAvnString(url);
@@ -444,7 +455,7 @@ public:
 
 -(void)onScriptResult:(int)index withResult:(id)result withError:(NSError*)error
 {
-    if (handler == nullptr) return;
+    if (handler == nil) return;
 
     @autoreleasepool
     {
@@ -461,6 +472,8 @@ public:
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
 {
+    if (handler == nil) return;
+
     if ([message.name isEqualToString:@"postWebViewMessage"])
     {
         @autoreleasepool
