@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace AvaloniaUI.WebView.Macios.Interop;
+namespace AppleInterop;
 
 internal partial class WebKit
 {

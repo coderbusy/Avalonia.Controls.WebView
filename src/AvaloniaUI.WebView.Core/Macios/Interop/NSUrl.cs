@@ -1,21 +1,19 @@
 using System;
 
-namespace AvaloniaUI.WebView.Macios.Interop;
+namespace AppleInterop;
 
 internal class NSUrl : NSObject
 {
-    private static readonly IntPtr s_class = Libobjc.objc_getClass("NSUrl");
-    private static readonly IntPtr s_initWithUrl = Libobjc.sel_getUid("initWithString:");
+    private static readonly IntPtr s_class = Foundation.objc_getClass("NSURL");
+    private static readonly IntPtr s_createWithUrl = Libobjc.sel_getUid("URLWithString:");
     private static readonly IntPtr s_absoluteString = Libobjc.sel_getUid("absoluteString");
 
-    public NSUrl(IntPtr handle)
+    public NSUrl(IntPtr handle, bool owns) : base(handle, owns)
     {
-        Handle = handle;
     }
 
-    public NSUrl(string uriStr) : base(s_class)
+    public NSUrl(NSString nsString) : this(Libobjc.intptr_objc_msgSend(s_class, s_createWithUrl, nsString.Handle), true)
     {
-        Handle = Libobjc.intptr_objc_msgSend(Handle, s_initWithUrl, NSString.Create(uriStr));
     }
 
     public string? AbsoluteString
