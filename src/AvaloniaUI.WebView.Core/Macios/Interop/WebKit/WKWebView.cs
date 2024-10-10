@@ -54,7 +54,9 @@ internal class WKWebView : AppleView
         }
     }
 
-    public NSUrl Url => new(Libobjc.intptr_objc_msgSend(Handle, s_url), false);
+    public NSUrl? Url => Libobjc.intptr_objc_msgSend(Handle, s_url) is var handle && handle != default ?
+        new(handle, false) :
+        null;
 
     public bool CanGoBack => Libobjc.int_objc_msgSend(Handle, s_canGoBack) == 1;
     public bool CanGoForward => Libobjc.int_objc_msgSend(Handle, s_canGoForward) == 1;
@@ -102,8 +104,7 @@ internal class WKWebView : AppleView
 
         if (nsError != default)
         {
-            var errorStr = new NSError(nsError).LocalizedDescription;
-            _ = tcs?.TrySetException(new Exception(errorStr ?? "Unknown error from EvaluateJavaScriptAsync"));
+            _ = tcs?.TrySetException(NSError.ToException(nsError));
         }
         else
         {

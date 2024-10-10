@@ -23,20 +23,31 @@ internal unsafe ref struct BlockDescriptor
 [StructLayout (LayoutKind.Sequential)]
 internal ref struct BlockLiteral(IntPtr invoke)
 {
-    static IntPtr block_class;
+    static IntPtr stackBlock_class, globalBlock_class;
     static IntPtr NSConcreteStackBlock
     {
         get
         {
-            if (block_class == IntPtr.Zero)
+            if (stackBlock_class == IntPtr.Zero)
             {
-                block_class = Libobjc.dlsym (Libobjc.LinkLibSystem(), "_NSConcreteGlobalBlock"); // _NSConcreteGlobalBlock
+                stackBlock_class = Libobjc.dlsym (Libobjc.LinkLibSystem(), "_NSConcreteStackBlock");
             }
-            return block_class;
+            return stackBlock_class;
+        }
+    }
+    static IntPtr NSConcreteGlobalBlock
+    {
+        get
+        {
+            if (globalBlock_class == IntPtr.Zero)
+            {
+                globalBlock_class = Libobjc.dlsym (Libobjc.LinkLibSystem(), "_NSConcreteGlobalBlock");
+            }
+            return globalBlock_class;
         }
     }
 
-    private IntPtr isa = NSConcreteStackBlock;
+    private IntPtr isa;
     private BlockFlags flags = 0;
     private int reserved;
     private IntPtr invoke = invoke;
@@ -63,6 +74,16 @@ internal ref struct BlockLiteral(IntPtr invoke)
     public static unsafe IntPtr GetBlockForFunctionPointer(IntPtr callback, IntPtr state)
     {
         var block = new BlockLiteral(callback);
+        block.isa = NSConcreteGlobalBlock;
+        block.state = state;
+
+        return Libobjc._Block_copy(&block);
+    }
+
+    public static unsafe IntPtr GetStackBlockForFunctionPointer(IntPtr callback, IntPtr state)
+    {
+        var block = new BlockLiteral(callback);
+        block.isa = NSConcreteStackBlock;
         block.state = state;
 
         return Libobjc._Block_copy(&block);

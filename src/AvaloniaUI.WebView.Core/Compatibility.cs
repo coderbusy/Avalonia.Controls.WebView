@@ -17,6 +17,10 @@ internal sealed class OperatingSystemEx
     public static bool IsIOS() => OperatingSystem.IsIOS();
     [SupportedOSPlatformGuard("browser")]
     public static bool IsBrowser() => OperatingSystem.IsBrowser();
+    [SupportedOSPlatformGuard("ios")]
+    public static bool IsIOSVersionAtLeast(int i, int i1) => OperatingSystem.IsIOSVersionAtLeast(i, i1);
+    [SupportedOSPlatformGuard("macos")]
+    public static bool IsMacOSVersionAtLeast(int i, int i1) => OperatingSystem.IsMacOSVersionAtLeast(i, i1);
     public static bool IsOSPlatform(string platform) => OperatingSystem.IsOSPlatform(platform);
 #else
     [SupportedOSPlatformGuard("windows6.1")]
@@ -31,6 +35,8 @@ internal sealed class OperatingSystemEx
     public static bool IsIOS() => IsOSPlatform("IOS");
     [SupportedOSPlatformGuard("browser")]
     public static bool IsBrowser() => IsOSPlatform("BROWSER");
+    public static bool IsIOSVersionAtLeast(int i, int i1) => false;
+    public static bool IsMacOSVersionAtLeast(int i, int i1) => IsMacOS() && i < 14;
     public static bool IsOSPlatform(string platform) => RuntimeInformation.IsOSPlatform(OSPlatform.Create(platform));
 #endif
 }

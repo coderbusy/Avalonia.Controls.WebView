@@ -19,6 +19,21 @@
                 <TextBox IsReadOnly="True" Grid.Row="1" x:Name="LogList" />
             </Grid>
         </TabItem>
+        <TabItem Header="WebAuthenticationBroker">
+            <StackPanel>
+                <TextBox x:Name="RequestUri"
+                         UseFloatingWatermark="True"
+                         Watermark="Request Uri" />
+                <TextBox x:Name="RedirectUri"
+                         UseFloatingWatermark="True"
+                         Watermark="Redirect Uri" />
+                <Button Content="Go" Click="WebAuthenticationBrokerButton_OnClick" />
+                <TextBox x:Name="CallbackUri"
+                         AcceptsReturn="True"
+                         UseFloatingWatermark="True"
+                         Watermark="Callback Uri" />
+            </StackPanel>
+        </TabItem>
     </TabControl>
 </UserControl>
 

@@ -1,5 +1,7 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace AvaloniaUI.WebView.Avalonia.Samples;
 
@@ -8,6 +10,10 @@ public partial class MainView : UserControl
     public MainView()
     {
         InitializeComponent();
+
+        var (requestUri, redirectUri) = GetGoogleAuth();
+        RequestUri.Text = requestUri;
+        RedirectUri.Text = redirectUri;
     }
 
     private async void NativeWebView_OnNavigationCompleted(object? sender, WebViewNavigationCompletedEventArgs e)
@@ -45,6 +51,38 @@ public partial class MainView : UserControl
     private void Window_OnKeyUp(object? sender, KeyEventArgs e)
     {
         LogList.Text += "\r\nWindow_OnKeyUp " + e.Key + " " + e.KeyModifiers;
+    }
+
+    private async void WebAuthenticationBrokerButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var topLevel = TopLevel.GetTopLevel(this);
+            var options = new WebAuthenticatorOptions(new Uri(RequestUri.Text!), new Uri(RedirectUri.Text!));
+
+            var result = await WebAuthenticationBroker.AuthenticateAsync(topLevel!, options);
+
+            CallbackUri.Text = result.CallbackUri.ToString();
+        }
+        catch (Exception ex)
+        {
+            CallbackUri.Text = ex.Message;
+        }
+    }
+
+    private static (string requestUri, string redirectUri) GetGoogleAuth()
+    {
+        var redirectUri = OperatingSystem.IsIOS() ?
+            "com.googleusercontent.apps.457602913817-kd2547t40mrvqi63c4m7lphs5s6s5lt2://" :
+            "http://localhost";
+        var clientId = OperatingSystem.IsIOS() ?
+            "457602913817-kd2547t40mrvqi63c4m7lphs5s6s5lt2.apps.googleusercontent.com" :
+            "457602913817-2qhv0sr6d08gvs3amj3vjpnodt7hnfai.apps.googleusercontent.com";
+
+        var requestUri = "https://accounts.google.com/o/oauth2/auth?response_type=code&access_type=offline&scope=openid";
+        requestUri += "&client_id=" + clientId;
+        requestUri += "&redirect_uri=" + redirectUri;
+        return (requestUri, redirectUri);
     }
 }
 

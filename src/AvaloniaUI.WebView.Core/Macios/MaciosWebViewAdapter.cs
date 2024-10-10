@@ -16,8 +16,8 @@ namespace AvaloniaUI.WebView.Macios;
 public class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWithInputRedirect
 {
     private const string PostAvWebViewMessageName = "postAvWebViewMessage";
-    private static readonly NSString s_postAvWebViewMessageName = NSString.Create(PostAvWebViewMessageName);
 
+    private readonly NSString _postAvWebViewMessageName = NSString.Create(PostAvWebViewMessageName);
     private readonly WKWebViewConfiguration _config;
     private readonly WKWebView _webView;
     private readonly WKNavigationDelegate _navDelegate;
@@ -29,7 +29,7 @@ public class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWit
         _scriptHandler.DidReceiveScriptMessage += OnScriptHandlerOnDidReceiveScriptMessage;
 
         _config = new WKWebViewConfiguration { JavaScriptEnabled = true };
-        _config.AddScriptMessageHandler(_scriptHandler, s_postAvWebViewMessageName);
+        _config.AddScriptMessageHandler(_scriptHandler, _postAvWebViewMessageName);
 
         var enableDevTools = AvaloniaLocator.Current.GetService<WebViewOptions>()?.EnableDevTools == true;
         if (enableDevTools)
@@ -73,7 +73,7 @@ public class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWit
         get
         {
             using var sourceUrl = _webView.Url;
-            return Uri.TryCreate(sourceUrl.AbsoluteString, UriKind.RelativeOrAbsolute, out var source) ?
+            return Uri.TryCreate(sourceUrl?.AbsoluteString, UriKind.RelativeOrAbsolute, out var source) ?
                 source :
                 WebViewHelper.EmptyPage;
         }
@@ -124,7 +124,7 @@ public class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWit
         _webView.BecomeFirstResponder -= OnWebViewOnBecomeFirstResponder;
         _webView.ResignFirstResponder -= OnWebViewOnResignFirstResponder;
 
-        _config.RemoveScriptMessageHandler(s_postAvWebViewMessageName);
+        _config.RemoveScriptMessageHandler(_postAvWebViewMessageName);
         _webView.NavigationDelegate = null;
         _webView.LoadRequest(null);
 

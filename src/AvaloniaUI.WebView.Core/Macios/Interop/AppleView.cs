@@ -126,7 +126,9 @@ internal abstract unsafe class AppleView : NSManagedObjectBase
     }
 
     public void RemoveFromSuperview() => Libobjc.void_objc_msgSend(Handle, s_removeFromSuperview);
-    
+
+    public static IntPtr GetWindow(IntPtr view) => Libobjc.intptr_objc_msgSend(view, s_window);
+
     public class PerformKeyEquivalentEventArgs : HandledEventArgs
     {
         public NSEvent Event { get; init; }

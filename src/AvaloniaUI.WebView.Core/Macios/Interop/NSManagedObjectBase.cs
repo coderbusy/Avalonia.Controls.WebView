@@ -28,7 +28,7 @@ internal unsafe class NSManagedObjectBase : NSObject
     {
         int result;
 
-#if DEBUG
+#if DEBUG && FALSE
         result = Libobjc.class_addMethod(delegateClass, Libobjc.sel_getUid("dealloc"), s_dealloc, "v@:");
         Debug.Assert(result == 1);
 
