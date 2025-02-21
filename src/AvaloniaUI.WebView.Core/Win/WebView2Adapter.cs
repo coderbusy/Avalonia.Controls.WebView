@@ -149,7 +149,8 @@ internal class WebView2Adapter : IWebViewAdapter
             NavigationCompleted?.Invoke(this,
                 new WebViewNavigationCompletedEventArgs
                 {
-                    Request = new Uri(((CoreWebView2)sender!).Source), IsSuccess = e.IsSuccess
+                    Request = new Uri(((CoreWebView2)sender!).Source),
+                    IsSuccess = e.IsSuccess
                 });
         }
 

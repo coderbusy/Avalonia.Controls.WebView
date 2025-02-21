@@ -16,8 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\AvaloniaUI.WebView.Core\NativeWebView.cs">
+    <Compile Include="..\AvaloniaUI.WebView.Avalonia\NativeWebView.cs">
       <Link>NativeWebView.cs</Link>
+    </Compile>
+    <Compile Include="..\AvaloniaUI.WebView.Avalonia\NativeWebViewControlHost.cs">
+      <Link>NativeWebViewControlHost.cs</Link>
     </Compile>
   </ItemGroup>
 </Project>

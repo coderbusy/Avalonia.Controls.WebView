@@ -86,6 +86,21 @@ public partial class MainView : UserControl
     private void Window_OnKeyDown(object? sender, KeyEventArgs e)
     {
         LogList.Text += "\r\nWindow_OnKeyDown " + e.Key + " " + e.KeyModifiers;
+
+        if (e.Key == Key.P)
+        {
+            using (WebView.BeginReparenting())
+            {
+                var currentTab = (TabItem)GridContainer.Parent!;
+                currentTab.Content = null;
+                var index = TabControl.Items.Add(new TabItem
+                {
+                    Header = "New Tab",
+                    Content = GridContainer
+                });
+                TabControl.SelectedIndex = index;
+            }
+        }
     }
 
     private void InputElement_OnKeyUp(object? sender, KeyEventArgs e)
