@@ -39,6 +39,11 @@ internal interface INativeWebViewDialog : IDisposable
     string? Title { get; set; }
 
     /// <summary>
+    /// Gets or sets if WebView dialog is resizable by user. 
+    /// </summary>
+    bool CanUserResize { get; set; }
+
+    /// <summary>
     /// Fired before WebView dialog is closed.
     /// </summary>
     event EventHandler Closing;
@@ -57,6 +62,16 @@ internal interface INativeWebViewDialog : IDisposable
     /// Closes the WebView dialog.
     /// </summary>
     void Close();
+
+    /// <summary>
+    /// Resizes the WebView dialog.
+    /// </summary>
+    bool Resize(int width, int height);
+
+    /// <summary>
+    /// Moves the WebView dialog. Values are defined in screen coordinates.
+    /// </summary>
+    bool Move(int x, int y);
 
     /// <summary>
     /// Gets platform handle of the dialog itself.

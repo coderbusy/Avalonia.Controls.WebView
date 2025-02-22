@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Platform;
 #if WPF
 using System.Windows;
 using AvaloniaUI.Xpf.WpfAbstractions;
+using WindowStartupLocation = System.Windows.WindowStartupLocation;
 #elif AVALONIA
 using Avalonia.Controls;
+using WindowStartupLocation = Avalonia.Controls.WindowStartupLocation;
 #endif
 
 namespace AvaloniaUI.WebView;
@@ -18,6 +21,7 @@ internal class WindowNativeWebViewDialog : Window, INativeWebViewDialog
     public WindowNativeWebViewDialog()
     {
         Content = _nativeWebView;
+        WindowStartupLocation = WindowStartupLocation.CenterOwner;
         _nativeWebView.NavigationCompleted += (_, a) => NavigationCompleted?.Invoke(this, a);
         _nativeWebView.NavigationStarted += (_, a) => NavigationStarted?.Invoke(this, a);
         _nativeWebView.WebMessageReceived += (_, a) => WebMessageReceived?.Invoke(this, a);
@@ -32,6 +36,12 @@ internal class WindowNativeWebViewDialog : Window, INativeWebViewDialog
 
     public bool CanGoBack => _nativeWebView.CanGoBack;
     public bool CanGoForward => _nativeWebView.CanGoForward;
+
+#if WPF
+    public bool CanUserResize { get => ResizeMode != ResizeMode.NoResize; set => ResizeMode = value ? ResizeMode.CanResize : ResizeMode.NoResize; }
+#elif AVALONIA
+    public bool CanUserResize { get => CanResize; set => CanResize = value; }
+#endif
 
     public Uri Source
     {
@@ -59,6 +69,24 @@ internal class WindowNativeWebViewDialog : Window, INativeWebViewDialog
     }
 
     bool INativeWebViewDialog.Show(IPlatformHandle _) => false;
+
+    public bool Resize(int width, int height)
+    {
+        Width = width;
+        Height = height;
+        return true;
+    }
+
+    public bool Move(int x, int y)
+    {
+#if WPF
+        Left = x;
+        Top = y;
+#elif AVALONIA
+        Position = new PixelPoint(x, y);
+#endif
+        return true;
+    }
 
 #if WPF
     public IPlatformHandle? TryGetPlatformHandle() => XpfWpfAbstraction.GetAvaloniaTopLevelForWindow(this)?.TryGetPlatformHandle();

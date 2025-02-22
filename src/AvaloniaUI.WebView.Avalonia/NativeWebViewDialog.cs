@@ -58,6 +58,10 @@ public class NativeWebViewDialog : IWebView, INativeWebViewDialog
 
     /// <inheritdoc/>
     public string? Title { get => _impl.Title; set => _impl.Title = value; }
+
+    /// <inheritdoc/>
+    public bool CanUserResize { get => _impl.CanUserResize; set => _impl.CanUserResize = value; }
+
     /// <inheritdoc/>
     public event EventHandler? Closing;
     /// <inheritdoc/>
@@ -99,6 +103,12 @@ public class NativeWebViewDialog : IWebView, INativeWebViewDialog
 
     /// <inheritdoc/>
     public void Close() => _impl.Close();
+
+    /// <inheritdoc/>
+    public bool Resize(int width, int height) => _impl.Resize(width, height);
+
+    /// <inheritdoc/>
+    public bool Move(int x, int y) => _impl.Move(x, y);
 
     /// <inheritdoc/>
     public IPlatformHandle? TryGetPlatformHandle() => _impl.TryGetPlatformHandle();

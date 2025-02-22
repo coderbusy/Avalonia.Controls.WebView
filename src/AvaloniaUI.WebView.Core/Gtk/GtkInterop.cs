@@ -89,6 +89,21 @@ internal static unsafe partial class GtkInterop
     internal static extern IntPtr gtk_window_new(int type);
 
     [DllImport(LibGtk)]
+    internal static extern void gtk_window_resize(IntPtr window, int width, int height);
+
+    [DllImport(LibGtk)]
+    internal static extern void gtk_window_move(IntPtr window, int x, int y);
+
+    [DllImport(LibGtk)]
+    internal static extern void gtk_window_set_resizable(IntPtr window, bool value);
+
+    [DllImport(LibGtk)]
+    internal static extern bool gtk_window_get_resizable(IntPtr window);
+
+    [DllImport(LibGtk)]
+    internal static extern void gtk_window_set_position(IntPtr window, int positionType);
+
+    [DllImport(LibGtk)]
     internal static extern void gtk_widget_realize(IntPtr gtkWidget);
 
     [DllImport(LibGtk)]

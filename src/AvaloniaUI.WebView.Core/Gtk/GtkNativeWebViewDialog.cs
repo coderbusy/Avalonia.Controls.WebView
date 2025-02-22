@@ -17,6 +17,9 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog
     private bool _disposed;
     private GtkSignal? _signal;
 
+    private bool _canUserResizeTemp = true;
+    private bool _isShown;
+
     public GtkNativeWebViewDialog()
     {
         _windowHandle = RunOnGlibThread(static () =>
@@ -39,6 +42,23 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog
     }
 
     public IWebView WebView => _nativeWebView;
+
+    public bool CanUserResize
+    {
+        get => _isShown ? RunOnGlibThread(() => gtk_window_get_resizable(_windowHandle)) : _canUserResizeTemp;
+        set
+        {
+            if (_isShown)
+            {
+                RunOnGlibThread(() => gtk_window_set_resizable(_windowHandle, value));
+            }
+            else
+            {
+                _canUserResizeTemp = value;
+            }
+        }
+    }
+
     public event EventHandler? Closing;
 
     public string? Title
@@ -73,6 +93,7 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog
     {
         gtk_widget_show_all(_windowHandle);
         gtk_window_present(_windowHandle);
+        _isShown = true;
     });
 
     public bool Show(IPlatformHandle owner)
@@ -92,8 +113,14 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog
             {
                 gdk_window_set_transient_for(window, parent);
             }
+            gtk_window_set_position(_windowHandle, 4);
             gtk_widget_show_all(_windowHandle);
             gtk_window_present(_windowHandle);
+            if (!_canUserResizeTemp)
+            {
+                gtk_window_set_resizable(_windowHandle, false);
+            }
+            _isShown = true;
 
             return true;
         });
@@ -108,6 +135,18 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog
         }
 
         _nativeWebView.Dispose();
+    }
+
+    public bool Resize(int width, int height)
+    {
+        RunOnGlibThread(() => gtk_window_resize(_windowHandle, width, height));
+        return true;
+    }
+
+    public bool Move(int x, int y)
+    {
+        RunOnGlibThread(() => gtk_window_move(_windowHandle, x, y));
+        return true;
     }
 
     public IPlatformHandle? TryGetPlatformHandle() => new PlatformHandle(_windowHandle, "GtkWindow");

@@ -56,6 +56,9 @@ public static class WebAuthenticationBroker
         {
             dialog.Title = "Authentication";
             dialog.Source = options.RequestUri;
+            dialog.CanUserResize = false;
+            dialog.Resize(600, 700);
+
             dialog.Show(topLevel);
 
             return await tcs.Task;
