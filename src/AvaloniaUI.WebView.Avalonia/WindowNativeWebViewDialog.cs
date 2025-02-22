@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Avalonia.Platform;
 #if WPF
 using System.Windows;
+using AvaloniaUI.Xpf.WpfAbstractions;
 #elif AVALONIA
 using Avalonia.Controls;
 #endif
@@ -20,6 +21,8 @@ internal class WindowNativeWebViewDialog : Window, INativeWebViewDialog
         _nativeWebView.NavigationStarted += (_, a) => NavigationStarted?.Invoke(this, a);
         _nativeWebView.WebMessageReceived += (_, a) => WebMessageReceived?.Invoke(this, a);
     }
+
+    public IWebView WebView => _nativeWebView;
 
     public bool CanGoBack => _nativeWebView.CanGoBack;
     public bool CanGoForward => _nativeWebView.CanGoForward;
@@ -43,5 +46,9 @@ internal class WindowNativeWebViewDialog : Window, INativeWebViewDialog
 
     public void Dispose() {}
 
-    void INativeWebViewDialog.Show(IPlatformHandle _) => Show();
+    void INativeWebViewDialog.Show(IPlatformHandle _) => throw new NotSupportedException();
+
+#if WPF
+    public IPlatformHandle? TryGetPlatformHandle() => XpfWpfAbstraction.GetAvaloniaTopLevelForWindow(this)?.TryGetPlatformHandle();
+#endif
 }

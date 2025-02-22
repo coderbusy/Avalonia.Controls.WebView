@@ -22,6 +22,9 @@
     <Compile Include="..\AvaloniaUI.WebView.Avalonia\NativeWebViewControlHost.cs">
       <Link>NativeWebViewControlHost.cs</Link>
     </Compile>
+    <Compile Include="..\AvaloniaUI.WebView.Avalonia\NativeWebViewDialog.cs">
+      <Link>NativeWebViewDialog.cs</Link>
+    </Compile>
     <Compile Include="..\AvaloniaUI.WebView.Avalonia\WebAuthenticationBroker.cs">
       <Link>WebAuthenticationBroker.cs</Link>
     </Compile>

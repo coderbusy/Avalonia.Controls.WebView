@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using Avalonia.Platform;
+using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
+using PlatformHandle = Avalonia.Platform.PlatformHandle;
 using static AvaloniaUI.WebView.Gtk.GtkInterop;
 using static AvaloniaUI.WebView.Gtk.AvaloniaGtk;
 
 namespace AvaloniaUI.WebView.Gtk;
 
-public sealed class GtkNativeWebViewDialog : INativeWebViewDialog
+internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog
 {
     private readonly GtkWebViewAdapter _nativeWebView;
     private IntPtr _windowHandle;
@@ -23,9 +23,6 @@ public sealed class GtkNativeWebViewDialog : INativeWebViewDialog
         });
 
         _nativeWebView = new GtkWebViewAdapter();
-        _nativeWebView.NavigationCompleted += (_, a) => NavigationCompleted?.Invoke(this, a);
-        _nativeWebView.NavigationStarted += (_, a) => NavigationStarted?.Invoke(this, a);
-        _nativeWebView.WebMessageReceived += (_, a) => WebMessageReceived?.Invoke(this, a);
 
         _ = RunOnGlibThread(() =>
         {
@@ -35,6 +32,8 @@ public sealed class GtkNativeWebViewDialog : INativeWebViewDialog
             return 0;
         });
     }
+
+    public IWebView WebView => _nativeWebView;
 
     public string? Title
     {
@@ -104,25 +103,7 @@ public sealed class GtkNativeWebViewDialog : INativeWebViewDialog
         _nativeWebView.Dispose();
     }
 
-    public bool CanGoBack => _nativeWebView.CanGoBack;
-    public bool CanGoForward => _nativeWebView.CanGoForward;
-
-    public Uri Source
-    {
-        get => _nativeWebView.Source;
-        set => _nativeWebView.Source = value;
-    }
-
-    public event EventHandler<WebViewNavigationCompletedEventArgs>? NavigationCompleted;
-    public event EventHandler<WebViewNavigationStartingEventArgs>? NavigationStarted;
-    public event EventHandler<WebMessageReceivedEventArgs>? WebMessageReceived;
-    public bool GoBack() => _nativeWebView.GoBack();
-    public bool GoForward() => _nativeWebView.GoForward();
-    public Task<string?> InvokeScript(string script) => _nativeWebView.InvokeScript(script);
-    public void Navigate(Uri url) => _nativeWebView.Navigate(url);
-    public void NavigateToString(string text) => _nativeWebView.NavigateToString(text);
-    public bool Refresh() => _nativeWebView.Refresh();
-    public bool Stop() => _nativeWebView.Stop();
+    public IPlatformHandle? TryGetPlatformHandle() => new PlatformHandle(_windowHandle, "GtkWindow");
 
     private void Dispose(bool disposing)
     {

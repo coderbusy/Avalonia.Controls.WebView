@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Platform;
+using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
+using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
 
 namespace AvaloniaUI.WebView;
 
@@ -28,12 +26,14 @@ public class WebViewNavigationStartingEventArgs : WebViewNavigationEventArgs
     public bool Cancel { get; set; }
 }
 
-internal interface INativeWebViewDialog : IWebView, IDisposable
+internal interface INativeWebViewDialog : IDisposable
 {
+    IWebView WebView { get; }
     string? Title { get; set; }
     void Show();
     void Show(IPlatformHandle owner);
     void Close();
+    IPlatformHandle? TryGetPlatformHandle();
 }
 
 internal interface IWebView

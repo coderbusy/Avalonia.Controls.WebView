@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using AvaloniaUI.WebView.Gtk;
+using AvTopLevel = Avalonia.Controls.TopLevel;
 #if WPF
 using System.Windows;
 using AvaloniaUI.Xpf.WpfAbstractions;
@@ -16,34 +16,42 @@ public static class WebAuthenticationBroker
 #if WPF
         (Window topLevel, WebAuthenticatorOptions options)
 #elif AVALONIA
-        (TopLevel topLevel, WebAuthenticatorOptions options)
+        (AvTopLevel topLevel, WebAuthenticatorOptions options)
 #endif
     {
         var supportsNativeWebDialog =
             OperatingSystemEx.IsWindows() || OperatingSystemEx.IsLinux() || OperatingSystemEx.IsMacOS();
 
         if (!(supportsNativeWebDialog & options.PreferNativeWebViewDialog)
+            && GetAvTopLevel(topLevel) is { } avTopLevel
             && (OperatingSystemEx.IsIOSVersionAtLeast(13, 0) || OperatingSystemEx.IsMacOSVersionAtLeast(10, 15)))
         {
-#if WPF
-            var avTopLevel = XpfWpfAbstraction.GetAvaloniaTopLevelForWindow(topLevel);
-#elif AVALONIA
-            var avTopLevel = topLevel;
-#endif
             return MaciosWebAuthenticationBroker.AuthenticateAsync(avTopLevel, options);
         }
 
         if (supportsNativeWebDialog)
         {
-            return AuthenticateDialogAsync(topLevel as Window, options);
+            return AuthenticateDialogAsync(topLevel, options);
         }
 
         throw new PlatformNotSupportedException();
     }
 
-    private static async Task<WebAuthenticationResult> AuthenticateDialogAsync(Window? owner, WebAuthenticatorOptions options)
+#if WPF
+    private static AvTopLevel? GetAvTopLevel(Window window) =>
+        XpfWpfAbstraction.GetAvaloniaTopLevelForWindow(window);
+#elif AVALONIA
+    private static AvTopLevel? GetAvTopLevel(AvTopLevel topLevel) => topLevel;
+#endif
+
+    private static async Task<WebAuthenticationResult> AuthenticateDialogAsync
+#if WPF
+        (Window topLevel, WebAuthenticatorOptions options)
+#elif AVALONIA
+        (AvTopLevel topLevel, WebAuthenticatorOptions options)
+#endif
     {
-        using var dialog = CreateNativeDialog();
+        using var dialog = new NativeWebViewDialog();
         var tcs = new TaskCompletionSource<WebAuthenticationResult>();
 
         dialog.NavigationStarted += OnNavigationStarted;
@@ -52,16 +60,16 @@ public static class WebAuthenticationBroker
         {
             dialog.Title = "Authentication";
             dialog.Source = options.RequestUri;
-            if (dialog is WindowNativeWebViewDialog windowDialog && owner is not null)
+            if (topLevel is Window owner && dialog.TryGetWindow() is { } window)
             {
 #if WPF
-                windowDialog.Owner = owner;
-                windowDialog.Show();
+                window.Owner = owner;
+                window.Show();
 #elif AVALONIA
-                windowDialog.Show(owner);
+                window.Show(owner);
 #endif
             }
-            else if (owner?.TryGetPlatformHandle() is { } platformHandle)
+            else if (GetAvTopLevel(topLevel)?.TryGetPlatformHandle() is { } platformHandle)
             {
                 dialog.Show(platformHandle);
             }
@@ -93,12 +101,5 @@ public static class WebAuthenticationBroker
         return navigatingUri.Scheme == callbackUri.Scheme
                && navigatingUri.Host == callbackUri.Host
                && navigatingUri.AbsolutePath == callbackUri.AbsolutePath;
-    }
-
-    private static INativeWebViewDialog CreateNativeDialog()
-    {
-        if (OperatingSystemEx.IsLinux())
-            return new GtkNativeWebViewDialog();
-        return new WindowNativeWebViewDialog();
     }
 }
