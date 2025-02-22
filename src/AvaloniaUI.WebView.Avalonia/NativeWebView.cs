@@ -21,6 +21,10 @@ using Avalonia.Interactivity;
 
 namespace AvaloniaUI.WebView;
 
+/// <summary>
+/// NativeWebView is a control that provides a native web browser implementation for applications.
+/// It wraps platform-specific web controls and provides a unified API for web browsing functionality.
+/// </summary>
 public class NativeWebView : Control, IWebView
 {
     private bool _ignoreNavigation;

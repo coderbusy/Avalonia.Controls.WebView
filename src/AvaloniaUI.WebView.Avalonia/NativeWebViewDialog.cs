@@ -11,6 +11,10 @@ using Avalonia.Controls;
 
 namespace AvaloniaUI.WebView;
 
+/// <summary>
+/// <see cref="NativeWebViewDialog"/> is a dialog window that hosts a native web browser implementation.
+/// It provides a way to display web content in a separate window, particularly useful for platforms like Linux where embedded WebView controls might not be available.
+/// </summary>
 public class NativeWebViewDialog : IWebView, INativeWebViewDialog
 {
     private readonly INativeWebViewDialog _impl;

@@ -8,9 +8,17 @@ using AvaloniaUI.Xpf.WpfAbstractions;
 
 namespace AvaloniaUI.WebView;
 
+/// <summary>
+/// <see cref="WebAuthenticationBroker"/> is a utility class that facilitates OAuth and other web-based authentication flows by providing a secure way to handle web authentication in applications.
+/// </summary>
 public static class WebAuthenticationBroker
 {
-    public static Task<WebAuthenticationResult> AuthenticateAsync
+    /// <summary>
+    /// Starts an authentication flow by navigating to the specified start URI and monitoring for navigation to the end URI.
+    /// </summary>
+    /// <exception cref="PlatformNotSupportedException">Platform is not supported.</exception>
+    /// <exception cref="OperationCanceledException">Operation was cancelled programmatically or by user.</exception>
+    public static async Task<WebAuthenticationResult> AuthenticateAsync
 #if WPF
         (Window topLevel, WebAuthenticatorOptions options)
 #elif AVALONIA
@@ -28,12 +36,13 @@ public static class WebAuthenticationBroker
 #endif
             && (OperatingSystemEx.IsIOSVersionAtLeast(13, 0) || OperatingSystemEx.IsMacOSVersionAtLeast(10, 15)))
         {
-            return MaciosWebAuthenticationBroker.AuthenticateAsync(avTopLevel, options);
+            var uri = await MaciosWebAuthenticationBroker.AuthenticateAsync(avTopLevel, options.RequestUri, options.RedirectUri.Scheme);
+            return new WebAuthenticationResult(uri);
         }
 
         if (supportsNativeWebDialog)
         {
-            return AuthenticateDialogAsync(topLevel, options);
+            return await AuthenticateDialogAsync(topLevel, options);
         }
 
         throw new PlatformNotSupportedException();
@@ -76,7 +85,7 @@ public static class WebAuthenticationBroker
         }
         void OnNavigationStarted(object? sender, WebViewNavigationStartingEventArgs e)
         {
-            if (e.Request is not null && IsCallbackUri(e.Request, options.CallbackUri))
+            if (e.Request is not null && IsCallbackUri(e.Request, options.RedirectUri))
             {
                 e.Cancel = true;
                 tcs.SetResult(new WebAuthenticationResult(e.Request));
@@ -91,3 +100,19 @@ public static class WebAuthenticationBroker
                && navigatingUri.AbsolutePath == callbackUri.AbsolutePath;
     }
 }
+
+/// <summary>
+/// Authentication options that control the broker's behavior.
+/// </summary>
+/// <param name="RequestUri">The initial URI that starts the authentication flow.</param>
+/// <param name="RedirectUri">URI that indicates the completion of the authentication flow.</param>
+public record WebAuthenticatorOptions(Uri RequestUri, Uri RedirectUri)
+{
+    /// <summary>
+    /// If true, WebAuthenticationBroker will avoid platform specific implementation option, and will use webview dialog window.
+    /// </summary>
+    public bool PreferNativeWebViewDialog { get; init; }
+}
+
+/// <param name="CallbackUri">The response URI containing authentication data.</param>
+public record WebAuthenticationResult(Uri CallbackUri);
