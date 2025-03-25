@@ -26,6 +26,8 @@ namespace Avalonia.Xpf.Controls
 
         public NativeWebDialog()
         {
+            Licensing.ValidateWebView();
+
             _impl = OperatingSystemEx.IsLinux() ? new Core.Gtk.GtkNativeWebViewDialog() : new WindowNativeWebViewDialog();
             _impl.Closing += (_, args) => Closing?.Invoke(this, args);
             _impl.WebView.NavigationStarted += (_, args) => NavigationStarted?.Invoke(this, args);

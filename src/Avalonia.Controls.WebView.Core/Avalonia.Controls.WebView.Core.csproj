@@ -22,6 +22,7 @@
 
   <!-- Common group -->
   <ItemGroup>
+    <PackageReference Include="AvaloniaUI.Licensing" Version="2.0.0-cibuild000063" />
     <PackageReference Include="MicroCom.CodeGenerator.Roslyn" Version="0.11.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

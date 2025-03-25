@@ -45,6 +45,8 @@ namespace Avalonia.Xpf.Controls
 
         public NativeWebView()
         {
+            Licensing.ValidateWebView();
+
             _controlHostImpl = new NativeWebViewControlHost();
             _controlHostImpl.AdapterInitialized += ControlHostImplOnAdapterInitialized;
             _controlHostImpl.AdapterDeinitialized += ControlHostImplOnAdapterDeinitialized;
