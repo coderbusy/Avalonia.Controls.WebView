@@ -13,7 +13,7 @@ namespace Avalonia.Controls.WebView.Core.Browser
     internal class BrowserIFrameAdapter : JSObjectControlHandle, IWebViewAdapter
     {
         private static readonly Lazy<Task> _importModule =
-                                                                                                                                                                                                                                                                                                                                                                                                                       new(() => JSHost.ImportAsync("avwebview.js", "avwebview.js"));
+                                                                                                                                                                                                                                                                                                                                                                                                                       new(() => JSHost.ImportAsync("av-webview.mjs", "av-webview.mjs"));
         private Action? _subscriptions;
         private Uri? _lastSrc;
 

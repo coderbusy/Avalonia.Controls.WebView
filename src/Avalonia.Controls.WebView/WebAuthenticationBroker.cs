@@ -44,19 +44,28 @@ namespace Avalonia.Xpf.Controls
 #endif
                 )
             {
+#if ANDROID
+                if (OperatingSystem.IsAndroid())
+                {
+                    var uri = await Core.Android.AndroidWebAuthenticationBroker.AuthenticateAsync(avTopLevel,
+                        options.RequestUri, options.RedirectUri);
+                    return new WebAuthenticationResult(uri);
+                }
+#else
                 if ((OperatingSystemEx.IsIOSVersionAtLeast(13, 0) || OperatingSystemEx.IsMacOSVersionAtLeast(10, 15)))
                 {
                     var uri = await Core.Macios.MaciosWebAuthenticationBroker.AuthenticateAsync(avTopLevel,
                         options.RequestUri, options.RedirectUri.Scheme);
                     return new WebAuthenticationResult(uri);
                 }
-#if ANDROID
-                else if (OperatingSystem.IsAndroid())
+#if NET8_0_OR_GREATER
+                else if (OperatingSystemEx.IsBrowser())
                 {
-                    var uri = await Core.Android.AndroidWebAuthenticationBroker.AuthenticateAsync(avTopLevel,
+                    var uri = await Core.Browser.BrowserWebAuthenticationBroker.AuthenticateAsync(avTopLevel,
                         options.RequestUri, options.RedirectUri);
                     return new WebAuthenticationResult(uri);
                 }
+#endif
 #endif
             }
 

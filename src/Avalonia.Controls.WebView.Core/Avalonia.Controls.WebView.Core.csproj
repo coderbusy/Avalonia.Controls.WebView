@@ -73,5 +73,12 @@
     </AssemblyAttribute>
   </ItemGroup>
 
-  <Import Project="Avalonia.Controls.WebView.Core.targets" />
+  <ItemGroup>
+    <Content Update="staticwebassets\av-webview.mjs">
+      <Pack>true</Pack>
+      <PackagePath>staticwebassets/</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <Import Project="IncludeBuildItems.props" />
 </Project>

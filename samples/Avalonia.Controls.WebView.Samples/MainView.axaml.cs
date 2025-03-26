@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -118,7 +120,7 @@ public partial class MainView : UserControl
         try
         {
             var topLevel = TopLevel.GetTopLevel(this);
-            var options = new WebAuthenticatorOptions(new Uri(RequestUri.Text!), new Uri(RedirectUri.Text!));
+            var options = new WebAuthenticatorOptions(new Uri(RequestUri.Text!), new Uri(RedirectUri.Text!, UriKind.RelativeOrAbsolute));
 
             var result = await WebAuthenticationBroker.AuthenticateAsync(topLevel!, options);
 
@@ -132,16 +134,23 @@ public partial class MainView : UserControl
 
     private static (string requestUri, string redirectUri) GetGoogleAuth()
     {
+        var href = Environment.GetCommandLineArgs().Skip(1).FirstOrDefault();
+        Console.WriteLine("HRef " + href);
+
         var redirectUri = OperatingSystem.IsIOS() ?
             "com.googleusercontent.apps.457602913817-kd2547t40mrvqi63c4m7lphs5s6s5lt2://" :
             OperatingSystem.IsAndroid() ?
                 "com.AvaloniaUI.WebView.Samples:/oauth2redirect" :
-                "http://localhost";
+                OperatingSystem.IsBrowser() ?
+                    href?.TrimEnd('/') + "/oauth2redirect" :
+                    "http://localhost";
         var clientId = OperatingSystem.IsIOS() ?
             "457602913817-kd2547t40mrvqi63c4m7lphs5s6s5lt2.apps.googleusercontent.com" :
             OperatingSystem.IsAndroid() ?
                 "457602913817-12s7l3shl5nipenm61cqdbsu7ehsm26b.apps.googleusercontent.com" :
-                "457602913817-2qhv0sr6d08gvs3amj3vjpnodt7hnfai.apps.googleusercontent.com";
+                OperatingSystem.IsBrowser() ?
+                    "457602913817-l99pga4o8j33ujb7af6hrc9icnk88ho1.apps.googleusercontent.com" :
+                    "457602913817-2qhv0sr6d08gvs3amj3vjpnodt7hnfai.apps.googleusercontent.com";
 
         var requestUri = "https://accounts.google.com/o/oauth2/auth?response_type=code&access_type=offline&scope=openid";
         requestUri += "&client_id=" + clientId;

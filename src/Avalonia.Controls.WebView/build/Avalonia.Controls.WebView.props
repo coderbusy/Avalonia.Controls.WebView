@@ -2,4 +2,7 @@
   <ItemGroup>
     <AvaloniaUILicenseKeyProduct Include="Avalonia.Controls.WebView" />
   </ItemGroup>
+
+  <Import Project="../build/Microsoft.AspNetCore.StaticWebAssets.props"
+          Condition="Exists('../build/Microsoft.AspNetCore.StaticWebAssets.props')"/>
 </Project>

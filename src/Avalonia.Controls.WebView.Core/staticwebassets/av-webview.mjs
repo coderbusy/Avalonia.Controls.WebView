@@ -42,7 +42,7 @@ export function stop(iframe) {
     }
 }
 
-export async function eval(iframe, script) {
+export async function evalScript(iframe, script) {
     try {
         var result = iframe.contentWindow.eval(script);
         if (result instanceof Promise) {
@@ -68,4 +68,42 @@ export function subscribe(iframe, onload) {
     };
     iframe.addEventListener("load", onloadHandler);
     return () => iframe.removeEventListener("load", onloadHandler);
+}
+
+let authWindows = new Map();
+
+export function openAuthWindow(windowId, url, redirectUri) {
+    return new Promise((resolve, reject) => {
+        const authWindow = window.open(url, '_blank', 'width=800,height=600');
+        authWindows.set(windowId, authWindow);
+
+        const checkWindow = setInterval(() => {
+            try {
+                if (authWindow.closed) {
+                    clearInterval(checkWindow);
+                    reject(new Error('Popup closed by user'));
+                    return;
+                }
+
+                const currentUrl = authWindow.location.href;
+                if (currentUrl.startsWith(redirectUri)) {
+                    clearInterval(checkWindow);
+                    authWindow.close();
+                    authWindows.delete(windowId);
+                    resolve(currentUrl);
+                }
+            } catch (e) {
+                // Cross-origin access will throw error - ignore
+            }
+        }, 100);
+    });
+}
+
+
+export function closeAuthWindow(windowId) {
+    const window = authWindows.get(windowId);
+    if (window) {
+        window.close();
+        authWindows.delete(windowId);
+    }
 }

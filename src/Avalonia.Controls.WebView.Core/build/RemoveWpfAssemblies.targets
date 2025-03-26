@@ -20,9 +20,9 @@
       <ResolvedFileToPublishToRemove
         Include="@(ResolvedFileToPublish)"
         Condition="'%(Filename)' == 'Microsoft.Web.WebView2.WinForms'"  />
-<!--      <ResolvedFileToPublishToRemove-->
-<!--        Include="@(ResolvedFileToPublish)"-->
-<!--        Condition="'%(Filename)' == 'WebView2Loader'"  />-->
+      <!--      <ResolvedFileToPublishToRemove-->
+      <!--        Include="@(ResolvedFileToPublish)"-->
+      <!--        Condition="'%(Filename)' == 'WebView2Loader'"  />-->
     </ItemGroup>
     <ItemGroup>
       <ResolvedFileToPublish Remove="@(ResolvedFileToPublishToRemove)" />

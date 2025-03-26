@@ -17,4 +17,6 @@
   <ItemGroup>
     <Content Include="build\**\*" PackagePath="build;buildTransitive" />
   </ItemGroup>
+
+  <Import Project="../Avalonia.Controls.WebView.Core/IncludeBuildItems.props" />
 </Project>
