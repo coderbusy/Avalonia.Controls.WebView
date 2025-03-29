@@ -78,6 +78,8 @@
               "Compile",
               "CopyPackagesToNuGetCache",
               "CreateNugetPackages",
+              "IlMerge",
+              "Obfuscate",
               "OutputParameters"
             ]
           }
@@ -91,6 +93,8 @@
               "Compile",
               "CopyPackagesToNuGetCache",
               "CreateNugetPackages",
+              "IlMerge",
+              "Obfuscate",
               "OutputParameters"
             ]
           }

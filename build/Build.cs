@@ -26,6 +26,7 @@ class Build : NukeBuild
     public static int Main() => Execute<Build>(x => x.CreateNugetPackages);
 
     [NuGetPackage("dotnet-ilrepack", "ILRepackTool.dll", Framework = "net8.0")] readonly Tool IlRepackTool;
+    [NuGetPackage("Obfuscar.GlobalTool", "GlobalTools.dll", Framework = "net8.0")] readonly Tool Obfuscar;
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = Configuration.Release;
@@ -51,8 +52,7 @@ class Build : NukeBuild
         .DependsOn(OutputParameters)
         .Executes(() =>
         {
-            var srcRootDirectory = RootDirectory / "src";
-            foreach (var srcProject in srcRootDirectory.GlobFiles("**/*.csproj"))
+            foreach (var srcProject in (RootDirectory / "src").GlobFiles("**/*.csproj"))
             {
                 if (srcProject.Name.Contains("Xpf") && CiRunNumber is not null)
                 {
@@ -68,8 +68,13 @@ class Build : NukeBuild
                     .SetConfiguration(Configuration)
                 );
             }
+        });
 
-            var mergeRootProjects = srcRootDirectory.GlobFiles("**/*.csproj").Where(p =>
+    Target IlMerge => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            var mergeRootProjects = (RootDirectory / "src").GlobFiles("**/*.csproj").Where(p =>
                 p.Name.Contains("Avalonia.Controls.WebView.csproj") ||
                 p.Name.Contains("Avalonia.Xpf.Controls.WebView"));
 
@@ -95,25 +100,53 @@ class Build : NukeBuild
                         mergeRootDll.Parent);
                 }
             }
+        });
 
-            static IEnumerable<string> GetExtraDepLibs()
+    Target Obfuscate => _ => _
+        .DependsOn(Compile)
+        .DependsOn(IlMerge)
+        .Executes(() =>
+        {
+            AbsolutePath tempFile = Path.GetTempFileName();
+            try
             {
-                // See https://github.com/gluck/il-repack/issues/399
-                var androidSdk = NuGetPackageResolver.GetGlobalInstalledPackage("Microsoft.Android.Ref.34",
-                    new VersionRange(new NuGetVersion(1, 0, 0)), null)?.Directory;
-                if (androidSdk is null)
+                foreach (var obfuscarProject in (RootDirectory / "src").GlobFiles("**/obfuscar.xml"))
                 {
-                    throw new DirectoryNotFoundException("Unable to find installed \"Microsoft.Android.Ref.34\" nuget package.");
-                }
+                    File.WriteAllText(tempFile,
+                        File.ReadAllText(obfuscarProject)
+                            .Replace("<!--AssemblySearchPath/-->", string.Join("\r\n", GetExtraDepLibs()
+                                .Select(d => $"""<AssemblySearchPath path="{d}" />"""))));
 
-                var androidRefs = androidSdk / "ref" / "net8.0";
-                yield return androidRefs;
+                    var projectName = obfuscarProject.Parent!.Name;
+                    var obfuscarTargets = obfuscarProject.Parent
+                        .GlobFiles(Path.Combine("bin", Configuration, "**", projectName + ".dll"))
+                        .Select(f => f.Parent);
+                    foreach (var obfuscarTargetWorkDir in obfuscarTargets)
+                    {
+                        Obfuscar.Invoke(tempFile.ToString(), obfuscarTargetWorkDir);
+                        var outDir = (obfuscarTargetWorkDir / "out");
+                        foreach (var processedFile in outDir.GlobFiles("*.dll"))
+                        {
+                            var overrideFile = obfuscarTargetWorkDir / processedFile.Name;
+                            overrideFile.DeleteFile();
+                            processedFile.Move(overrideFile);
+                        }
+
+                        outDir.DeleteDirectory();
+                    }
+                }
+            }
+            finally
+            {
+                //tempFile.DeleteFile();
             }
         });
 
     Target CreateNugetPackages => _ => _
         .DependsOn(OutputParameters)
         .DependsOn(Compile)
+        .DependsOn(IlMerge)
+        .DependsOn(Obfuscate)
         .Executes(() =>
         {
             var srcRootDirectory = RootDirectory / "src";
@@ -194,5 +227,19 @@ class Build : NukeBuild
         }
 
         return "1.0.999-localbuild-alpha";
+    }
+
+    static IEnumerable<string> GetExtraDepLibs()
+    {
+        // See https://github.com/gluck/il-repack/issues/399
+        var androidSdk = NuGetPackageResolver.GetGlobalInstalledPackage("Microsoft.Android.Ref.34",
+            new VersionRange(new NuGetVersion(1, 0, 0)), null)?.Directory;
+        if (androidSdk is null)
+        {
+            throw new DirectoryNotFoundException("Unable to find installed \"Microsoft.Android.Ref.34\" nuget package.");
+        }
+
+        var androidRefs = androidSdk / "ref" / "net8.0";
+        yield return androidRefs;
     }
 }

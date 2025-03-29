@@ -1,0 +1,17 @@
+<?xml version='1.0'?>
+<Obfuscator>
+  <Var name="InPath" value="." />
+  <Var name="OutPath" value="./out" />
+  <Var name="HidePrivateApi" value="true" />
+  <Var name="UseUnicodeNames" value="false" />
+  <Var name="KeepPublicApi" value="true" />
+  <Var name="HideStrings" value="false" />
+  <Var name="SuppressIldasm" value="true" />
+
+  <!--AssemblySearchPath/-->
+
+  <Module file="Avalonia.Controls.WebView.dll">
+    <SkipNamespace name="System" />
+    <SkipNamespace name="System.*" />
+  </Module>
+</Obfuscator>

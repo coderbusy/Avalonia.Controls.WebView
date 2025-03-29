@@ -17,6 +17,7 @@
     <AvaloniaAccessUnstablePrivateApis>true</AvaloniaAccessUnstablePrivateApis>
     <_WebViewBuildTime>$([System.DateTime]::Now.ToString('yyyy-MM-dd'))</_WebViewBuildTime>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
   </PropertyGroup>
 
   <ItemGroup>

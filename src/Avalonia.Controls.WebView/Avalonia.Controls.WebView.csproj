@@ -9,6 +9,7 @@
     <IsPackable>true</IsPackable>
     <RootNamespace>Avalonia.Controls</RootNamespace>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
   </PropertyGroup>
 
   <ItemGroup>
