@@ -35,6 +35,7 @@ internal static class AvaloniaGtk
     private static class CachedDelegate<T>
     {
         // https://github.com/AvaloniaUI/Avalonia/blob/11.1.0/src/Avalonia.X11/Interop/GtkInteropHelper.cs#L9
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Should be fine for generic ref types")]
         private static readonly Func<Func<T>, Task<T>>? s_runOnGlibThread = Type
             .GetType("Avalonia.X11.Interop.GtkInteropHelper, Avalonia.X11")?
             .GetMethod("RunOnGlibThread", BindingFlags.Public | BindingFlags.Static)?

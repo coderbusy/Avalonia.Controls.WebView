@@ -58,7 +58,7 @@ internal abstract unsafe class AppleView : NSManagedObjectBase
     {
     }
 
-    public event EventHandler<PerformKeyEquivalentEventArgs> PerformKeyEquivalent;
+    public event EventHandler<PerformKeyEquivalentEventArgs>? PerformKeyEquivalent;
     public event EventHandler? BecomeFirstResponder;
     public event EventHandler? ResignFirstResponder;
 
@@ -131,7 +131,7 @@ internal abstract unsafe class AppleView : NSManagedObjectBase
 
     public class PerformKeyEquivalentEventArgs : HandledEventArgs
     {
-        public NSEvent Event { get; init; }
+        public required NSEvent Event { get; init; }
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]

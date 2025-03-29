@@ -33,4 +33,10 @@
       <Link>WindowNativeWebViewDialog.cs</Link>
     </Compile>
   </ItemGroup>
+
+  <Import Project="$(RepositoryPropsRoot)/PackEnable.targets" />
+  <Import Project="$(RepositoryPropsRoot)/NullableEnable.targets" />
+  <Import Project="$(RepositoryPropsRoot)/PolyfillEnable.targets" />
+  <Import Project="$(RepositoryPropsRoot)/SignEnable.targets" />
+  <Import Project="$(RepositoryPropsRoot)/TrimmingEnable.targets" />
 </Project>

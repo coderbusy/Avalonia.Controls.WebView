@@ -1,7 +1,11 @@
 using System;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using MicroCom.CodeGenerator;
+using NuGet.Configuration;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.Tooling;
@@ -19,14 +23,13 @@ class Build : NukeBuild
     ///   - Microsoft VSCode           https://nuke.build/vscode
     public static int Main() => Execute<Build>(x => x.CreateNugetPackages);
 
+    [NuGetPackage("dotnet-ilrepack", "ILRepackTool.dll", Framework = "net8.0")] readonly Tool IlRepackTool;
+
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = Configuration.Release;
 
     [Parameter]
     readonly AbsolutePath Output = RootDirectory / "artifacts" / "packages";
-
-    [Parameter]
-    readonly AbsolutePath ProjectFile = RootDirectory / "Avalonia.Controls.WebView.Packages.slnf";
 
     string CiRunNumber => Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
     
@@ -37,7 +40,6 @@ class Build : NukeBuild
         {
             Log.Information($"Configuration: {Configuration}");
             Log.Information($"Output: {Output}");
-            Log.Information($"ProjectFile: {ProjectFile}");
             Log.Information($"CiRunNumber: {CiRunNumber}");
             Log.Information($"CiRunNumber: {RefName}");
             Log.Information($"Version: {GetVersion()}");
@@ -47,13 +49,23 @@ class Build : NukeBuild
         .DependsOn(OutputParameters)
         .Executes(() =>
         {
-            DotNetBuild(c => c
-                .SetConfiguration(Configuration)
-                .AddProperty("PackageVersion", GetVersion())
-                .SetVerbosity(DotNetVerbosity.minimal)
-                .SetBinaryLog(Output / "build.binlog")
-                .SetProjectFile(ProjectFile)
-            );
+            var diagnosticSupportRoot = RootDirectory / "src";
+            foreach (var srcProject in diagnosticSupportRoot.GlobFiles("**/*.csproj"))
+            {
+                if (srcProject.Name.Contains("Xpf") && CiRunNumber is not null)
+                {
+                    // Skip XPF on CI
+                    continue;
+                }
+
+                DotNetBuild(c => c
+                    .SetProjectFile(srcProject)
+                    .SetVerbosity(DotNetVerbosity.minimal)
+                    .AddProperty("PackageVersion", GetVersion())
+                    .SetVersion(GetVersion())
+                    .SetConfiguration(Configuration)
+                );
+            }
         });
 
     Target CreateNugetPackages => _ => _
