@@ -1,4 +1,4 @@
-﻿#if NET6_0_OR_GREATER || NETFRAMEWORK
+﻿#if !ANDROID && (NET6_0_OR_GREATER || NETFRAMEWORK)
 using System;
 using System.Drawing;
 using System.Runtime.Versioning;

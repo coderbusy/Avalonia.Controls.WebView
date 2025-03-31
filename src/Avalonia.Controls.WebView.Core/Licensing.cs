@@ -19,7 +19,7 @@ internal static class Licensing
     public static void ValidateWebView()
     {
         // TODO: RuntimeConfig is broken there
-        if (OperatingSystem.IsBrowser())
+        if (OperatingSystemEx.IsBrowser())
             return;
 
         var license = s_cachedLicense ??= AvaloniaLicenseInformation.LoadProduct("Avalonia.Controls.WebView", RsaPublicKey).FirstOrDefault()

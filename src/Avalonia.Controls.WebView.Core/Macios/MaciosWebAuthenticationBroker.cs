@@ -30,7 +30,7 @@ internal static class MaciosWebAuthenticationBroker
         using var requestUrl = new NSUrl(requestUrlStr);
         using var schemeStr = NSString.Create(scheme);
 
-        return OperatingSystemEx.IsIOSVersionAtLeast(17, 4)
+        return OperatingSystemEx.IsIOSVersionAtLeast(17, 4) || OperatingSystemEx.IsMacOSVersionAtLeast(14, 4)
             ? ASWebAuthenticationSession.InitWithURL(requestUrl, ASWebAuthenticationSessionCallback.FromCustomScheme(schemeStr), completion)
             : ASWebAuthenticationSession.InitWithURL(requestUrl, schemeStr, completion);
     }

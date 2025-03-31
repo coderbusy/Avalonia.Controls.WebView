@@ -65,9 +65,6 @@
             "type": "string"
           }
         },
-        "ProjectFile": {
-          "type": "string"
-        },
         "Root": {
           "type": "string",
           "description": "Root directory during build execution"
@@ -79,7 +76,10 @@
             "type": "string",
             "enum": [
               "Compile",
+              "CopyPackagesToNuGetCache",
               "CreateNugetPackages",
+              "IlMerge",
+              "Obfuscate",
               "OutputParameters"
             ]
           }
@@ -91,7 +91,10 @@
             "type": "string",
             "enum": [
               "Compile",
+              "CopyPackagesToNuGetCache",
               "CreateNugetPackages",
+              "IlMerge",
+              "Obfuscate",
               "OutputParameters"
             ]
           }

@@ -72,6 +72,6 @@ internal unsafe class WKNavigationDelegate : NSManagedObjectBase
 
     public class DecidePolicyNavigationEventArgs : CancelEventArgs
     {
-        public Uri Request { get; init; }
+        public required Uri Request { get; init; }
     }
 }

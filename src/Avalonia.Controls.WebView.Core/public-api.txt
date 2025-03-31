@@ -1,0 +1,10 @@
+Avalonia.Controls.NativeWebViewCookieManager
+Avalonia.Controls.NativeWebViewCommandManager
+Avalonia.Controls.WebViewNavigationStartingEventArgs
+Avalonia.Controls.WebViewNavigationCompletedEventArgs
+Avalonia.Controls.WebViewNavigationEventArgs
+Avalonia.Controls.WebMessageReceivedEventArgs
+Avalonia.Controls.WebViewOptions
+Avalonia.Controls.Android.*
+System.Runtime.*
+System.Diagnostics.*

@@ -195,7 +195,7 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     {
         public override bool ShouldOverrideUrlLoading(WebView? view, IWebResourceRequest? request)
         {
-            var args = new WebViewNavigationStartingEventArgs { Request = new Uri(request.Url.ToString()) };
+            var args = new WebViewNavigationStartingEventArgs { Request = new Uri(request!.Url!.ToString()!) };
             adapter.NavigationStarted?.Invoke(adapter, args);
             return args.Cancel;
         }

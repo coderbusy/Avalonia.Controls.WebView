@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !ANDROID && (NET6_0_OR_GREATER || NETFRAMEWORK)
+using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
@@ -201,3 +202,4 @@ internal unsafe class WebBrowserAdapter : IWebViewAdapter
             or IndexOutOfRangeException
             or AccessViolationException;
 }
+#endif

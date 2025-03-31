@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Browser" Version="$(AvaloniaSampleVersion)"  />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Avalonia.Controls.WebView.Samples\Avalonia.Controls.WebView.Samples.csproj" />
   </ItemGroup>
 
   <Import Project="../../src/Avalonia.Controls.WebView.Core/IncludeBuildItems.props" />
-  <Import Project="../../src/Avalonia.Controls.WebView.Core/build/Microsoft.AspNetCore.StaticWebAssets.props" />
+
+  <ItemGroup>
+    <PackageReference Update="Avalonia" Version="$(AvaloniaSampleVersion)"  />
+    <PackageReference Include="Avalonia.Browser" Version="$(AvaloniaSampleVersion)"  />
+  </ItemGroup>
 </Project>

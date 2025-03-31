@@ -19,7 +19,7 @@ internal class WebViewHelper
             return false;
         }
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD2_0 && !ANDROID
         try
         {
             var versionString = Microsoft.Web.WebView2.Core.CoreWebView2Environment.GetAvailableBrowserVersionString();

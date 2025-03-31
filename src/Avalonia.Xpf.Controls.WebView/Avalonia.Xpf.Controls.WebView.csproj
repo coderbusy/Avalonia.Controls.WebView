@@ -6,10 +6,11 @@
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
     <!-- <IsPackable>true</IsPackable> -->
     <RootNamespace>Avalonia.Xpf.Controls</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Avalonia.Controls.WebView.Core\Avalonia.Controls.WebView.Core.csproj" />
+    <ProjectReference Include="..\Avalonia.Controls.WebView.Core\Avalonia.Controls.WebView.Core.csproj" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,8 +24,8 @@
     <Compile Include="..\Avalonia.Controls.WebView\NativeWebViewControlHost.cs">
       <Link>NativeWebViewControlHost.cs</Link>
     </Compile>
-    <Compile Include="..\Avalonia.Controls.WebView\NativeWebViewDialog.cs">
-      <Link>NativeWebViewDialog.cs</Link>
+    <Compile Include="..\Avalonia.Controls.WebView\NativeWebDialog.cs">
+      <Link>NativeWebDialog.cs</Link>
     </Compile>
     <Compile Include="..\Avalonia.Controls.WebView\WebAuthenticationBroker.cs">
       <Link>WebAuthenticationBroker.cs</Link>
@@ -33,4 +34,11 @@
       <Link>WindowNativeWebViewDialog.cs</Link>
     </Compile>
   </ItemGroup>
+
+<!--  <Import Project="$(RepositoryPropsRoot)/PackEnable.targets" />-->
+  <Import Project="$(RepositoryPropsRoot)/Constants.targets" />
+  <Import Project="$(RepositoryPropsRoot)/NullableEnable.targets" />
+  <Import Project="$(RepositoryPropsRoot)/PolyfillEnable.targets" />
+  <Import Project="$(RepositoryPropsRoot)/SignEnable.targets" />
+  <Import Project="$(RepositoryPropsRoot)/TrimmingEnable.targets" />
 </Project>
