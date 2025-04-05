@@ -1,6 +1,9 @@
 ﻿#if !ANDROID && (NET6_0_OR_GREATER || NETFRAMEWORK)
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Net;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Windows.Win32;
@@ -11,7 +14,7 @@ using Microsoft.Web.WebView2.Core;
 namespace Avalonia.Controls.Win;
 
 [SupportedOSPlatform("windows6.1")] // win7
-internal class WebView2Adapter : IWebViewAdapter
+internal class WebView2Adapter : IWebViewAdapterWithCookieManager
 {
     private CoreWebView2Controller? _controller;
     private Action? _subscriptions;
@@ -168,6 +171,25 @@ internal class WebView2Adapter : IWebViewAdapter
             webView.NavigationCompleted -= WebViewOnNavigationCompleted;
             webView.WebMessageReceived -= WebViewOnWebMessageReceived;
         };
+    }
+
+    public void AddOrUpdateCookie(Cookie cookie)
+    {
+        var webViewCookie = _controller?.CoreWebView2.CookieManager.CreateCookieWithSystemNetCookie(cookie);
+        _controller?.CoreWebView2.CookieManager.AddOrUpdateCookie(webViewCookie);
+    }
+
+    public void DeleteCookie(string name, string domain, string path)
+    {
+        _controller?.CoreWebView2.CookieManager.DeleteCookiesWithDomainAndPath(name, domain, path);
+    }
+
+    public async Task<IReadOnlyList<Cookie>> GetCookiesAsync()
+    {
+        if (_controller is null)
+            return [];
+        var cookies = await _controller.CoreWebView2.CookieManager.GetCookiesAsync(null);
+        return cookies.Select(c => c.ToSystemNetCookie()).ToArray();
     }
 }
 #endif
