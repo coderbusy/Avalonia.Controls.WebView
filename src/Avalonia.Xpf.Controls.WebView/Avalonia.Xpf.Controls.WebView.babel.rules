@@ -1,0 +1,139 @@
+<Rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	version="2.0">
+	
+	<Rule name="runAgent"
+		feature="agent"
+		exclude="false"
+		applyToMembers="true">
+		
+		<Pattern>*</Pattern>
+		<Properties>
+			<TaskNameList>
+				Base types,
+				Dynamic language,
+				Exposed attributes,
+				Reflected strings,
+				Reflected types,
+				WinRT types,
+				XAML symbols
+			</TaskNameList>
+		</Properties>
+	</Rule>
+
+	<Rule name="ScramblerOFF"
+		feature="control flow"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Target>Methods</Target>
+		<Pattern>*</Pattern>
+	</Rule>
+
+	<Rule name="DontRenameNativeWebDialog"
+		feature="renaming"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.NativeWebDialog</Pattern>
+	</Rule>
+
+	<Rule name="DontOptimizeNativeWebDialog"
+		feature="optimizations"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.NativeWebDialog</Pattern>
+	</Rule>
+
+	<Rule name="DontInternalizeNativeWebDialog"
+		feature="merge"
+		exclude="false"
+		applyToMembers="true">
+
+		<Pattern>*.NativeWebDialog</Pattern>
+		<Properties>
+			<Internalize>false</Internalize>
+		</Properties>
+		<Description>Disable Internalize NativeWebDialog</Description>
+	</Rule>
+
+	<Rule name="DontRenameNativeWebView"
+		feature="renaming"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.NativeWebView</Pattern>
+	</Rule>
+
+	<Rule name="DontOptimizeNativeWebView"
+		feature="optimizations"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.NativeWebView</Pattern>
+	</Rule>
+
+	<Rule name="DontInternalizeNativeWebView"
+		feature="merge"
+		exclude="false"
+		applyToMembers="true">
+
+		<Pattern>*.NativeWebView</Pattern>
+		<Properties>
+			<Internalize>false</Internalize>
+		</Properties>
+		<Description>Disable Internalize NativeWebView</Description>
+	</Rule>
+	
+	<Rule name="DontRenameWebAuth"
+		feature="renaming"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.WebAuth*</Pattern>
+	</Rule>
+
+	<Rule name="DontOptimizeWebAuth"
+		feature="optimizations"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.WebAuth*</Pattern>
+	</Rule>
+
+	<Rule name="DontInternalizeWebAuth"
+		feature="merge"
+		exclude="false"
+		applyToMembers="true">
+
+		<Pattern>*.WebAuth*</Pattern>
+		<Properties>
+			<Internalize>false</Internalize>
+		</Properties>
+		<Description>Disable Internalize WebAuth</Description>
+	</Rule>
+
+	<Rule name="NoCompilerGenerated" 
+		feature="control flow, value encryption, string encryption" 
+		exclude="true" applyToMembers="false">
+
+		<Target>Classes</Target>
+		<Pattern>*</Pattern>
+		<HasAttribute onEnclosingType="false">
+			System.Runtime.CompilerServices.CompilerGeneratedAttribute,
+			System.Diagnostics.DebuggerHiddenAttribute
+		</HasAttribute>
+		<Description>Do not obfuscate compiler-generated methods.</Description>
+	</Rule>
+
+	<Rule name="DontRenameAnonymous" 
+		feature="renaming, dead code" 
+		exclude="true" 
+		applyToMembers="true">
+
+		<Pattern>*</Pattern>
+		<HasAttribute>System.Runtime.CompilerServices.CompilerGeneratedAttribute</HasAttribute>
+		<Description>Do not renaming Anonymous Types.</Description>
+	</Rule>
+
+</Rules>

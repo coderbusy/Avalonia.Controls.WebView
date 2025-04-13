@@ -1,0 +1,158 @@
+<Rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	version="2.0">
+	
+	<Rule name="runAgent"
+		feature="agent"
+		exclude="false"
+		applyToMembers="true">
+		
+		<Pattern>*</Pattern>
+		<Properties>
+			<TaskNameList>
+				Base types,
+				Dynamic language,
+				Exposed attributes,
+				Reflected strings,
+				Reflected types,
+				WinRT types,
+				XAML symbols
+			</TaskNameList>
+		</Properties>
+	</Rule>
+
+	<Rule name="DontRenameEventArgs"
+		feature="renaming"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.*EventArgs</Pattern>
+	</Rule>
+
+	<Rule name="DontOptimizeEventArgs"
+		feature="optimizations"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.*EventArgs</Pattern>
+	</Rule>
+
+	<Rule name="DontInternalizeEventArgs"
+		feature="merge"
+		exclude="false"
+		applyToMembers="true">
+
+		<Pattern>*.*EventArgs</Pattern>
+		<Properties>
+			<Internalize>false</Internalize>
+		</Properties>
+		<Description>Disable Internalize EventArgs</Description>
+	</Rule>
+
+	<Rule name="DontRenameMaciosWebViewAdapter"
+		feature="renaming"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.MaciosWebViewAdapter</Pattern>
+	</Rule>
+
+	<Rule name="DontOptimizeMaciosWebViewAdapter"
+		feature="optimizations"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.MaciosWebViewAdapter</Pattern>
+	</Rule>
+
+	<Rule name="DontInternalizeMaciosWebViewAdapter"
+		feature="merge"
+		exclude="false"
+		applyToMembers="true">
+
+		<Pattern>*.MaciosWebViewAdapter</Pattern>
+		<Properties>
+			<Internalize>false</Internalize>
+		</Properties>
+		<Description>Disable Internalize MaciosWebViewAdapter</Description>
+	</Rule>
+
+	<Rule name="DontRenameNativeWebViewCommandManager"
+		feature="renaming"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.NativeWebViewCommandManager</Pattern>
+	</Rule>
+
+	<Rule name="DontOptimizeNativeWebViewCommandManager"
+		feature="optimizations"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.NativeWebViewCommandManager</Pattern>
+	</Rule>
+
+	<Rule name="DontInternalizeNativeWebViewCommandManager"
+		feature="merge"
+		exclude="false"
+		applyToMembers="true">
+
+		<Pattern>*.NativeWebViewCommandManager</Pattern>
+		<Properties>
+			<Internalize>false</Internalize>
+		</Properties>
+		<Description>Disable Internalize NativeWebViewCommandManager</Description>
+	</Rule>
+
+	<Rule name="DontRenameWebViewOptions"
+		feature="renaming"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.WebViewOptions</Pattern>
+	</Rule>
+
+	<Rule name="DontOptimizeWebViewOptions"
+		feature="optimizations"
+		exclude="true"
+		applyToMembers="true">
+		
+		<Pattern>*.WebViewOptions</Pattern>
+	</Rule>
+
+	<Rule name="DontInternalizeWebViewOptions"
+		feature="merge"
+		exclude="false"
+		applyToMembers="true">
+
+		<Pattern>*.WebViewOptions</Pattern>
+		<Properties>
+			<Internalize>false</Internalize>
+		</Properties>
+		<Description>Disable Internalize WebViewOptions</Description>
+	</Rule>
+
+	<Rule name="NoCompilerGenerated" 
+		feature="control flow, value encryption, string encryption" 
+		exclude="true" applyToMembers="false">
+
+		<Target>Classes</Target>
+		<Pattern>*</Pattern>
+		<HasAttribute onEnclosingType="false">
+			System.Runtime.CompilerServices.CompilerGeneratedAttribute,
+			System.Diagnostics.DebuggerHiddenAttribute
+		</HasAttribute>
+		<Description>Do not obfuscate compiler-generated methods.</Description>
+	</Rule>
+
+	<Rule name="DontRenameAnonymous" 
+		feature="renaming, dead code" 
+		exclude="true" 
+		applyToMembers="true">
+
+		<Pattern>*</Pattern>
+		<HasAttribute>System.Runtime.CompilerServices.CompilerGeneratedAttribute</HasAttribute>
+		<Description>Do not renaming Anonymous Types.</Description>
+	</Rule>
+
+</Rules>
