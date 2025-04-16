@@ -106,14 +106,28 @@ class Build : NukeBuild
         .DependsOn(IlMerge)
         .Executes(() =>
         {
-            // Avalonia.Controls.WebView
-            Babel($"./src/Avalonia.Controls.WebView/bin/{Configuration}/net8.0/Avalonia.Controls.WebView.dll --project ./src/Avalonia.Controls.WebView/Avalonia.Controls.WebView.babel --rules ./src/Avalonia.Controls.WebView/Avalonia.Controls.WebView.babel.rules --output ./src/Avalonia.Controls.WebView/bin/{Configuration}/net8.0/Avalonia.Controls.WebView.dll  --mapout ./Obfuscated/Avalonia.Controls.WebView.ObfuscationMap.xml --logfile {RootDirectory}/Obfuscated/Avalonia.Controls.WebView.Obfuscation.log", RootDirectory);
+            string[] projectsToObfuscate =
+            [
+                "Avalonia.Controls.WebView",
+                "Avalonia.Xpf.Controls.WebView"
+            ];
+            foreach (var projectName in projectsToObfuscate)
+            {
+                Log.Information("Obfuscating {Project}", projectName);
 
-            // Avalonia.Controls.WebView.Core
-            Babel($"./src/Avalonia.Controls.WebView.Core/bin/{Configuration}/net8.0/Avalonia.Controls.WebView.Core.dll --project ./src/Avalonia.Controls.WebView.Core/Avalonia.Controls.WebView.Core.babel --rules ./src/Avalonia.Controls.WebView.Core/Avalonia.Controls.WebView.Core.babel.rules --output ./src/Avalonia.Controls.WebView.Core/bin/{Configuration}/net8.0/Avalonia.Controls.WebView.Core.dll  --mapout ./Obfuscated/Avalonia.Controls.WebView.Core.ObfuscationMap.xml --logfile {RootDirectory}/Obfuscated/Avalonia.Controls.WebView.Core.Obfuscation.log", RootDirectory);
+                var projectRoot = RootDirectory / "src" / projectName;
+                var babelFile = projectRoot / (projectName + ".babel");
+                var rulesFile = projectRoot / (projectName + ".babel.rules");
+                var obfuscationMapFile = RootDirectory / "Obfuscated" / (projectName + ".ObfuscationMap.xml");
+                var obfuscationLogFile = RootDirectory / "Obfuscated" / (projectName + ".Obfuscation.log");
 
-            // Avalonia.Xpf.Controls.WebView
-            Babel($"./src/Avalonia.Xpf.Controls.WebView/bin/{Configuration}/net6.0-Windows/Avalonia.Xpf.Controls.WebView.dll --project ./src/Avalonia.Xpf.Controls.WebView/Avalonia.Xpf.Controls.WebView.babel --rules ./src/Avalonia.Xpf.Controls.WebView/Avalonia.Xpf.Controls.WebView.babel.rules --output ./src/Avalonia.Xpf.Controls.WebView/bin/{Configuration}/net6.0-windows/Avalonia.Xpf.Controls.WebView.dll  --mapout ./Obfuscated/Avalonia.Xpf.Controls.WebView.ObfuscationMap.xml --logfile {RootDirectory}/Obfuscated/Avalonia.Xpf.Controls.WebView.Obfuscation.log", RootDirectory);
+                foreach (var buildOutput in (projectRoot / "bin" / Configuration).GlobDirectories("net*"))
+                {
+                    var dllFile = buildOutput / (projectName + ".dll");
+                    
+                    Babel($"{dllFile} --project {babelFile} --rules {rulesFile} --output {dllFile}  --mapout {obfuscationMapFile} --logfile {obfuscationLogFile}", RootDirectory);
+                }
+            }
         });
 
     Target CreateNugetPackages => _ => _
