@@ -162,8 +162,21 @@ internal class WebView2Adapter : IWebViewAdapterWithCookieManager
 
         void WebViewOnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
-            WebMessageReceived?.Invoke(this,
-                new WebMessageReceivedEventArgs { Body = e.TryGetWebMessageAsString() ?? e.WebMessageAsJson });
+            string? message = null;
+
+            try
+            {
+                // this `Try` method can throw undescriptive ArgumentException. Keep going WinRT.
+                message = e.TryGetWebMessageAsString();
+            }
+            catch
+            {
+                // ignore
+            }
+
+            message ??= e.WebMessageAsJson;
+
+            WebMessageReceived?.Invoke(this, new WebMessageReceivedEventArgs { Body = message });
         }
 
         webView.NewWindowRequested += WebViewOnNewWindowRequested;
