@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using Microsoft.Web.WebView2.Core;
 
 namespace Avalonia.Controls.Win;
@@ -97,12 +98,15 @@ internal class WebView2Adapter : IWebViewAdapterWithCookieManager
 
     public void SizeChanged()
     {
-        if (PInvoke.GetWindowRect(new HWND(Handle), out var rect)
-            && _controller is not null)
+        Dispatcher.UIThread.Post(() =>
         {
-            _controller.BoundsMode = CoreWebView2BoundsMode.UseRawPixels;
-            _controller.Bounds = new Rectangle(0, 0, rect.Width, rect.Height);
-        }
+            if (PInvoke.GetWindowRect(new HWND(Handle), out var rect)
+                && _controller is not null)
+            {
+                _controller.BoundsMode = CoreWebView2BoundsMode.UseRawPixels;
+                _controller.Bounds = new Rectangle(0, 0, rect.Width, rect.Height);
+            }
+        });
     }
 
     public void SetParent(IPlatformHandle parent)
