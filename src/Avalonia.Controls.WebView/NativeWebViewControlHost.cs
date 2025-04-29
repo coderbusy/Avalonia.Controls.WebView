@@ -25,15 +25,6 @@ namespace Avalonia.Xpf.Controls
         private TaskCompletionSource<IWebViewAdapter> _webViewReadyCompletion = new();
         private ReparentingScope? _reparentingScope;
 
-        static NativeWebViewControlHost()
-        {
-#if WPF
-            FocusableProperty.OverrideMetadata(typeof(NativeWebViewControlHost), new UIPropertyMetadata(true));
-#elif AVALONIA
-            FocusableProperty.OverrideDefaultValue<NativeWebViewControlHost>(true);
-#endif
-        }
-
         public event EventHandler<IWebViewAdapter>? AdapterInitialized;
         public event EventHandler<IWebViewAdapter>? AdapterDeinitialized;
 

@@ -46,6 +46,15 @@ namespace Avalonia.Xpf.Controls
 
         private readonly Core.INativeWebViewControlImpl _controlHostImpl;
 
+        static NativeWebView()
+        {
+#if WPF
+            FocusableProperty.OverrideMetadata(typeof(NativeWebView), new UIPropertyMetadata(true));
+#elif AVALONIA
+            FocusableProperty.OverrideDefaultValue<NativeWebView>(true);
+#endif
+        }
+
         public NativeWebView()
         {
             Core.Licensing.ValidateWebView();

@@ -235,6 +235,12 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGtk)]
     internal static extern void gtk_window_present(IntPtr window);
 
+    [DllImport(LibGtk)]
+    internal static extern void gtk_widget_grab_focus(IntPtr widget);
+
+    [DllImport(LibGtk)]
+    internal static extern bool gtk_widget_has_focus(IntPtr widget);
+
 #if NET7_0_OR_GREATER
     [LibraryImport(LibGObject, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial ulong g_signal_connect_data(nint instance, string detailed_signal, nint c_handler, nint data, nint destroy_data, GConnectFlags connect_flags);
