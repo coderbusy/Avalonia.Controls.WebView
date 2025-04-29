@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Text;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using static Avalonia.Controls.Gtk.GtkInterop;
 using static Avalonia.Controls.Gtk.AvaloniaGtk;
 
@@ -11,10 +13,15 @@ namespace Avalonia.Controls.Gtk;
 internal unsafe class GtkOffscreenWebViewAdapter : GtkWebViewAdapter,
     IWebViewAdapterWithOffscreenBuffer, IWebViewAdapterWithOffscreenInput
 {
+    private static readonly IntPtr s_drawCallback =
+        new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr*, IntPtr, bool>)&DrawCallback);
+
     private readonly bool _useGtkOffscreen;
     private readonly IntPtr _windowHandle;
     private PixelSize _sizeRequest;
+    private GtkSignal? _drawSignal;
 
+    /// <param name="useGtkOffscreen">Debug only, useful for testing.</param>
     public GtkOffscreenWebViewAdapter(bool useGtkOffscreen = true)
     {
         _useGtkOffscreen = useGtkOffscreen;
@@ -31,15 +38,12 @@ internal unsafe class GtkOffscreenWebViewAdapter : GtkWebViewAdapter,
             gtk_widget_set_has_window(Handle, true);
             gtk_widget_realize(Handle);
             gtk_widget_show_all(_windowHandle);
-
-            if (!useGtkOffscreen)
-            {
-                //gtk_widget_hide(_windowHandle);
-            }
-
+            _drawSignal = new GtkSignal(Handle, "draw", s_drawCallback, this);
             return 0;
         });
     }
+
+    public event Action? DrawRequested;
 
     public void UpdateWriteableBitmap(ref WriteableBitmap? bitmap)
     {
@@ -266,6 +270,27 @@ internal unsafe class GtkOffscreenWebViewAdapter : GtkWebViewAdapter,
         if (pointProperties?.IsXButton2Pressed == true)
             output |= GdkModifierType.GDK_BUTTON5_MASK;
         return output;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _drawSignal?.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static unsafe bool DrawCallback(IntPtr widget, IntPtr* cairoTex, IntPtr data)
+    {
+        if (data == IntPtr.Zero || GCHandle.FromIntPtr(data).Target is not GtkOffscreenWebViewAdapter adapter)
+        {
+            return false;
+        }
+
+        Dispatcher.UIThread.InvokeAsync(() => adapter.DrawRequested?.Invoke());
+        return false;
     }
 
     private readonly ref struct EventSendState : IDisposable

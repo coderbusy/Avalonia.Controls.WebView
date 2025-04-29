@@ -36,7 +36,6 @@ internal class GtkWebViewAdapter : IWebViewAdapter, IWebViewAdapterWithFocus
     private static readonly unsafe IntPtr s_focusOutCallback =
         new((delegate* unmanaged[Cdecl]<IntPtr, GdkEvent*, IntPtr, bool>)&FocusOutCallback);
 
-    private bool _isDisposed;
     private GtkSignal? _loadChangedSignal;
     private GtkSignal? _decidePolicySignal;
     private GtkSignal? _focusInSignal;
@@ -155,29 +154,6 @@ internal class GtkWebViewAdapter : IWebViewAdapter, IWebViewAdapterWithFocus
 
     public virtual void SizeChanged(PixelSize containerSize)
     {
-    }
-
-    public void Dispose()
-    {
-        if (_isDisposed)
-        {
-            return;
-        }
-
-        if (Handle != IntPtr.Zero)
-        {
-            RunOnGlibThread(() =>
-            {
-                _loadChangedSignal?.Dispose();
-                _decidePolicySignal?.Dispose();
-                _focusInSignal?.Dispose();
-                _focusOutSignal?.Dispose();
-                gtk_widget_destroy(Handle);
-            });
-            Handle = IntPtr.Zero;
-        }
-
-        _isDisposed = true;
     }
 
     private Uri GetSourceUnsafe()
@@ -340,5 +316,39 @@ internal class GtkWebViewAdapter : IWebViewAdapter, IWebViewAdapterWithFocus
 
         adapter.GotFocus?.Invoke(adapter, EventArgs.Empty);
         return false;
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (Handle != IntPtr.Zero)
+        {
+            gtk_widget_destroy(Handle);
+
+            if (disposing)
+            {
+                _loadChangedSignal?.Dispose();
+                _decidePolicySignal?.Dispose();
+                _focusInSignal?.Dispose();
+                _focusOutSignal?.Dispose();
+                Handle = IntPtr.Zero;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        RunOnGlibThread(() =>
+        {
+            Dispose(true);
+        });
+        GC.SuppressFinalize(this);
+    }
+
+    ~GtkWebViewAdapter()
+    {
+        _ = RunOnGlibThreadAsync(() =>
+        {
+            Dispose(false);
+        });
     }
 }

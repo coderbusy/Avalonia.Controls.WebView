@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Avalonia.Controls.Gtk;
 
-internal class GtkSignal
+internal sealed class GtkSignal
     : IDisposable
 {
     private static readonly unsafe IntPtr s_onDestroy = new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void>)&OnDestroy);
@@ -26,15 +26,26 @@ internal class GtkSignal
         _instance = instance;
     }
 
-    public void Dispose()
-    {
-        GtkInterop.g_signal_handler_disconnect(_instance, _signal);
-        _state.Free();
-    }
-
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static void OnDestroy(IntPtr data, IntPtr closure)
     {
         GCHandle.FromIntPtr(data).Free();
+    }
+
+    private void ReleaseUnmanagedResources()
+    {
+        GtkInterop.g_signal_handler_disconnect(_instance, _signal);
+    }
+
+    public void Dispose()
+    {
+        _state.Free();
+        ReleaseUnmanagedResources();
+        GC.SuppressFinalize(this);
+    }
+
+    ~GtkSignal()
+    {
+        ReleaseUnmanagedResources();
     }
 }

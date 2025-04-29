@@ -27,11 +27,13 @@ internal class NativeWebViewCompositorHost : Control, INativeWebViewControlImpl
             {
                 _webViewReadyCompletion.TrySetResult(webViewAdapter);
                 AdapterInitialized?.Invoke(this, webViewAdapter);
+                webViewAdapter.DrawRequested += () => _customVisual?.SendHandlerMessage(VisualHandler.DrawRequested);
             };
         }
         else
         {
             _webViewReadyCompletion.TrySetResult(webViewAdapter);
+            webViewAdapter.DrawRequested += () => _customVisual?.SendHandlerMessage(VisualHandler.DrawRequested);
         }
     }
 
@@ -60,7 +62,7 @@ internal class NativeWebViewCompositorHost : Control, INativeWebViewControlImpl
         var compositorVisual = ElementComposition.GetElementVisual(this)!;
         _customVisual = compositorVisual.Compositor.CreateCustomVisual(_customVisualHandler);
         _customVisual.Size = new Vector(Bounds.Width, Bounds.Height);
-        _customVisual.SendHandlerMessage(VisualHandler.Start);
+        _customVisual.SendHandlerMessage(VisualHandler.DrawRequested);
         ElementComposition.SetElementChildVisual(this, _customVisual);
     }
 
@@ -88,22 +90,25 @@ internal class NativeWebViewCompositorHost : Control, INativeWebViewControlImpl
 
     private class VisualHandler(IWebViewAdapterWithOffscreenBuffer offscreenBuffer) : CompositionCustomVisualHandler
     {
-        public static readonly object Start = new();
+        public static readonly object DrawRequested = new();
         public static readonly object Stop = new();
 
         private WriteableBitmap? _bitmap;
-        private bool _isRunning = false;
+        private TimeSpan _drawUntil;
 
         public override void OnMessage(object message)
         {
-            if (message == Start)
+            if (message == DrawRequested)
             {
-                _isRunning = true;
+                // Keep rendering for another 100ms after it was requested, making webview smoother.
+                // Even something plain as scroll will require this smoothness,
+                // which might not be delivered on dispatcher-delivered DrawRequested messages.
+                _drawUntil = CompositionNow + TimeSpan.FromMilliseconds(100);
                 RegisterForNextAnimationFrameUpdate();
             }
             else if (message == Stop)
             {
-                _isRunning = false;
+                _drawUntil = TimeSpan.Zero;
             }
 
             base.OnMessage(message);
@@ -121,8 +126,7 @@ internal class NativeWebViewCompositorHost : Control, INativeWebViewControlImpl
         public override void OnAnimationFrameUpdate()
         {
             Invalidate();
-
-            if (_isRunning)
+            if (_drawUntil > CompositionNow)
             {
                 RegisterForNextAnimationFrameUpdate();
             }

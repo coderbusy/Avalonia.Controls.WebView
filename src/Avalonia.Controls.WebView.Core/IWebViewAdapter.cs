@@ -233,5 +233,7 @@ internal interface IWebViewAdapterWithOffscreenInput : IWebViewAdapter
 
 internal interface IWebViewAdapterWithOffscreenBuffer : IWebViewAdapter
 {
+    // Oversimplified implementation, which assumes render thread to be blocked until GDK thread creates a new bitmap.
+    event Action DrawRequested;
     void UpdateWriteableBitmap(ref WriteableBitmap? bitmap);
 }
