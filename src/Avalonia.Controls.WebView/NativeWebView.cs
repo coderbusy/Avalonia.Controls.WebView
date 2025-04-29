@@ -455,7 +455,7 @@ namespace Avalonia.Xpf.Controls
         {
             if (_controlHostImpl.TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.KeyInput(true, e.PhysicalKey, e.KeySymbol, e.KeyModifiers);
+                e.Handled = input.KeyInput(false, e.PhysicalKey, e.KeySymbol, e.KeyModifiers);
             }
             base.OnKeyUp(e);
         }

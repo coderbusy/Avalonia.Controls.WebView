@@ -101,6 +101,7 @@ internal enum GdkModifierType : uint
 {
     GDK_NO_MODIFIER_MASK = 0,
     GDK_SHIFT_MASK = 1, // SHIFT
+    GDK_LOCK_MASK = 2, // CAPS LOCK
     GDK_CONTROL_MASK = 4, // CTRL
     GDK_ALT_MASK = 8, // ALT
     GDK_BUTTON1_MASK = 256,
@@ -108,7 +109,9 @@ internal enum GdkModifierType : uint
     GDK_BUTTON3_MASK = 1024,
     GDK_BUTTON4_MASK = 2048,
     GDK_BUTTON5_MASK = 4096,
-    GDK_META_MASK = 268435456 // WINDOWS
+    GDK_META_MASK = 268435456, // WINDOWS
+
+    ALL_ACCESS_MASK = GDK_CONTROL_MASK | GDK_SHIFT_MASK | GDK_ALT_MASK | GDK_LOCK_MASK
 }
 
 public enum GdkScrollDirection

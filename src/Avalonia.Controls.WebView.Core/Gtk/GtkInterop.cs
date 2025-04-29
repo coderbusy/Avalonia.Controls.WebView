@@ -157,10 +157,25 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGtk)]
     public static extern bool gtk_main_iteration_do(bool blocking);
 
-    [DllImport(LibGtk, CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibGtk)]
+    internal static extern IntPtr gdk_keymap_get_for_display(IntPtr display);
+
+#if NET7_0_OR_GREATER
+    [LibraryImport (LibGdk)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    internal static partial bool gdk_keymap_translate_keyboard_state(IntPtr keymap, uint hardware_keycode, GdkModifierType state, int group, out uint keyval, out int effective_group, out int level, out int consumed_modifiers);
+#else
+    [DllImport(LibGdk)]
+    internal static extern bool gdk_keymap_translate_keyboard_state(IntPtr keymap, uint hardware_keycode, GdkModifierType state, int group, out uint keyval, out int effective_group, out int level, out int consumed_modifiers);
+#endif
+
+    [DllImport(LibGdk)]
+    internal static extern GdkModifierType gdk_keymap_get_modifier_state(IntPtr keymap);
+
+    [DllImport(LibGtk)]
     internal static extern IntPtr gtk_offscreen_window_get_pixbuf(IntPtr raw);
 
-    [DllImport(LibGdk, CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibGdk)]
     internal static extern IntPtr gdk_pixbuf_get_from_window(IntPtr gdkWindow, int x, int y, int width, int height);
 
     [DllImport(LibGdk)]
@@ -175,6 +190,8 @@ internal static unsafe partial class GtkInterop
     internal static extern IntPtr gdk_display_get_default_seat(IntPtr display);
     [DllImport(LibGdk)]
     internal static extern IntPtr gdk_seat_get_pointer(IntPtr seat);
+    [DllImport(LibGdk)]
+    internal static extern IntPtr gdk_seat_get_keyboard(IntPtr seat);
 
     [DllImport(LibGdk)]
     public static extern IntPtr gdk_event_new(GdkEventType type);
@@ -190,6 +207,9 @@ internal static unsafe partial class GtkInterop
 
     [DllImport(LibGdk)]
     public static extern void gdk_event_put(IntPtr gdkEvent);
+
+    [DllImport(LibGdk)]
+    public static extern void gdk_event_set_device(IntPtr gdkEvent, IntPtr device);
 
     [DllImport(LibGdk)]
     public static extern int gdk_pixbuf_get_width(nint pixbuf);
