@@ -16,6 +16,7 @@ internal class NativeWebViewCompositorHost(Func<NativeWebViewCompositorHost, IWe
 {
     private TaskCompletionSource<IWebViewAdapterWithOffscreenBuffer> _webViewReadyCompletion = new();
     //private ReparentingScope? _reparentingScope;
+    private bool _firstDraw;
 
     private CompositionCustomVisual? _customVisual;
 
@@ -54,6 +55,7 @@ internal class NativeWebViewCompositorHost(Func<NativeWebViewCompositorHost, IWe
         var adapter = webViewFactory(this);
 
         var compositorVisual = ElementComposition.GetElementVisual(this)!;
+        _firstDraw = true;
         _customVisual = compositorVisual.Compositor.CreateCustomVisual(new VisualHandler(adapter));
         _customVisual.Size = new Vector(Bounds.Width, Bounds.Height);
         _customVisual.SendHandlerMessage(VisualHandler.DrawRequested);
@@ -104,6 +106,12 @@ internal class NativeWebViewCompositorHost(Func<NativeWebViewCompositorHost, IWe
 
     private void OffscreenAdapter_OnDrawRequested()
     {
+        if (_firstDraw)
+        {
+            _firstDraw = false;
+            TryGetAdapter()?.SizeChanged(PixelSize.FromSize(Bounds.Size, TopLevel.GetTopLevel(this)!.RenderScaling));
+        }
+
         _customVisual?.SendHandlerMessage(VisualHandler.DrawRequested);
     }
 
