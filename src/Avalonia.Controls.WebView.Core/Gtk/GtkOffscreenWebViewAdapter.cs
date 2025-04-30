@@ -257,7 +257,7 @@ internal unsafe class GtkOffscreenWebViewAdapter : GtkWebViewAdapter,
             ev->scroll.state = ToGtk(modifiers, point.Properties);
 
             ev->scroll.delta_x = delta.X;
-            ev->scroll.delta_y = delta.Y;
+            ev->scroll.delta_y = -delta.Y;
             ev->scroll.direction = GdkScrollDirection.GDK_SCROLL_SMOOTH;
 
             return state.Send();
