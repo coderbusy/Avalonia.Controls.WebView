@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Avalonia.Controls.Macios.Interop;
@@ -43,11 +44,20 @@ internal static class MaciosWebAuthenticationBroker
         }
 
         if (topLevel.TryGetPlatformHandle() is { } platformHandle)
+        {
             return AppleView.GetWindow(platformHandle.Handle);
+        }
 
-        return AppleView.GetWindow(GetAvaloniaViewHandle(topLevel));
+        if (OperatingSystem.IsIOS() || OperatingSystem.IsTvOS())
+        {
+            return AppleView.GetWindow(GetAvaloniaViewHandle(topLevel));
+        }
+
+        return IntPtr.Zero;
 
         // WE MUST PROPERLY IMPLEMENT TryGetPlatformHandle ON IOS
+        [UnconditionalSuppressMessage("AOT", "IL3050")]
+        [UnconditionalSuppressMessage("Trimming", "IL2075")]
         static IntPtr GetAvaloniaViewHandle(TopLevel topLevel)
         {
             var implType = topLevel.PlatformImpl?.GetType();
