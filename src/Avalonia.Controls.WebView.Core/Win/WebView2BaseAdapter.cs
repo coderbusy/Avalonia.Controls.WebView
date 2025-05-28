@@ -8,6 +8,7 @@ using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Avalonia.Controls.Utils;
 using Avalonia.Controls.Win.RawWebView2;
 using Avalonia.MicroCom;
 using Avalonia.Platform;
@@ -160,8 +161,9 @@ internal abstract partial class WebView2BaseAdapter : IWebViewAdapterWithCookieM
         if (webViewRuntime is null)
             return;
 
-        var lib = NativeLibrary.Load(webViewRuntime);
-        var createEnvPtr = NativeLibrary.GetExport(lib, "CreateWebViewEnvironmentWithOptionsInternal");
+        var lib = NativeLibraryEx.Load(webViewRuntime);
+        if (NativeLibraryEx.TryGetExport(lib, "CreateWebViewEnvironmentWithOptionsInternal", out var createEnvPtr))
+            throw new InvalidOperationException("CreateWebViewEnvironmentWithOptions is not supported.");
 
         ICoreWebView2Environment env;
         using (var envCallback = new WebView2EnvHandler())
