@@ -8,7 +8,7 @@ namespace System.Runtime.InteropServices.Marshalling
 {
 #if !COM_SOURCE_GEN
     [SupportedOSPlatform("windows")]
-    public static unsafe class ComInterfaceMarshaller<TInterface>
+    internal static unsafe class ComInterfaceMarshaller<TInterface>
     {
         public static void* ConvertToUnmanaged<TManaged>(TManaged obj)
             where TManaged : notnull
