@@ -17,6 +17,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Avalonia.Controls.WebView.Samples\Avalonia.Controls.WebView.Samples.csproj" />
   </ItemGroup>
-
-  <Import Project="../../src/Avalonia.Controls.WebView.Core/build/RemoveWpfAssemblies.targets" />
 </Project>

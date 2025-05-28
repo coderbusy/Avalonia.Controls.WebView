@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Avalonia.Media;
 using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
 using Core = Avalonia.Controls;
 #if WPF
@@ -19,19 +20,10 @@ namespace Avalonia.Controls
 namespace Avalonia.Xpf.Controls
 #endif
 {
-    internal class NativeWebViewControlHost : NativeControlHost
+    internal class NativeWebViewControlHost : NativeControlHost, INativeWebViewControlImpl
     {
         private TaskCompletionSource<IWebViewAdapter> _webViewReadyCompletion = new();
         private ReparentingScope? _reparentingScope;
-
-        static NativeWebViewControlHost()
-        {
-#if WPF
-            FocusableProperty.OverrideMetadata(typeof(NativeWebViewControlHost), new UIPropertyMetadata(true));
-#elif AVALONIA
-            FocusableProperty.OverrideDefaultValue<NativeWebViewControlHost>(true);
-#endif
-        }
 
         public event EventHandler<IWebViewAdapter>? AdapterInitialized;
         public event EventHandler<IWebViewAdapter>? AdapterDeinitialized;
@@ -49,39 +41,33 @@ namespace Avalonia.Xpf.Controls
             {
                 adapter = new Core.Macios.MaciosWebViewAdapter();
             }
-            //else
-            //if (OperatingSystemEx.IsLinux())
+            else if (OperatingSystemEx.IsWindows()
+                     && Core.Win.WebView2.CoreWebView2Environment.IsAvailable)
+            {
+                adapter = new Core.Win.WebView2.WebView2HwndAdapter(base.CreateNativeControlCore(parent));
+            }
+            else if (OperatingSystemEx.IsWindows() && Core.Win.WebView1.WebView1Adapter.IsAvailable)
+            {
+                adapter = new Core.Win.WebView1.WebView1Adapter(base.CreateNativeControlCore(parent));
+            }
+            //else if (OperatingSystemEx.IsWindows() && IE Supported)
+            //{
+            //}
+            //else if (OperatingSystemEx.IsLinux())
             //{
             //    adapter = new Core.Macios.GtkWebViewAdapter();
             //}
-            else
-            // if (OperatingSystemEx.IsBrowser())
+            // else if (OperatingSystemEx.IsBrowser())
             // {
             //     adapter = new Core.Browser.BrowserIFrameAdapter();
             // } else
 #if ANDROID
-            if (OperatingSystem.IsAndroid())
+            else if (OperatingSystem.IsAndroid())
             {
                 adapter = new Android.AndroidWebViewAdapter(parent);
             }
-#elif NET6_0_OR_GREATER || NETFRAMEWORK
-            if (OperatingSystemEx.IsWindows())
-            {
-                if (WebViewHelper.IsMsWebView2Available)
-                {
-                    adapter = new Core.Win.WebView2Adapter(base.CreateNativeControlCore(parent));
-                }
-                // else if (WebViewCapabilities.IsMsWebView1Available)
-                // {
-                //     adapter = new Core.Win.WebView1Adapter(base.CreateNativeControlCore(parent));
-                // }
-                // else if (IE Supported)
-                // {
-                //    adapter = new Core.Win.WebBrowserAdapter();
-                // }
-            }
 #endif
-            if (adapter is null)
+            else if (adapter is null)
             {
                 return base.CreateNativeControlCore(parent);
             }
@@ -98,9 +84,9 @@ namespace Avalonia.Xpf.Controls
             return adapter;
         }
 
-        internal Task<IWebViewAdapter> GetAdapterAsync() => _webViewReadyCompletion.Task;
+        public Task<IWebViewAdapter> GetAdapterAsync() => _webViewReadyCompletion.Task;
 
-        internal IWebViewAdapter? TryGetAdapter() => _webViewReadyCompletion.Task.Status == TaskStatus.RanToCompletion ?
+        public IWebViewAdapter? TryGetAdapter() => _webViewReadyCompletion.Task.Status == TaskStatus.RanToCompletion ?
             _webViewReadyCompletion.Task.Result :
             null;
 

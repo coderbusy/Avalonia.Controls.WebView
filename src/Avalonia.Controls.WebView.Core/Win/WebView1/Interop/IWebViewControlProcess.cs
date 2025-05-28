@@ -1,0 +1,45 @@
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
+
+namespace Avalonia.Controls.Win.WebView1.Interop;
+
+[StructLayout(LayoutKind.Sequential)]
+struct winrtRect
+{
+    public float X;
+    public float Y;
+    public float Width;
+    public float Height;
+}
+
+#if COM_SOURCE_GEN
+[GeneratedComInterface(Options = ComInterfaceOptions.ComObjectWrapper)]
+#else
+[ComImport]
+[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+#endif
+[Guid("02C723EC-98D6-424A-B63E-C6136C36A0F2")]
+internal partial interface IWebViewControlProcess : IInspectable
+{
+#if !COM_SOURCE_GEN
+    void _VtblGap1_3();
+#endif
+
+    uint GetProcessId();
+
+    IntPtr GetEnterpriseId();
+
+    [return: MarshalAs(UnmanagedType.Bool)]
+    bool GetIsPrivateNetworkClientServerCapabilityEnabled();
+
+    IAsyncOperation_WebViewControl CreateWebViewControl(long hostWindowHandle, winrtRect bounds);
+
+    void GetWebViewControls(out IntPtr result);
+
+    void Terminate();
+
+    void add_ProcessExited(IntPtr handler, out EventRegistrationToken token);
+
+    void remove_ProcessExited(EventRegistrationToken token);
+}

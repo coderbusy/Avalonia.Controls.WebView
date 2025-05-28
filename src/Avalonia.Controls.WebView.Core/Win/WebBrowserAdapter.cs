@@ -1,4 +1,4 @@
-﻿#if !ANDROID && (NET6_0_OR_GREATER || NETFRAMEWORK)
+﻿#if NEVER
 using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -180,7 +180,7 @@ internal unsafe class WebBrowserAdapter : IWebViewAdapter
     public event EventHandler? Initialized;
     public bool IsInitialized => true;
 
-    public void SizeChanged()
+    public void SizeChanged(PixelSize containerSize)
     {
     }
 

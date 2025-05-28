@@ -14,7 +14,7 @@ namespace Avalonia.Controls.Macios;
 
 [SupportedOSPlatform("macos")]
 [SupportedOSPlatform("ios")]
-public class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWithInputRedirect, IWebViewAdapterWithCookieManager, IWebViewAdapterWithCommands
+internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWithInputRedirect, IWebViewAdapterWithCookieManager, IWebViewAdapterWithCommands
 {
     private const string PostAvWebViewMessageName = "postAvWebViewMessage";
 
@@ -152,7 +152,7 @@ public class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWit
         }, DispatcherPriority.Background);
     }
 
-    public void SizeChanged()
+    public void SizeChanged(PixelSize containerSize)
     {
     }
 

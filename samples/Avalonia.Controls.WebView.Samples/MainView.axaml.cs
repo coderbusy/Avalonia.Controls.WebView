@@ -25,7 +25,7 @@ public partial class MainView : UserControl
         LogList.Text += "\r\nNativeWebView_OnNavigationCompleted " + e.Request;
 
         var webView = (NativeWebView)sender!;
-        _ = await webView.InvokeScript(""" invokeCSharpAction({'key': 10}) """);
+        await InvokeTestScript(webView, """ invokeCSharpAction({'key': 10}) """);
 
         await InvokeTestScript(webView, "1+1");
         await InvokeTestScript(webView, "'test'");
@@ -46,16 +46,14 @@ public partial class MainView : UserControl
 
         if (webView.TryGetCookieManager() is { } manager)
         {
-            manager.AddOrUpdateCookie(new Cookie("Hello", "There", "/", ".google.com")
-            {
-                HttpOnly = false
-            });
+            manager.AddOrUpdateCookie(new Cookie("Hello", "There", "/", ".google.com") { HttpOnly = false });
             var cookies = await manager.GetCookiesAsync();
             foreach (var c in cookies)
             {
                 LogList.Text += "\r\nCookie retrieved " + c;
                 manager.DeleteCookie(c.Name, c.Domain, c.Path);
             }
+
             cookies = await manager.GetCookiesAsync();
             foreach (var c in cookies)
             {
@@ -66,8 +64,15 @@ public partial class MainView : UserControl
 
     private async Task InvokeTestScript(NativeWebView webView, string script)
     {
-        var result = await webView.InvokeScript(script);
-        LogList.Text += "\r\nTest Script " + script + ": " + result;
+        try
+        {
+            var result = await webView.InvokeScript(script);
+            LogList.Text += "\r\nTest Script " + script + ": " + (result?.Length > 100 ? result[..100] + "..." : result);;
+        }
+        catch (Exception ex)
+        {
+            LogList.Text += "\r\nTest Script " + script + " FAILED: " + ex.Message;
+        }
     }
 
     private void NativeWebView_OnNavigationStarted(object? sender, WebViewNavigationStartingEventArgs e)
@@ -135,7 +140,6 @@ public partial class MainView : UserControl
     private static (string requestUri, string redirectUri) GetGoogleAuth()
     {
         var href = Environment.GetCommandLineArgs().Skip(1).FirstOrDefault();
-        Console.WriteLine("HRef " + href);
 
         var redirectUri = OperatingSystem.IsIOS() ?
             "com.googleusercontent.apps.457602913817-kd2547t40mrvqi63c4m7lphs5s6s5lt2://" :

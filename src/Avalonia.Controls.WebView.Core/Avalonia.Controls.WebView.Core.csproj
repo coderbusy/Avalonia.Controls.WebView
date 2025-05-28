@@ -1,12 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackAvaloniaNative Condition="'$(PackAvaloniaNative)' == ''">$([MSBuild]::IsOSPlatform(OSX))</PackAvaloniaNative>
     <TargetFrameworks>
       netstandard2.0;net462;
       net6.0;net8.0;
       net8.0-android
     </TargetFrameworks>
+
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <RootNamespace>Avalonia.Controls</RootNamespace>
     <WarningsAsErrors>$(WarningsAsErrors);CA1420;CA1421;</WarningsAsErrors>
@@ -18,18 +18,17 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
     <AvnLicensingEmitBuildTime>true</AvnLicensingEmitBuildTime>
+    <DefineConstants Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">$(DefineConstants);COM_SOURCE_GEN</DefineConstants>
+    <!-- https://github.com/dotnet/runtime/issues/90922 -->
+    <NoWarn>$(NoWarn);CA2256</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="**/*.mcidl" />
-    <PackageReference Include="MicroCom.CodeGenerator.Roslyn" Version="0.11.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +42,6 @@
   <Import Project="$(RepositoryPropsRoot)/Constants.targets" />
   <Import Project="$(RepositoryPropsRoot)/NullableEnable.targets" />
   <Import Project="$(RepositoryPropsRoot)/PolyfillEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/SignEnable.targets" />
+<!--  <Import Project="$(RepositoryPropsRoot)/SignEnable.targets" />-->
   <Import Project="$(RepositoryPropsRoot)/TrimmingEnable.targets" />
 </Project>
