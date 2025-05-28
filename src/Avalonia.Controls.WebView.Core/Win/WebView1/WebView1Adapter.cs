@@ -51,8 +51,11 @@ internal sealed class WebView1Adapter : IWebViewAdapter
     {
         var process = s_lazyProcess ??= CreateProcess();
 
+        if (!PInvoke.GetWindowRect(new HWND(Handle), out var rect))
+            rect = RECT.FromXYWH(0, 0, 100, 100);
+
         var operation = process.CreateWebViewControl((long)Handle,
-            new winrtRect { Height = 100, Width = 100 });
+            new winrtRect { Height = rect.Width, Width = rect.Height });
         var handler = new WebViewControlHandler();
         operation.put_Completed(handler);
 
