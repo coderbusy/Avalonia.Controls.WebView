@@ -28,10 +28,6 @@ namespace Avalonia.Xpf.Controls
         {
             Content = _nativeWebView;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            _nativeWebView.NavigationCompleted += (_, a) => NavigationCompleted?.Invoke(this, a);
-            _nativeWebView.NavigationStarted += (_, a) => NavigationStarted?.Invoke(this, a);
-            _nativeWebView.WebMessageReceived += (_, a) => WebMessageReceived?.Invoke(this, a);
-
             Closing += (_, args) =>
             {
                 _closing?.Invoke(this, args);
@@ -40,31 +36,11 @@ namespace Avalonia.Xpf.Controls
 
         public Core.IWebView WebView => _nativeWebView;
 
-        public bool CanGoBack => _nativeWebView.CanGoBack;
-        public bool CanGoForward => _nativeWebView.CanGoForward;
-
 #if WPF
         public bool CanUserResize { get => ResizeMode != ResizeMode.NoResize; set => ResizeMode = value ? ResizeMode.CanResize : ResizeMode.NoResize; }
 #elif AVALONIA
         public bool CanUserResize { get => CanResize; set => CanResize = value; }
 #endif
-
-        public Uri Source
-        {
-            get => _nativeWebView.Source;
-            set => _nativeWebView.Source = value;
-        }
-
-        public event EventHandler<Core.WebViewNavigationCompletedEventArgs>? NavigationCompleted;
-        public event EventHandler<Core.WebViewNavigationStartingEventArgs>? NavigationStarted;
-        public event EventHandler<Core.WebMessageReceivedEventArgs>? WebMessageReceived;
-        public bool GoBack() => _nativeWebView.GoBack();
-        public bool GoForward() => _nativeWebView.GoForward();
-        public Task<string?> InvokeScript(string script) => _nativeWebView.InvokeScript(script);
-        public void Navigate(Uri url) => _nativeWebView.Navigate(url);
-        public void NavigateToString(string text) => _nativeWebView.NavigateToString(text);
-        public bool Refresh() => _nativeWebView.Refresh();
-        public bool Stop() => _nativeWebView.Stop();
 
         public void Dispose() {}
 
