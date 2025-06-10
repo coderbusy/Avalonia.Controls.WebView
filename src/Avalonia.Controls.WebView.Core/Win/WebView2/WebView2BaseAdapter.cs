@@ -167,11 +167,11 @@ internal abstract partial class WebView2BaseAdapter : IWebViewAdapterWithCookieM
         _controller.SetParentWindow(parent.Handle);
     }
 
-    internal void OnNavigationStarted(WebViewNavigationStartingEventArgs args) => NavigationStarted?.Invoke(this, args);
-    internal void OnNavigationCompleted(WebViewNavigationCompletedEventArgs args) => NavigationCompleted?.Invoke(this, args);
-    internal void OnWebMessageReceived(WebMessageReceivedEventArgs args) => WebMessageReceived?.Invoke(this, args);
+    internal EventHandler<WebViewNavigationStartingEventArgs>? GetNavigationStarted() => NavigationStarted;
+    internal EventHandler<WebViewNavigationCompletedEventArgs>? GetNavigationCompleted() => NavigationCompleted;
+    internal EventHandler<WebMessageReceivedEventArgs>? GetWebMessageReceived() => WebMessageReceived;
     internal EventHandler<WebResourceRequestedEventArgs>? GetWebResourceRequested() => _webResourceRequested;
-    internal void OnNewWindowRequested(WebViewNewWindowRequestedEventArgs args) => NewWindowRequested?.Invoke(this, args);
+    internal EventHandler<WebViewNewWindowRequestedEventArgs>? GetNewWindowRequested() => NewWindowRequested;
 
     private async void Initialize(IPlatformHandle parentHost)
     {
