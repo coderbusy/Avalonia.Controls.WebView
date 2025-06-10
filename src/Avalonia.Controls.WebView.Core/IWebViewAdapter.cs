@@ -4,12 +4,13 @@ using System.Threading.Tasks;
 using Avalonia.Controls.Rendering;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
 using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
 
 namespace Avalonia.Controls;
 
-public class WebMessageReceivedEventArgs : EventArgs
+public sealed class WebMessageReceivedEventArgs : EventArgs
 {
     public string? Body { get; init; }
 }
@@ -19,19 +20,40 @@ public class WebViewNavigationEventArgs : EventArgs
     public Uri? Request { get; init; }
 }
 
-public class WebViewNavigationCompletedEventArgs : WebViewNavigationEventArgs
+public sealed class WebViewNavigationCompletedEventArgs : WebViewNavigationEventArgs
 {
     public bool IsSuccess { get; init; } = true;
 }
 
-public class WebViewNavigationStartingEventArgs : WebViewNavigationEventArgs
+public sealed class WebViewNavigationStartingEventArgs : WebViewNavigationEventArgs
 {
     public bool Cancel { get; set; }
 }
 
-public class WebViewNewWindowRequestedEventArgs : WebViewNavigationEventArgs
+public sealed class WebViewNewWindowRequestedEventArgs : WebViewNavigationEventArgs
 {
     public bool Handled { get; set; }
+}
+
+public sealed class WebViewAdapterEventArgs(IPlatformHandle? platformHandle) : EventArgs
+{
+    /// <summary>
+    /// Returns a platform handle of the native control adapter.
+    /// <list type="bullet">
+    ///     <listheader>
+    ///         <term>Can be one of the following</term>
+    ///     </listheader>
+    ///     <item><see cref="IWindowsWebView2PlatformHandle"/></item>
+    ///     <item><see cref="IWindowsWebView1PlatformHandle"/></item>
+    ///     <item><see cref="IAppleWKWebViewPlatformHandle"/></item>
+    ///     <item><see cref="IGtkWebViewPlatformHandle"/></item>
+    ///     <item><see cref="IAndroidWebViewPlatformHandle"/></item>
+    /// </list>
+    /// </summary>
+    /// <remarks>
+    /// Return handle can be used to access additional native APIs by using it with PInvokes. 
+    /// </remarks>
+    public IPlatformHandle? TryGetPlatformHandle() => platformHandle;
 }
 
 internal interface INativeWebViewDialog : IDisposable

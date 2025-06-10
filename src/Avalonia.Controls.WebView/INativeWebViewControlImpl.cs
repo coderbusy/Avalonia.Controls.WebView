@@ -6,7 +6,7 @@ namespace Avalonia.Controls;
 internal interface INativeWebViewControlImpl
 {
     event EventHandler<IWebViewAdapter>? AdapterInitialized;
-    event EventHandler<IWebViewAdapter>? AdapterDeinitialized;
+    event EventHandler<IWebViewAdapter>? AdapterDestroyed;
     IWebViewAdapter? TryGetAdapter();
     Task<IWebViewAdapter> GetAdapterAsync();
     IDisposable BeginReparenting(bool yieldOnLayoutBeforeExiting);

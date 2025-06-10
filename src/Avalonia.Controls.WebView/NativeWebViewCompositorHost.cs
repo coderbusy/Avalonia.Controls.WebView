@@ -37,7 +37,7 @@ internal class NativeWebViewCompositorHost : Control, INativeWebViewControlImpl
     }
 
     public event EventHandler<IWebViewAdapter>? AdapterInitialized;
-    public event EventHandler<IWebViewAdapter>? AdapterDeinitialized;
+    public event EventHandler<IWebViewAdapter>? AdapterDestroyed;
 
     public IWebViewAdapter? TryGetAdapter() => _webViewReadyCompletion.Task.Status == TaskStatus.RanToCompletion ?
         _webViewReadyCompletion.Task.Result :
@@ -93,7 +93,7 @@ internal class NativeWebViewCompositorHost : Control, INativeWebViewControlImpl
         {
             adapter.DrawRequested -= OffscreenAdapter_OnDrawRequested;
             adapter.Initialized -= WebViewAdapterOnInitialized;
-            AdapterDeinitialized?.Invoke(this, adapter);
+            AdapterDestroyed?.Invoke(this, adapter);
             adapter.Dispose();
         }
 

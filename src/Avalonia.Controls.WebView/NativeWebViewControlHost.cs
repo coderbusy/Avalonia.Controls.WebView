@@ -26,7 +26,7 @@ namespace Avalonia.Xpf.Controls
         private ReparentingScope? _reparentingScope;
 
         public event EventHandler<IWebViewAdapter>? AdapterInitialized;
-        public event EventHandler<IWebViewAdapter>? AdapterDeinitialized;
+        public event EventHandler<IWebViewAdapter>? AdapterDestroyed;
 
         protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
         {
@@ -105,7 +105,7 @@ namespace Avalonia.Xpf.Controls
                 _webViewReadyCompletion.TrySetCanceled();
                 _webViewReadyCompletion = new TaskCompletionSource<IWebViewAdapter>();
                 adapter.Initialized -= WebViewAdapterOnInitialized;
-                AdapterDeinitialized?.Invoke(this, adapter);
+                AdapterDestroyed?.Invoke(this, adapter);
                 adapter.Dispose();
             }
         }

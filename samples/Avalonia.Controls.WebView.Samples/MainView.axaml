@@ -15,6 +15,8 @@
                                NavigationStarted="NativeWebView_OnNavigationStarted"
                                WebMessageReceived="NativeWebView_OnWebMessageReceived"
                                NewWindowRequested="NativeWebView_OnNewWindowRequested"
+                               AdapterInitialized="NativeWebView_OnAdapterInitialized"
+                               AdapterDestroyed="NativeWebView_OnAdapterDestroyed"
                                KeyDown="InputElement_OnKeyDown"
                                KeyUp="InputElement_OnKeyUp" />
                 <TextBox IsReadOnly="True" Grid.Row="1" x:Name="LogList" />

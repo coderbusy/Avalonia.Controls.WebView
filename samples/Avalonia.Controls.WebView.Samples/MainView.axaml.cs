@@ -1,11 +1,14 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Platform;
+using Avalonia.Threading;
 
 namespace Avalonia.Controls.WebView.Samples;
 
@@ -166,6 +169,32 @@ public partial class MainView : UserControl
     {
         TabControl.Items.Add(new TabItem { Header = "New tab", Content = new NativeWebView { Source = e.Request! } });
         e.Handled = true;
+    }
+
+    private unsafe void NativeWebView_OnAdapterInitialized(object? sender, WebViewAdapterEventArgs e)
+    {
+        LogList.Text += "\r\nNativeWebView_OnAdapterInitialized " + e.TryGetPlatformHandle()?.GetType().Name;
+
+        if (e.TryGetPlatformHandle() is IWindowsWebView2PlatformHandle webView2)
+        {
+            DispatcherTimer.RunOnce(() =>
+            {
+                LogList.Text += "\r\nRunning ICoreWebView2.Refresh using native interop";
+
+                // Some testing code, just to make sure user can do the same in a better way (CsWin32 or so).
+                const int refreshMethodOffset = 31;
+                var vtable = Marshal.ReadIntPtr(webView2.CoreWebView2);
+                var methodPtr = Marshal.ReadIntPtr(vtable, refreshMethodOffset * IntPtr.Size);
+                var methodDelegate = (delegate* unmanaged[Stdcall]<IntPtr, int>)methodPtr;
+                int hresult = methodDelegate(webView2.CoreWebView2);
+                Marshal.ThrowExceptionForHR(hresult);
+            }, TimeSpan.FromSeconds(4));
+        }
+    }
+
+    private void NativeWebView_OnAdapterDestroyed(object? sender, WebViewAdapterEventArgs e)
+    {
+        LogList.Text += "\r\nNativeWebView_OnAdapterDestroyed " + e.TryGetPlatformHandle()?.GetType().Name;
     }
 }
 

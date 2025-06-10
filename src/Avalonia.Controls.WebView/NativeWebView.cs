@@ -66,7 +66,7 @@ namespace Avalonia.Xpf.Controls
 #endif
 
             _controlHostImpl.AdapterInitialized += ControlHostImplOnAdapterInitialized;
-            _controlHostImpl.AdapterDeinitialized += ControlHostImplOnAdapterDeinitialized;
+            _controlHostImpl.AdapterDestroyed += ControlHostImplOnAdapterDeinitialized;
 #if AVALONIA
             VisualChildren.Add((Control)_controlHostImpl);
 #elif WPF
@@ -91,6 +91,16 @@ namespace Avalonia.Xpf.Controls
 
         /// <inheritdoc/>
         public event EventHandler<Core.WebMessageReceivedEventArgs>? WebMessageReceived;
+
+        /// <summary>
+        ///     AdapterInitialized dispatches after underlying webview adapter was initialized.
+        /// </summary>
+        public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterInitialized;
+
+        /// <summary>
+        ///     AdapterDestroyed dispatches after underlying webview adapter was destroyed.
+        /// </summary>
+        public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterDestroyed;
 
         /// <inheritdoc/>
         public Uri Source
@@ -174,11 +184,10 @@ namespace Avalonia.Xpf.Controls
         /// <inheritdoc/>
         public bool Stop() => _controlHostImpl.TryGetAdapter()?.Stop() ?? false;
 
-        /// <summary>
-        /// Returns a platform handle of the native control.
-        /// </summary>
+        /// <inheritdoc cref="Avalonia.Controls.WebViewAdapterEventArgs.TryGetPlatformHandle"/>
         /// <remarks>
-        /// Return handle can be used to access additional native APIs by using it with PInvokes. 
+        /// <para>Return handle can be used to access additional native APIs by using it with PInvokes.</para> 
+        /// <para>Should be used together with <see cref="AdapterInitialized"/> and <see cref="AdapterDestroyed"/>.</para>
         /// </remarks>
         public IPlatformHandle? TryGetPlatformHandle() => _controlHostImpl.TryGetAdapter();
 
@@ -283,6 +292,8 @@ namespace Avalonia.Xpf.Controls
             {
                 withInput.Input -= WithInputOnInput;
             }
+
+            AdapterDestroyed?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
         }
 
         private void ControlHostImplOnAdapterInitialized(object? sender, Core.IWebViewAdapter adapter)
@@ -312,6 +323,8 @@ namespace Avalonia.Xpf.Controls
             {
                 adapter.Navigate(source);
             }
+
+            AdapterInitialized?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
         }
 
 #if WPF
