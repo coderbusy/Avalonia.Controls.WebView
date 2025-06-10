@@ -14,6 +14,7 @@
                                NavigationCompleted="NativeWebView_OnNavigationCompleted"
                                NavigationStarted="NativeWebView_OnNavigationStarted"
                                WebMessageReceived="NativeWebView_OnWebMessageReceived"
+                               WebResourceRequested="NativeWebView_OnWebResourceRequested"
                                NewWindowRequested="NativeWebView_OnNewWindowRequested"
                                AdapterInitialized="NativeWebView_OnAdapterInitialized"
                                AdapterDestroyed="NativeWebView_OnAdapterDestroyed"
