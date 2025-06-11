@@ -2,12 +2,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Android.Webkit;
 using Java.Interop;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Android.Content;
 using Avalonia.Android;
+using Avalonia.Controls.Macios;
+using Avalonia.Controls.Utils;
 using Avalonia.Interactivity;
 using Avalonia.Platform;
 using Avalonia.Threading;
@@ -70,6 +74,7 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     public event EventHandler<WebViewNavigationStartingEventArgs>? NavigationStarted;
     public event EventHandler<WebViewNewWindowRequestedEventArgs>? NewWindowRequested;
     public event EventHandler<WebMessageReceivedEventArgs>? WebMessageReceived;
+    public event EventHandler<WebResourceRequestedEventArgs>? WebResourceRequested;
     public event EventHandler? GotFocus;
     public event EventHandler? LostFocus;
     public event Action<RoutedEventArgs>? Input;
@@ -197,15 +202,33 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     {
         public override bool ShouldOverrideUrlLoading(WebView? view, IWebResourceRequest? request)
         {
+            var url = new Uri(request!.Url!.ToString()!);
+
+            if (adapter.WebResourceRequested is { } webResourceRequested)
+            {
+                var webResourceArgs = new WebResourceRequestedEventArgs
+                {
+                    Request = new WebViewWebResourceRequest
+                    {
+                        Method = new HttpMethod(request.Method!),
+                        Uri = url,
+                        Headers = new NativeHeadersCollection(new DictionaryNativeHttpRequestHeaders(
+                            request.RequestHeaders?.AsReadOnly() ?? new ReadOnlyDictionary<string, string>([]))),
+                    }
+                };
+
+                webResourceRequested.Invoke(this, webResourceArgs);
+            }
+
             if (request?.IsForMainFrame == false)
             {
-                var args = new WebViewNewWindowRequestedEventArgs { Request = new Uri(request!.Url!.ToString()!) };
+                var args = new WebViewNewWindowRequestedEventArgs { Request = url };
                 adapter.NewWindowRequested?.Invoke(adapter, args);
                 return args.Handled;
             }
             else
             {
-                var args = new WebViewNavigationStartingEventArgs { Request = new Uri(request!.Url!.ToString()!) };
+                var args = new WebViewNavigationStartingEventArgs { Request = url };
                 adapter.NavigationStarted?.Invoke(adapter, args);
                 return args.Cancel;
             }

@@ -139,7 +139,7 @@ internal partial interface IWebViewControl : IInspectable
 
     void remove_ContainsFullScreenElementChanged(EventRegistrationToken token);
 
-    void add_WebResourceRequested(IntPtr handler, out EventRegistrationToken token);
+    void add_WebResourceRequested(IWebViewControlWebResourceRequestedHandler handler, out EventRegistrationToken token);
 
     void remove_WebResourceRequested(EventRegistrationToken token);
 }

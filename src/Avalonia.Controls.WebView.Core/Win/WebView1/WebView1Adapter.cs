@@ -102,6 +102,7 @@ internal sealed class WebView1Adapter : IWebViewAdapter, IWindowsWebView1Platfor
     public event EventHandler? Initialized;
     public event EventHandler<WebViewNewWindowRequestedEventArgs>? NewWindowRequested;
     public event EventHandler<WebMessageReceivedEventArgs>? WebMessageReceived;
+    public event EventHandler<WebResourceRequestedEventArgs>? WebResourceRequested;
     public event EventHandler<WebViewNavigationCompletedEventArgs>? NavigationCompleted;
     public event EventHandler<WebViewNavigationStartingEventArgs>? NavigationStarted;
 
@@ -204,10 +205,11 @@ internal sealed class WebView1Adapter : IWebViewAdapter, IWindowsWebView1Platfor
         PInvoke.SetParent(new HWND(Handle), new HWND(parent.Handle));
     }
 
-    internal void OnNavigationStarted(WebViewNavigationStartingEventArgs args) => NavigationStarted?.Invoke(this, args);
-    internal void OnNavigationCompleted(WebViewNavigationCompletedEventArgs args) => NavigationCompleted?.Invoke(this, args);
-    internal void OnWebMessageReceived(WebMessageReceivedEventArgs args) => WebMessageReceived?.Invoke(this, args);
-    internal void OnNewWindowRequested(WebViewNewWindowRequestedEventArgs args) => NewWindowRequested?.Invoke(this, args);
+    internal EventHandler<WebViewNavigationStartingEventArgs>? GetNavigationStarted() => NavigationStarted;
+    internal EventHandler<WebViewNavigationCompletedEventArgs>? GetNavigationCompleted() => NavigationCompleted;
+    internal EventHandler<WebMessageReceivedEventArgs>? GetWebMessageReceived() => WebMessageReceived;
+    internal EventHandler<WebResourceRequestedEventArgs>? GetWebResourceRequested() => WebResourceRequested;
+    internal EventHandler<WebViewNewWindowRequestedEventArgs>? GetNewWindowRequested() => NewWindowRequested;
 
     private static IWebViewControlProcess CreateProcess()
     {
@@ -225,14 +227,16 @@ internal sealed class WebView1Adapter : IWebViewAdapter, IWindowsWebView1Platfor
         webView.add_NavigationStarting(callbacks, out var token1);
         webView.add_NavigationCompleted(callbacks, out var token2);
         webView.add_ScriptNotify(callbacks, out var token3);
-        webView.add_NewWindowRequested(callbacks, out var token4);
+        webView.add_WebResourceRequested(callbacks, out var token4);
+        webView.add_NewWindowRequested(callbacks, out var token5);
 
         return () =>
         {
             webView.remove_NavigationStarting(token1);
             webView.remove_NavigationCompleted(token2);
             webView.remove_ScriptNotify(token3);
-            webView.remove_NewWindowRequested(token4);
+            webView.remove_WebResourceRequested(token4);
+            webView.remove_NewWindowRequested(token5);
         };
     }
 

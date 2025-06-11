@@ -1,13 +1,63 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Logging;
 using Avalonia.Threading;
 
 namespace Avalonia.Controls.Gtk;
 
 internal static class AvaloniaGtk
 {
+    static AvaloniaGtk()
+    {
+#if NET6_0_OR_GREATER
+        var map = new Dictionary<string, string[]>
+        {
+            [GtkInterop.LibGtk] = ["libgtk-3.so.0", "libgtk-3.so"],
+            [GtkInterop.LibGdk] = ["libgdk-3.so.0", "libgdk-3.so"],
+            [GtkInterop.LibGLib] = ["libglib-2.0.so.0", "libglib-2.0.so"],
+            [GtkInterop.LibGObject] = ["libgobject-2.0.so.0", "libgobject-2.0.so"],
+            [GtkInterop.LibGio] = ["libgio-2.0.so.0", "libgio-2.0.so"],
+            [GtkInterop.LibWebKit] =
+            [
+                "libwebkit2gtk-4.1.so.0",
+                "libwebkit2gtk-4.1.so",
+                "libwebkit2gtk-4.0.so.37",
+                "libwebkit2gtk-4.0.so"
+            ],
+            [GtkInterop.LibSoup] =
+            [
+                "libsoup-3.0.so.0",
+                "libsoup-3.0.so",
+                "libsoup-2.4.so.1",
+                "libsoup-2.4.so"
+            ]
+        };
+
+        NativeLibrary.SetDllImportResolver(typeof(AvaloniaGtk).Assembly, (name, assembly, searchPath) =>
+        {
+            if (map.TryGetValue(name, out var candidates))
+            {
+                foreach (var mapped in candidates)
+                {
+                    if (NativeLibrary.TryLoad(mapped, assembly, searchPath, out var ptr))
+                        return ptr;
+                }
+
+                Logger.TryGet(LogEventLevel.Error, "WebView")?.Log(null,
+                    "Unable to resolve GTK assembly {Name}. Expected options are: {Candidates}", name,
+                    string.Join(',', candidates));
+            }
+
+            // Default
+            return IntPtr.Zero;
+        });
+#endif
+    }
+
     public static Task<T> RunOnGlibThreadAsync<T>(Func<T> callback) => CachedDelegate<T>.Run(callback);
 
     public static Task RunOnGlibThreadAsync(Action callback) => CachedDelegate<object?>.Run(() =>

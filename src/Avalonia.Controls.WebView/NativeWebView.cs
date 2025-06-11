@@ -35,6 +35,12 @@ namespace Avalonia.Xpf.Controls
         private bool _ignoreNavigation;
         private bool _ignoreFocusChanges;
 
+        private EventHandler<Core.WebViewNavigationCompletedEventArgs>? _navigationCompleted;
+        private EventHandler<Core.WebViewNavigationStartingEventArgs>? _navigationStarted;
+        private EventHandler<Core.WebViewNewWindowRequestedEventArgs>? _newWindowRequested;
+        private EventHandler<Core.WebMessageReceivedEventArgs>? _webMessageReceived;
+        private EventHandler<Core.WebResourceRequestedEventArgs>? _webResourceRequested;
+
 #if WPF
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source), typeof(Uri), typeof(NativeWebView),
@@ -82,15 +88,119 @@ namespace Avalonia.Xpf.Controls
 #endif
 
         /// <inheritdoc/>
-        public event EventHandler<Core.WebViewNavigationCompletedEventArgs>? NavigationCompleted;
-        /// <inheritdoc/>
-        public event EventHandler<Core.WebViewNavigationStartingEventArgs>? NavigationStarted;
+        public event EventHandler<Core.WebViewNavigationCompletedEventArgs>? NavigationCompleted
+        {
+            add
+            {
+                if (this._navigationCompleted is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.NavigationCompleted += WebViewAdapterOnNavigationCompleted;
+                }
+                this._navigationCompleted += value;
+            }
+            remove
+            {
+                this._navigationCompleted -= value;
+                if (this._navigationCompleted is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.NavigationCompleted -= WebViewAdapterOnNavigationCompleted;
+                }
+            }
+        }
 
         /// <inheritdoc/>
-        public event EventHandler<Core.WebViewNewWindowRequestedEventArgs>? NewWindowRequested;
+        public event EventHandler<Core.WebViewNavigationStartingEventArgs>? NavigationStarted
+        {
+            add
+            {
+                if (this._navigationStarted is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.NavigationStarted += WebViewAdapterOnNavigationStarted;
+                }
+                this._navigationStarted += value;
+            }
+            remove
+            {
+                this._navigationStarted -= value;
+                if (this._navigationStarted is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.NavigationStarted -= WebViewAdapterOnNavigationStarted;
+                }
+            }
+        }
 
         /// <inheritdoc/>
-        public event EventHandler<Core.WebMessageReceivedEventArgs>? WebMessageReceived;
+        public event EventHandler<Core.WebViewNewWindowRequestedEventArgs>? NewWindowRequested
+        {
+            add
+            {
+                if (this._newWindowRequested is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.NewWindowRequested += WebViewAdapterOnNewWindowRequested;
+                }
+                this._newWindowRequested += value;
+            }
+            remove
+            {
+                this._newWindowRequested -= value;
+                if (this._newWindowRequested is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.NewWindowRequested -= WebViewAdapterOnNewWindowRequested;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public event EventHandler<Core.WebMessageReceivedEventArgs>? WebMessageReceived
+        {
+            add
+            {
+                if (this._webMessageReceived is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.WebMessageReceived += WebViewAdapterOnWebMessageReceived;
+                }
+                this._webMessageReceived += value;
+            }
+            remove
+            {
+                this._webMessageReceived -= value;
+                if (this._webMessageReceived is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.WebMessageReceived -= WebViewAdapterOnWebMessageReceived;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public event EventHandler<Core.WebResourceRequestedEventArgs>? WebResourceRequested
+        {
+            add
+            {
+                if (this._webResourceRequested is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.WebResourceRequested += WebViewAdapterOnWebResourceRequested;
+                }
+                this._webResourceRequested += value;
+            }
+            remove
+            {
+                this._webResourceRequested -= value;
+                if (this._webResourceRequested is null
+                    && _controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.WebResourceRequested -= WebViewAdapterOnWebResourceRequested;
+                }
+            }
+        }
 
         /// <summary>
         ///     AdapterInitialized dispatches after underlying webview adapter was initialized.
@@ -212,12 +322,17 @@ namespace Avalonia.Xpf.Controls
 
         private void WebViewAdapterOnWebMessageReceived(object? sender, Core.WebMessageReceivedEventArgs e)
         {
-            WebMessageReceived?.Invoke(this, e);
+            _webMessageReceived?.Invoke(this, e);
+        }
+
+        private void WebViewAdapterOnWebResourceRequested(object? sender, Core.WebResourceRequestedEventArgs e)
+        {
+            _webResourceRequested?.Invoke(this, e);
         }
 
         private void WebViewAdapterOnNavigationStarted(object? sender, Core.WebViewNavigationStartingEventArgs e)
         {
-            NavigationStarted?.Invoke(this, e);
+            _navigationStarted?.Invoke(this, e);
         }
 
         private void WebViewAdapterOnNavigationCompleted(object? sender, Core.WebViewNavigationCompletedEventArgs e)
@@ -226,7 +341,7 @@ namespace Avalonia.Xpf.Controls
             try
             {
                 SetCurrentValue(SourceProperty, e.Request ?? Core.WebViewHelper.EmptyPage);
-                NavigationCompleted?.Invoke(this, e);
+                _navigationCompleted?.Invoke(this, e);
             }
             finally
             {
@@ -236,7 +351,7 @@ namespace Avalonia.Xpf.Controls
 
         private void WebViewAdapterOnNewWindowRequested(object? sender, Core.WebViewNewWindowRequestedEventArgs e)
         {
-            NewWindowRequested?.Invoke(this, e);
+            _newWindowRequested?.Invoke(this, e);
         }
 
         private void WithFocusOnGotFocus(object? sender, EventArgs e)
@@ -282,6 +397,7 @@ namespace Avalonia.Xpf.Controls
             adapter.NavigationStarted -= WebViewAdapterOnNavigationStarted;
             adapter.NavigationCompleted -= WebViewAdapterOnNavigationCompleted;
             adapter.WebMessageReceived -= WebViewAdapterOnWebMessageReceived;
+            adapter.WebResourceRequested -= WebViewAdapterOnWebResourceRequested;
             adapter.NewWindowRequested -= WebViewAdapterOnNewWindowRequested;
             if (adapter is Core.IWebViewAdapterWithFocus withFocus)
             {
@@ -298,10 +414,16 @@ namespace Avalonia.Xpf.Controls
 
         private void ControlHostImplOnAdapterInitialized(object? sender, Core.IWebViewAdapter adapter)
         {
-            adapter.NavigationStarted += WebViewAdapterOnNavigationStarted;
-            adapter.NavigationCompleted += WebViewAdapterOnNavigationCompleted;
-            adapter.WebMessageReceived += WebViewAdapterOnWebMessageReceived;
-            adapter.NewWindowRequested += WebViewAdapterOnNewWindowRequested;
+            if (_navigationStarted is not null)
+                adapter.NavigationStarted += WebViewAdapterOnNavigationStarted;
+            if (_navigationCompleted is not null)
+                adapter.NavigationCompleted += WebViewAdapterOnNavigationCompleted;
+            if (_webMessageReceived is not null)
+                adapter.WebMessageReceived += WebViewAdapterOnWebMessageReceived;
+            if (_webResourceRequested is not null)
+                adapter.WebResourceRequested += WebViewAdapterOnWebResourceRequested;
+            if (_newWindowRequested is not null)
+                adapter.NewWindowRequested += WebViewAdapterOnNewWindowRequested;
             if (adapter is Core.IWebViewAdapterWithFocus withFocus)
             {
                 withFocus.LostFocus += WithFocusOnLostFocus;

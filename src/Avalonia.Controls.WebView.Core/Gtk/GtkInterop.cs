@@ -7,13 +7,13 @@ namespace Avalonia.Controls.Gtk;
 
 internal static unsafe partial class GtkInterop
 {
-    private const string LibGObject = "libgobject-2.0.so.0";
-    private const string LibWebKit = "libwebkit2gtk-4.1.so.0";
-    private const string LibGLib = "libglib-2.0.so.0";
-    private const string LibGio = "libgio-2.0.so.0";
-    private const string LibGtk = "libgtk-3.so.0";
-    private const string LibGdk = "libgdk-3.so.0";
-
+    internal const string LibGObject = "libgobject";
+    internal const string LibWebKit = "libwebkit2gtk";
+    internal const string LibGLib = "libglib";
+    internal const string LibGio = "libgio";
+    internal const string LibGtk = "libgtk";
+    internal const string LibGdk = "libgdk";
+    internal const string LibSoup = "libsoup";
 
 #if NET7_0_OR_GREATER
     [LibraryImport(LibGLib, StringMarshalling = StringMarshalling.Utf8)]
@@ -28,6 +28,9 @@ internal static unsafe partial class GtkInterop
 
     [DllImport(LibWebKit)]
     internal static extern IntPtr webkit_web_view_get_settings(IntPtr webView);
+
+    [DllImport(LibWebKit)]
+    internal static extern IntPtr webkit_web_view_get_context(IntPtr webView);
 
     [DllImport(LibWebKit)]
     internal static extern IntPtr webkit_web_view_get_uri(IntPtr webView);
@@ -335,6 +338,9 @@ internal static unsafe partial class GtkInterop
     internal static extern IntPtr webkit_uri_request_get_uri(IntPtr request);
 
     [DllImport(LibWebKit)]
+    internal static extern IntPtr webkit_uri_request_get_http_headers(IntPtr request);
+
+    [DllImport(LibWebKit)]
     internal static extern void webkit_option_menu_activate_item(IntPtr menu, uint index);
     [DllImport(LibWebKit)]
     internal static extern void webkit_option_menu_close(IntPtr menu);
@@ -356,6 +362,39 @@ internal static unsafe partial class GtkInterop
     internal static extern bool webkit_option_menu_item_is_group_child(IntPtr menuItem);
     [DllImport(LibWebKit)]
     internal static extern bool webkit_option_menu_item_is_group_label(IntPtr menuItem);
+
+    [DllImport(LibSoup)]
+    public static extern void soup_message_headers_clear(IntPtr headers);
+
+    [DllImport(LibSoup)]
+    public static extern void soup_message_headers_foreach(
+        IntPtr headers,
+        delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void> func,
+        GCHandle user_data);
+
+#if NET7_0_OR_GREATER
+    [LibraryImport(LibSoup, StringMarshalling = StringMarshalling.Utf8)]
+    public static partial string? soup_message_headers_get_list(IntPtr headers, string name);
+    [LibraryImport(LibSoup, StringMarshalling = StringMarshalling.Utf8)]
+    public static partial string? soup_message_headers_get_one(IntPtr headers, string name);
+    [LibraryImport(LibSoup, StringMarshalling = StringMarshalling.Utf8)]
+    public static partial void soup_message_headers_replace(IntPtr headers, string name, string value);
+    [LibraryImport(LibSoup, StringMarshalling = StringMarshalling.Utf8)]
+    public static partial void soup_message_headers_append(IntPtr headers, string name, string value);
+    [LibraryImport(LibSoup, StringMarshalling = StringMarshalling.Utf8)]
+    public static partial void soup_message_headers_remove(IntPtr headers, string name);
+#else
+    [DllImport(LibSoup)]
+    public static extern string soup_message_headers_get_list(IntPtr headers, string name);
+    [DllImport(LibSoup)]
+    public static extern string soup_message_headers_get_one(IntPtr headers, string name);
+    [DllImport(LibSoup)]
+    public static extern void soup_message_headers_replace(IntPtr headers, string name, string value);
+    [DllImport(LibSoup)]
+    public static extern void soup_message_headers_append(IntPtr headers, string name, string value);
+    [DllImport(LibSoup)]
+    public static extern void soup_message_headers_remove(IntPtr headers, string name);
+#endif
 
     internal struct GError
     {

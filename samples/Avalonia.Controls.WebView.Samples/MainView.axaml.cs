@@ -88,6 +88,15 @@ public partial class MainView : UserControl
         LogList.Text += "\r\nNativeWebView_OnWebMessageReceived " + e.Body;
     }
 
+    private void NativeWebView_OnWebResourceRequested(object? sender, WebResourceRequestedEventArgs e)
+    {
+        var requestFormatted = string.Join(Environment.NewLine, e.Request.ToString()
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+            .Select(static e => e.Length > 100 ? e[..100] : e));
+        LogList.Text += "\r\nNativeWebView_OnWebResourceRequested " + requestFormatted;
+        var wasSet = e.Request.Headers.TrySet("X-MyHeader", "Value");
+    }
+
     private void InputElement_OnKeyDown(object? sender, KeyEventArgs e)
     {
         LogList.Text += "\r\nInputElement_OnKeyDown " + e.Key + " " + e.KeyModifiers;
@@ -186,8 +195,7 @@ public partial class MainView : UserControl
                 var vtable = Marshal.ReadIntPtr(webView2.CoreWebView2);
                 var methodPtr = Marshal.ReadIntPtr(vtable, refreshMethodOffset * IntPtr.Size);
                 var methodDelegate = (delegate* unmanaged[Stdcall]<IntPtr, int>)methodPtr;
-                int hresult = methodDelegate(webView2.CoreWebView2);
-                Marshal.ThrowExceptionForHR(hresult);
+                methodDelegate(webView2.CoreWebView2);
             }, TimeSpan.FromSeconds(4));
         }
     }
