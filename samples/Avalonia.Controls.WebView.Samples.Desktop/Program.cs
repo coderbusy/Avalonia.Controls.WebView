@@ -20,7 +20,7 @@ internal class Program
             .With(new WebViewOptions
             {
                 EnableDevTools = true,
-                ExperimentalGtkOffscreen = true
+                ExperimentalGtkOffscreen = false
             })
             .LogToTrace();
 }

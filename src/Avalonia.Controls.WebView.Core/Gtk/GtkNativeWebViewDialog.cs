@@ -34,7 +34,7 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog, IGtkWebView
         {
             _signal = new GtkSignal(_windowHandle, "delete-event", s_deleteEventCallback, this);
             var scrolled = gtk_scrolled_window_new(IntPtr.Zero, IntPtr.Zero);
-            gtk_container_add(scrolled, _nativeWebView.Handle);
+            gtk_container_add(scrolled, _nativeWebView.WebViewHandle);
             gtk_container_add(_windowHandle, scrolled);
             return 0;
         });
@@ -185,7 +185,7 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog, IGtkWebView
         return cancel.Cancel;
     }
 
-    IntPtr IGtkWebViewPlatformHandle.WebKitWebView => _nativeWebView.Handle;
+    IntPtr IGtkWebViewPlatformHandle.WebKitWebView => _nativeWebView.WebViewHandle;
     IntPtr IPlatformHandle.Handle => _windowHandle;
     string? IPlatformHandle.HandleDescriptor => "GtkWindow";
 }

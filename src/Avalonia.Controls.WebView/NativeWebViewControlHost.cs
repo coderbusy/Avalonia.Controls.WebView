@@ -50,13 +50,10 @@ namespace Avalonia.Xpf.Controls
             {
                 adapter = new Core.Win.WebView1.WebView1Adapter(base.CreateNativeControlCore(parent));
             }
-            //else if (OperatingSystemEx.IsWindows() && IE Supported)
-            //{
-            //}
-            //else if (OperatingSystemEx.IsLinux())
-            //{
-            //    adapter = new Core.Macios.GtkWebViewAdapter();
-            //}
+            else if (OperatingSystemEx.IsLinux())
+            {
+                adapter = new Core.Gtk.GtkX11WebViewAdapter(parent);
+            }
             // else if (OperatingSystemEx.IsBrowser())
             // {
             //     adapter = new Core.Browser.BrowserIFrameAdapter();

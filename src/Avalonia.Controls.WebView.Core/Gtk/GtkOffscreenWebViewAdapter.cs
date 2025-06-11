@@ -47,7 +47,7 @@ internal unsafe class GtkOffscreenWebViewAdapter(bool useGtkOffscreen = true) : 
             }
             else
             {
-                var gdkWindow = gtk_widget_get_window(Handle);
+                var gdkWindow = gtk_widget_get_window(WebViewHandle);
                 int wWidth = gtk_widget_get_allocated_width(_windowHandle);
                 int wHeight = gtk_widget_get_allocated_height(_windowHandle);
 
@@ -127,7 +127,7 @@ internal unsafe class GtkOffscreenWebViewAdapter(bool useGtkOffscreen = true) : 
             var keymap = gdk_keymap_get_for_display(gdisplay);
             var keymapState = gdk_keymap_get_modifier_state(keymap);
 
-            using var state = new EventSendState(press ? GdkEventType.GDK_KEY_PRESS : GdkEventType.GDK_KEY_RELEASE, Handle);
+            using var state = new EventSendState(press ? GdkEventType.GDK_KEY_PRESS : GdkEventType.GDK_KEY_RELEASE, WebViewHandle);
             var ev = state.Event;
 
             gdk_keymap_translate_keyboard_state(keymap, keycode, keymapState ^ GdkModifierType.ALL_ACCESS_MASK, 0,
@@ -173,7 +173,7 @@ internal unsafe class GtkOffscreenWebViewAdapter(bool useGtkOffscreen = true) : 
             var seat = gdk_display_get_default_seat(gdisplay);
             var gdevice = gdk_seat_get_pointer(seat);
 
-            using var state = new EventSendState(eventType, Handle);
+            using var state = new EventSendState(eventType, WebViewHandle);
             var ev = state.Event;
 
             if (eventType == GdkEventType.GDK_MOTION_NOTIFY)
@@ -209,7 +209,7 @@ internal unsafe class GtkOffscreenWebViewAdapter(bool useGtkOffscreen = true) : 
             var x = point.Position.X;
             var y = point.Position.X;
 
-            using var state = new EventSendState(GdkEventType.GDK_SCROLL, Handle);
+            using var state = new EventSendState(GdkEventType.GDK_SCROLL, WebViewHandle);
             var ev = state.Event;
             ev->scroll.x = x;
             ev->scroll.y = y;
@@ -257,12 +257,12 @@ internal unsafe class GtkOffscreenWebViewAdapter(bool useGtkOffscreen = true) : 
         g_object_ref_sink(_windowHandle);
         gtk_window_set_default_size(_windowHandle, 100, 100);
 
-        gtk_container_add(_windowHandle, Handle);
-        gtk_widget_set_has_window(Handle, true);
-        gtk_widget_realize(Handle);
+        gtk_container_add(_windowHandle, WebViewHandle);
+        gtk_widget_set_has_window(WebViewHandle, true);
+        gtk_widget_realize(WebViewHandle);
         gtk_widget_show_all(_windowHandle);
 
-        _drawSignal = new GtkSignal(Handle, "draw", s_drawCallback, this);
+        _drawSignal = new GtkSignal(WebViewHandle, "draw", s_drawCallback, this);
     }
 
     protected override void DisposeSafe(bool disposing)
@@ -275,7 +275,7 @@ internal unsafe class GtkOffscreenWebViewAdapter(bool useGtkOffscreen = true) : 
         var window = Interlocked.Exchange(ref _windowHandle, IntPtr.Zero);
         if (window != IntPtr.Zero)
         {
-            gtk_container_remove(window, Handle);
+            gtk_container_remove(window, WebViewHandle);
         }
 
         // Let nested control to be destroyed first. 

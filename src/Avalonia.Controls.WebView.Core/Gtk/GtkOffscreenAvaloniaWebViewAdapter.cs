@@ -27,8 +27,8 @@ internal unsafe class GtkOffscreenAvaloniaWebViewAdapter(Control parent) : GtkOf
     protected override void InitializeSafe()
     {
         base.InitializeSafe();
-        _showOptionMenuSignal = new GtkSignal(Handle, "show-option-menu", s_showOptionMenuCallback, this);
-        //_contextMenuSignal = new GtkSignal(Handle, "context-menu", s_contextMenuCallback, this);
+        _showOptionMenuSignal = new GtkSignal(WebViewHandle, "show-option-menu", s_showOptionMenuCallback, this);
+        //_contextMenuSignal = new GtkSignal(WebViewHandle, "context-menu", s_contextMenuCallback, this);
     }
 
     protected override void DisposeSafe(bool disposing)

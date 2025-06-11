@@ -169,6 +169,9 @@ internal static unsafe partial class GtkInterop
     internal static extern IntPtr gtk_window_new(int type);
 
     [DllImport(LibGtk)]
+    internal static extern IntPtr gtk_window_set_type_hint(IntPtr window, int type);
+
+    [DllImport(LibGtk)]
     internal static extern void gtk_window_close(IntPtr window);
 
     [DllImport(LibGtk)]
@@ -239,6 +242,9 @@ internal static unsafe partial class GtkInterop
 
     [DllImport(LibGdk)]
     internal static extern IntPtr gdk_x11_window_foreign_new_for_display(IntPtr display, IntPtr xid);
+
+    [DllImport(LibGdk)]
+    internal static extern IntPtr gdk_x11_window_get_xid(IntPtr window);
 
     [DllImport(LibGdk)]
     internal static extern IntPtr gdk_display_get_default();
