@@ -96,15 +96,17 @@ internal partial class WebViewCallbacks(WeakReference<WebView1Adapter> weakAdapt
             var nativeRequest = e.GetRequest();
             if (Uri.TryCreate(HStringInterop.FromIntPtr(nativeRequest.GetRequestUri().get_AbsoluteUri()), UriKind.Absolute, out var uri))
             {
+                var headersWrapper = new NativeHeadersCollection(new WebView1NativeHttpRequestHeaders(nativeRequest.GetHeaders()));
                 var request = new WebViewWebResourceRequest
                 {
-                    Headers = new NativeHeadersCollection(new WebView1NativeHttpRequestHeaders(nativeRequest.GetHeaders())),
+                    Headers = headersWrapper,
                     Method = new HttpMethod(HStringInterop.FromIntPtr(nativeRequest.GetMethod().Method())!),
                     Uri = uri
                 };
 
                 var args = new WebResourceRequestedEventArgs { Request = request };
                 handler.Invoke(adapter, args);
+                headersWrapper.Dispose();
             }
         }
     }

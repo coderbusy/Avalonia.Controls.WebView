@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Avalonia.Controls.Utils;
 
@@ -78,14 +80,21 @@ internal sealed class NativeHeadersCollection(
     INativeHttpRequestHeaders nativeHeaders) :
     WebViewWebRequestHeaders, IDictionary<string, string>
 {
+    private INativeHttpRequestHeaders? _nativeHeaders = nativeHeaders;
+
+    public void Dispose()
+    {
+        _nativeHeaders = null;
+    }
+
     public override bool TrySet(string name, string value)
     {
-        return nativeHeaders.TrySetHeader(name, value);
+        return _nativeHeaders?.TrySetHeader(name, value) ?? false;
     }
 
     public override bool TryRemove(string name)
     {
-        return nativeHeaders.TryRemoveHeader(name);
+        return _nativeHeaders?.TryRemoveHeader(name) ?? false;
     }
 
     public override IEnumerable<string> Values => ((IDictionary<string, string>)this).Values;
@@ -93,7 +102,10 @@ internal sealed class NativeHeadersCollection(
 
     public override IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
-        var iterator = nativeHeaders.GetIterator();
+        if (_nativeHeaders is null)
+            throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+        var iterator = _nativeHeaders.GetIterator();
         while (iterator.GetHasCurrentHeader())
         {
             iterator.GetCurrentHeader(out var name, out var value);
@@ -110,17 +122,23 @@ internal sealed class NativeHeadersCollection(
 
     public void Add(KeyValuePair<string, string> item)
     {
-        nativeHeaders.TrySetHeader(item.Key, item.Value);
+        if (_nativeHeaders is null)
+            throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+        _nativeHeaders.TrySetHeader(item.Key, item.Value);
     }
 
     public void Clear()
     {
-        if (nativeHeaders.Immutable)
+        if (_nativeHeaders is null)
+            throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+        if (_nativeHeaders.Immutable)
             return;
-        if (!nativeHeaders.TryClear())
+        if (!_nativeHeaders.TryClear())
         {
             var keys = new List<string>();
-            var iterator = nativeHeaders.GetIterator();
+            var iterator = _nativeHeaders.GetIterator();
             while (iterator.GetHasCurrentHeader())
             {
                 iterator.GetCurrentHeader(out var name, out _);
@@ -130,13 +148,16 @@ internal sealed class NativeHeadersCollection(
             }
 
             foreach (var key in keys)
-                nativeHeaders.TryRemoveHeader(key);
+                _nativeHeaders.TryRemoveHeader(key);
         }
     }
 
     public bool Contains(KeyValuePair<string, string> item)
     {
-        var value = nativeHeaders.GetHeader(item.Key);
+        if (_nativeHeaders is null)
+            throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+        var value = _nativeHeaders.GetHeader(item.Key);
         return value == item.Value;
     }
 
@@ -150,9 +171,12 @@ internal sealed class NativeHeadersCollection(
 
     public bool Remove(KeyValuePair<string, string> item)
     {
+        if (_nativeHeaders is null)
+            throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
         if (Contains(item))
         {
-            return nativeHeaders.TryRemoveHeader(item.Key);
+            return _nativeHeaders.TryRemoveHeader(item.Key);
         }
         return false;
     }
@@ -161,9 +185,12 @@ internal sealed class NativeHeadersCollection(
     {
         get
         {
-            if (!nativeHeaders.TryGetCount(out var count))
+            if (_nativeHeaders is null)
+                throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+            if (!_nativeHeaders.TryGetCount(out var count))
             {
-                var iterator = nativeHeaders.GetIterator();
+                var iterator = _nativeHeaders.GetIterator();
                 while (iterator.GetHasCurrentHeader())
                 {
                     count++;
@@ -176,23 +203,32 @@ internal sealed class NativeHeadersCollection(
         }
     }
 
-    public bool IsReadOnly => nativeHeaders.Immutable;
+    public bool IsReadOnly => _nativeHeaders?.Immutable ?? true;
 
     public void Add(string key, string value)
     {
-        nativeHeaders.TrySetHeader(key, value);
+        if (_nativeHeaders is null)
+            throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+        _nativeHeaders.TrySetHeader(key, value);
     }
 
     public override bool ContainsKey(string key)
     {
-        return nativeHeaders.Contains(key);
+        if (_nativeHeaders is null)
+            throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+        return _nativeHeaders.Contains(key);
     }
 
     public bool Remove(string key)
     {
+        if (_nativeHeaders is null)
+            throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
         if (ContainsKey(key))
         {
-            return nativeHeaders.TryRemoveHeader(key);
+            return _nativeHeaders.TryRemoveHeader(key);
         }
         return false;
     }
@@ -201,9 +237,9 @@ internal sealed class NativeHeadersCollection(
     public override bool TryGetValue(string key, [MaybeNullWhen(false)] out string value)
 #nullable restore
     {
-        if (nativeHeaders.Contains(key))
+        if (_nativeHeaders?.Contains(key) == true)
         {
-            value = nativeHeaders.GetHeader(key);
+            value = _nativeHeaders.GetHeader(key);
             return true;
         }
 
@@ -213,16 +249,31 @@ internal sealed class NativeHeadersCollection(
 
     string IDictionary<string, string>.this[string key]
     {
-        get => nativeHeaders.GetHeader(key) ?? throw new KeyNotFoundException(key);
-        set => nativeHeaders.TrySetHeader(key, value);
+        get
+        {
+            if (_nativeHeaders is null)
+                throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+            return _nativeHeaders.GetHeader(key) ?? throw new KeyNotFoundException(key);
+        }
+        set
+        {
+            if (_nativeHeaders is null)
+                throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
+            _nativeHeaders.TrySetHeader(key, value);
+        }
     }
 
     ICollection<string> IDictionary<string, string>.Keys
     {
         get
         {
+            if (_nativeHeaders is null)
+                throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
             var keys = new List<string>();
-            var iterator = nativeHeaders.GetIterator();
+            var iterator = _nativeHeaders.GetIterator();
             while (iterator.GetHasCurrentHeader())
             {
                 iterator.GetCurrentHeader(out var name, out _);
@@ -238,8 +289,11 @@ internal sealed class NativeHeadersCollection(
     {
         get
         {
+            if (_nativeHeaders is null)
+                throw new ObjectDisposedException(nameof(WebViewWebRequestHeaders));
+
             var values = new List<string>();
-            var iterator = nativeHeaders.GetIterator();
+            var iterator = _nativeHeaders.GetIterator();
             while (iterator.GetHasCurrentHeader())
             {
                 iterator.GetCurrentHeader(out _, out var value);

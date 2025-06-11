@@ -406,15 +406,16 @@ internal class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebViewPlatform
         }
 
         var headers = webkit_uri_request_get_http_headers(request);
+        var headersWrapper = new NativeHeadersCollection(headers != IntPtr.Zero ?
+            new SoupHttpHeaders(headers, false) : // seems like we can't mutate headers in this callback
+            new DictionaryNativeHttpRequestHeaders(new Dictionary<string, string>()));
         var args = new WebResourceRequestedEventArgs
         {
             Request = new WebViewWebResourceRequest
             {
                 Method = HttpMethod.Get, // that's not right, but let's keep it this way
                 Uri = new Uri(uriString),
-                Headers = new NativeHeadersCollection(headers != IntPtr.Zero ?
-                    new SoupHttpHeaders(headers, false) : // seems like we can't mutate headers in this callback
-                    new DictionaryNativeHttpRequestHeaders(new Dictionary<string, string>()))
+                Headers = headersWrapper
             }
         };
 
@@ -423,6 +424,8 @@ internal class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebViewPlatform
         // While some of the sync webview APIs would wait for the GTK thread to return value (like, get_Url).
         // TODO: what to do here? Can be replaced with InvokeAsync, but then headers won't be accessible 
         Dispatcher.UIThread.Invoke(() => adapter.WebResourceRequested?.Invoke(adapter, args));
+
+        headersWrapper.Dispose();
     }
 
     private static string? GetValueFromJsResult(IntPtr jsResult)

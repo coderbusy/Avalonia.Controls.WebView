@@ -190,17 +190,19 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
         if (WebResourceRequested is { } webResourceRequested)
         {
             var headers = new WKWebKitNativeHttpRequestHeaders(args.Request, true);
+            var headersWrapper = new NativeHeadersCollection(headers);
             var webResourceArgs = new WebResourceRequestedEventArgs
             {
                 Request = new WebViewWebResourceRequest
                 {
                     Method = new HttpMethod(args.Request.HTTPMethod.GetString()!),
                     Uri = url,
-                    Headers = new NativeHeadersCollection(headers),
+                    Headers = headersWrapper,
                 }
             };
 
             webResourceRequested.Invoke(this, webResourceArgs);
+            headersWrapper.Dispose();
         }
 
         if (args.TargetFrame == IntPtr.Zero)
