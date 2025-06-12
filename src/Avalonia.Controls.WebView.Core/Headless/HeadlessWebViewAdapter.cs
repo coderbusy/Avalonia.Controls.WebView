@@ -226,6 +226,14 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
                     if (!ct.IsCancellationRequested)
                     {
                         page.Html = httpResult.Content;
+
+                        if (httpResult.RedirectUri is { } redirect)
+                        {
+                            await Dispatcher.UIThread.InvokeAsync(() =>
+                                NavigateInternal(new HeadlessWebViewPage(redirect), true, true));
+                            return;
+                        }
+
                         args = new WebViewNavigationCompletedEventArgs
                         {
                             Request = page.Uri, IsSuccess = httpResult.IsSuccess
