@@ -359,7 +359,7 @@ namespace Avalonia.Xpf.Controls
         /// <summary>
         /// If dialog is based on a <see cref="Window"/>, returns its instance to allow full control.
         /// </summary>
-        public Window? TryGetWindow() => TryGetImpl() as WindowNativeWebViewDialog;
+        public Window? TryGetWindow() => GetOrInitialize() as WindowNativeWebViewDialog;
 
         internal bool Show(IPlatformHandle owner) => GetOrInitialize().Show(owner);
 
