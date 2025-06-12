@@ -209,6 +209,11 @@ public partial class MainView : UserControl
     private void NativeWebView_OnEnvironmentRequested(object? sender, WebViewEnvironmentRequestedEventArgs e)
     {
         LogList.Text += "\r\nNativeWebView_OnEnvironmentRequested";
+        if (e is WindowsWebView2EnvironmentRequestedEventArgs webView2)
+        {
+            webView2.ProfileName = "AvaloniaUser";
+            webView2.UserDataFolder = Path.Combine(AppContext.BaseDirectory, "webview");
+        }
     }
 }
 
