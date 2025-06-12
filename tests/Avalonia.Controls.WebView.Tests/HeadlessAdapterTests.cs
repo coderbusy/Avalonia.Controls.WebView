@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Avalonia.Controls.WebView.Tests;
 
-public class BasicHeadlessTests : HeadlessTestsBase
+public class HeadlessAdapterTests : HeadlessTestsBase
 {
     [AvaloniaFact]
     public void Should_Initialize_As_Headless()
@@ -57,7 +57,7 @@ public class BasicHeadlessTests : HeadlessTestsBase
 
         var uri = new Uri("https://example.com");
         webView.Source = uri;
-        await Task.Delay(50);
+        await DoDelay();
 
         Assert.True(navStarted);
         Assert.True(navCompleted);
@@ -79,14 +79,14 @@ public class BasicHeadlessTests : HeadlessTestsBase
         window.Show();
 
         webView.NavigateToString("<html>test</html>");
-        await Task.Delay(30);
+        await DoDelay();
 
         Assert.True(navCompleted);
         Assert.Equal(WebViewHelper.EmptyPage, webView.Source);
 
         navCompleted = false;
         Assert.True(webView.Refresh());
-        await Task.Delay(30);
+        await DoDelay();
         Assert.True(navCompleted);
     }
 
@@ -102,20 +102,20 @@ public class BasicHeadlessTests : HeadlessTestsBase
         var uri1 = new Uri("https://a.com");
         var uri2 = new Uri("https://b.com");
         webView.Source = uri1;
-        await Task.Delay(20);
+        await DoDelay();
         webView.Source = uri2;
-        await Task.Delay(20);
+        await DoDelay();
 
         Assert.True(webView.CanGoBack);
         Assert.False(webView.CanGoForward);
 
         Assert.True(webView.GoBack());
-        await Task.Delay(20);
+        await DoDelay();
         Assert.False(webView.CanGoBack);
         Assert.True(webView.CanGoForward);
 
         Assert.True(webView.GoForward());
-        await Task.Delay(20);
+        await DoDelay();
         Assert.True(webView.CanGoBack);
         Assert.False(webView.CanGoForward);
     }
@@ -167,17 +167,17 @@ public class BasicHeadlessTests : HeadlessTestsBase
 
         // Simulate open new window
         await webView.InvokeScript("window.open('https://new.com')");
-        await Task.Delay(20);
+        await DoDelay();
         Assert.Equal(new Uri("https://new.com"), newWindowUri);
 
         // Simulate open link
         await webView.InvokeScript("window.location.replace('https://nav.com')");
-        await Task.Delay(20);
+        await DoDelay();
         Assert.Equal(new Uri("https://nav.com"), webView.Source);
 
         // Simulate getHTMLContent
         webView.NavigateToString("<html>abc</html>");
-        await Task.Delay(20);
+        await DoDelay();
         var html = await webView.InvokeScript("getHTMLContent()");
         Assert.Equal("<html>abc</html>", html);
 
@@ -212,7 +212,7 @@ public class BasicHeadlessTests : HeadlessTestsBase
         window.Show();
 
         webView.Source = new Uri("https://cancel.com");
-        await Task.Delay(20);
+        await DoDelay();
 
         Assert.True(navCompleted);
     }
