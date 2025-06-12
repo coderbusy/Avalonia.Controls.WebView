@@ -94,7 +94,7 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
                 }
                 return null;
             case HeadlessWebViewEnvironmentRequestedEventArgs.ScriptResultCommand.OpenLink:
-                NavigateInternal(new HeadlessWebViewPage(new Uri(result.Argument!)), true);
+                NavigateInternal(new HeadlessWebViewPage(new Uri(result.Argument!)), true, true);
                 return null;
             case HeadlessWebViewEnvironmentRequestedEventArgs.ScriptResultCommand.GetHtmlContent:
                 return GetCurrentPage()?.Html;
@@ -107,35 +107,35 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
     {
         if (_disposed) throw new ObjectDisposedException(nameof(HeadlessWebViewAdapter));
         var page = new HeadlessWebViewPage(url);
-        NavigateInternal(page, true);
+        NavigateInternal(page, true, true);
     }
 
     public void NavigateToString(string text)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(HeadlessWebViewAdapter));
         var page = new HeadlessWebViewPage(WebViewHelper.EmptyPage) { Html = text };
-        NavigateInternal(page, true);
+        NavigateInternal(page, true, true);
     }
 
     public bool GoBack()
     {
         if (!CanGoBack) return false;
         _historyIndex--;
-        return NavigateInternal(_history[_historyIndex], false);
+        return NavigateInternal(_history[_historyIndex], false, false);
     }
 
     public bool GoForward()
     {
         if (!CanGoForward) return false;
         _historyIndex++;
-        return NavigateInternal(_history[_historyIndex], false);
+        return NavigateInternal(_history[_historyIndex], false, false);
     }
 
     public bool Refresh()
     {
         var page = GetCurrentPage();
         if (page == null) return false;
-        return NavigateInternal(page, false);
+        return NavigateInternal(page, false, false);
     }
 
     public bool Stop()
@@ -160,7 +160,7 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
     private HeadlessWebViewPage? GetCurrentPage()
         => _historyIndex >= 0 && _historyIndex < _history.Count ? _history[_historyIndex] : null;
 
-    private bool NavigateInternal(HeadlessWebViewPage page, bool clearForwardHistory)
+    private bool NavigateInternal(HeadlessWebViewPage page, bool clearForwardHistory, bool appendToHistory)
     {
         _navigationCts?.Cancel();
         _navigationCts = new CancellationTokenSource();
@@ -172,8 +172,11 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
                 _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1);
         }
 
-        _history.Add(page);
-        _historyIndex = _history.Count - 1;
+        if (appendToHistory)
+        {
+            _history.Add(page);
+            _historyIndex = _history.Count - 1;
+        }
 
         // 1. WebResourceRequested
         if (page.Uri != WebViewHelper.EmptyPage)
@@ -253,7 +256,7 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
         return true;
     }
 
-    private const string JavaScriptCallRegex = """(?<func>[\w\.]+)\s*\(\s*(['"])(?<arg1>.*?)(\2)(\s*,\s*(['"])(?<arg2>.*?)(\6))?""";
+    private const string JavaScriptCallRegex = """(?<func>[\w\.]+)\s*\(\s*(?:['"](?<arg1>[^'"]*)['"])*\)""";
 #if NET8_0_OR_GREATER
     [GeneratedRegex(JavaScriptCallRegex)]
     private static partial Regex MatchJavaScriptCall();
