@@ -27,7 +27,7 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
     private readonly WKNavigationDelegate _navDelegate;
     private readonly WKScriptMessageHandler _scriptHandler;
 
-    public MaciosWebViewAdapter(AppleWKWebView2EnvironmentRequestedEventArgs options)
+    public MaciosWebViewAdapter(AppleWKWebViewEnvironmentRequestedEventArgs options)
     {
         _scriptHandler = new WKScriptMessageHandler();
         _scriptHandler.DidReceiveScriptMessage += OnScriptHandlerOnDidReceiveScriptMessage;
@@ -35,8 +35,25 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
         _config = new WKWebViewConfiguration { JavaScriptEnabled = true };
         _config.AddScriptMessageHandler(_scriptHandler, _postAvWebViewMessageName);
 
-        _config.Preferences.MediaDevicesEnabled = true;
+        if (options.ApplicationNameForUserAgent is not null)
+        {
+            using var appName = NSString.Create(options.ApplicationNameForUserAgent);
+            _config.ApplicationNameForUserAgent = appName;
+        }
 
+        _config.LimitsNavigationsToAppBoundDomains = options.LimitsNavigationsToAppBoundDomains;
+        _config.UpgradeKnownHostsToHTTPS = options.UpgradeKnownHostsToHTTPS;
+        _config.WebsiteDataStore = options.DataStore?.Identifier switch
+        {
+            nameof(AppleWKWebViewEnvironmentRequestedEventArgs.WebsiteDataStore.Default)
+                => WKWebsiteDataStore.Default,
+            nameof(AppleWKWebViewEnvironmentRequestedEventArgs.WebsiteDataStore.NonPersistent)
+                => WKWebsiteDataStore.NonPersistent,
+            { Length: > 0 } => WKWebsiteDataStore.ForIdentifier(options.DataStore.Identifier),
+            _ => WKWebsiteDataStore.Default,
+        };
+
+        _config.Preferences.MediaDevicesEnabled = true; // undocumented, but necessary for getUserMedia to work
         _config.Preferences.DeveloperExtrasEnabled = options.EnableDevTools;
 
         _navDelegate = new WKNavigationDelegate();

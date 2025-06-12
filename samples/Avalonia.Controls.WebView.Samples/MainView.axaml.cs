@@ -214,6 +214,12 @@ public partial class MainView : UserControl
             webView2.ProfileName = "AvaloniaUser";
             webView2.UserDataFolder = Path.Combine(AppContext.BaseDirectory, "webview");
         }
+        else if (e is AppleWKWebViewEnvironmentRequestedEventArgs wkWebView)
+        {
+            wkWebView.DataStore = AppleWKWebViewEnvironmentRequestedEventArgs.WebsiteDataStore.NonPersistent;
+            wkWebView.ApplicationNameForUserAgent = "Avalonia WebView Sample";
+            wkWebView.LimitsNavigationsToAppBoundDomains = true;
+        }
     }
 }
 

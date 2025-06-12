@@ -38,7 +38,7 @@ internal static class WebViewAdapter
 #else
         if (OperatingSystemEx.IsMacOS() || OperatingSystemEx.IsIOS())
         {
-            var args = new AppleWKWebView2EnvironmentRequestedEventArgs();
+            var args = new AppleWKWebViewEnvironmentRequestedEventArgs();
             environmentRequested(args);
             return new NativeHostAdapterFactory((_, _) =>
             {
