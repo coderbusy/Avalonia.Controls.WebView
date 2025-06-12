@@ -80,7 +80,8 @@
               "CreateNugetPackages",
               "IlMerge",
               "Obfuscate",
-              "OutputParameters"
+              "OutputParameters",
+              "RunTests"
             ]
           }
         },
@@ -95,7 +96,8 @@
               "CreateNugetPackages",
               "IlMerge",
               "Obfuscate",
-              "OutputParameters"
+              "OutputParameters",
+              "RunTests"
             ]
           }
         },

@@ -67,6 +67,20 @@ class Build : NukeBuild
             }
         });
 
+    Target RunTests => _ => _
+        .DependsOn(OutputParameters)
+        .Executes(() =>
+        {
+            foreach (var srcProject in (RootDirectory / "tests").GlobFiles("**/*.csproj"))
+            {
+                DotNetTest(c => c
+                    .SetProjectFile(srcProject)
+                    .SetVerbosity(DotNetVerbosity.minimal)
+                    .SetConfiguration(Configuration)
+                );
+            }
+        });
+
     Target IlMerge => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -137,6 +151,7 @@ class Build : NukeBuild
 
     Target CreateNugetPackages => _ => _
         .DependsOn(OutputParameters)
+        .DependsOn(RunTests)
         .DependsOn(Compile)
         .DependsOn(IlMerge)
         .DependsOn(Obfuscate)
