@@ -41,15 +41,27 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
             _config.ApplicationNameForUserAgent = appName;
         }
 
-        _config.LimitsNavigationsToAppBoundDomains = options.LimitsNavigationsToAppBoundDomains;
-        _config.UpgradeKnownHostsToHTTPS = options.UpgradeKnownHostsToHTTPS;
+        if (OperatingSystemEx.IsIOSVersionAtLeast(14, 0)
+            || OperatingSystemEx.IsMacOSVersionAtLeast(11, 0))
+        {
+            _config.LimitsNavigationsToAppBoundDomains = options.LimitsNavigationsToAppBoundDomains;
+        }
+
+        if (OperatingSystemEx.IsIOSVersionAtLeast(14, 5)
+            || OperatingSystemEx.IsMacOSVersionAtLeast(11, 3))
+        {
+            _config.UpgradeKnownHostsToHTTPS = options.UpgradeKnownHostsToHTTPS;
+        }
+
         _config.WebsiteDataStore = options.DataStore?.Identifier switch
         {
             nameof(AppleWKWebViewEnvironmentRequestedEventArgs.WebsiteDataStore.Default)
                 => WKWebsiteDataStore.Default,
             nameof(AppleWKWebViewEnvironmentRequestedEventArgs.WebsiteDataStore.NonPersistent)
                 => WKWebsiteDataStore.NonPersistent,
-            { Length: > 0 } => WKWebsiteDataStore.ForIdentifier(options.DataStore.Identifier),
+            { Length: > 0 } when OperatingSystemEx.IsIOSVersionAtLeast(17, 0)
+                                 || OperatingSystemEx.IsMacOSVersionAtLeast(14, 0)
+                => WKWebsiteDataStore.ForIdentifier(options.DataStore.Identifier),
             _ => WKWebsiteDataStore.Default,
         };
 
