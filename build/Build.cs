@@ -84,6 +84,7 @@ class Build : NukeBuild
 
     Target IlMerge => _ => _
         .DependsOn(Compile)
+        .DependsOn(RunTests)
         .Executes(() =>
         {
             var mergeRootProjects = (RootDirectory / "src").GlobFiles("**/*.csproj").Where(p =>
