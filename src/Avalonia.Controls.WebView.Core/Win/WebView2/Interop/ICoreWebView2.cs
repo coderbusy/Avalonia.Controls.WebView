@@ -14,7 +14,7 @@ namespace Avalonia.Controls.Win.WebView2.Interop;
 [Guid("76ECEACB-0462-4D94-AC83-423A6793775E")]
 internal partial interface ICoreWebView2
 {
-    IntPtr GetSettings();
+    ICoreWebView2Settings GetSettings();
 
     [return: MarshalAs(UnmanagedType.LPWStr)]
     string GetSource();

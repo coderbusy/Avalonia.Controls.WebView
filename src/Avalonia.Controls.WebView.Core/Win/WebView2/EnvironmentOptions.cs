@@ -15,7 +15,7 @@ internal partial class EnvironmentOptions(WindowsWebView2EnvironmentRequestedEve
     public string? BrowserExecutableFolder { get; } = environmentArgs.BrowserExecutableFolder;
     public string? AdditionalBrowserArguments { get; } = environmentArgs.AdditionalBrowserArguments;
     public string? Language { get; } = environmentArgs.Language;
-    public bool AllowSingleSignOnUsingOSPrimaryAccount { get; } = environmentArgs.AllowSingleSignOnUsingOSPrimaryAccount;
+    public bool AllowSingleSignOnUsingOSPrimaryAccount { get; } = false;
 
     public string? GetAdditionalBrowserArguments() => AdditionalBrowserArguments;
     public void SetAdditionalBrowserArguments(string value) { } 

@@ -195,6 +195,16 @@ internal abstract partial class WebView2BaseAdapter : IWebViewAdapterWithCookieM
                 controller3.SetShouldDetectMonitorScaleChanges(0);
             }
 
+            var settings = webView.GetSettings();
+            settings.SetAreDevToolsEnabled(environmentArgs.EnableDevTools);
+
+            // https://github.com/MicrosoftEdge/WebView2Feedback/issues/4993
+            // if (settings is ICoreWebView2Settings2 settings2 
+            //     && environmentArgs.UserAgent is { Length: > 0 } userAgent)
+            // {
+            //     settings2.SetUserAgent(userAgent);
+            // }
+
             _controller = controller;
 
             SizeChanged(default);

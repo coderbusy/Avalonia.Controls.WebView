@@ -16,6 +16,9 @@ namespace Avalonia.Controls;
 
 public abstract class WebViewEnvironmentRequestedEventArgs : EventArgs
 {
+    /// <summary>
+    /// <see cref="EnableDevTools"/> controls whether the user is able to use the context menu or keyboard shortcuts to open the DevTools window.
+    /// </summary>
     public bool EnableDevTools { get; set; }
 }
 
