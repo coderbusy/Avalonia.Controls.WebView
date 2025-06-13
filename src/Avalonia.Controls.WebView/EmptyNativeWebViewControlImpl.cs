@@ -21,7 +21,7 @@ internal class EmptyNativeWebViewControlImpl : Control, INativeWebViewControlImp
 {
     private const string Message = "NativeWebView is not supported on this platform/configuration.";
 
-    public event EventHandler<IWebViewAdapter>? AdapterInitialized;
+    public event EventHandler<IWebViewAdapter>? AdapterCreated;
     public event EventHandler<IWebViewAdapter>? AdapterDestroyed;
     public IWebViewAdapter? TryGetAdapter() => null;
 

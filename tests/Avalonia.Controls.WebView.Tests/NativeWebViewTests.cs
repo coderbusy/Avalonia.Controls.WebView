@@ -50,12 +50,12 @@ public class NativeWebViewTests : HeadlessTestsBase
     }
 
     [AvaloniaFact]
-    public void Should_Raise_AdapterInitialized_And_AdapterDestroyed()
+    public void Should_Raise_AdapterCreated_And_AdapterDestroyed()
     {
         var window = new Window();
         var webView = new NativeWebView();
         bool initialized = false, destroyed = false;
-        webView.AdapterInitialized += (_, _) => initialized = true;
+        webView.AdapterCreated += (_, _) => initialized = true;
         webView.AdapterDestroyed += (_, _) => destroyed = true;
         window.Content = webView;
         window.Show();
@@ -122,7 +122,7 @@ public class NativeWebViewTests : HeadlessTestsBase
 
         var wasRecreated = false;
         var wasDestroyed = false;
-        webView.AdapterInitialized += (_, _) => wasRecreated = true;
+        webView.AdapterCreated += (_, _) => wasRecreated = true;
         webView.AdapterDestroyed += (_, _) => wasDestroyed = true;
 
         using (webView.BeginReparenting())

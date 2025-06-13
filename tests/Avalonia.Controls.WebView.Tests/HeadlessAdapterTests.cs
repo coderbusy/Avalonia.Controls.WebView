@@ -33,7 +33,7 @@ public class HeadlessAdapterTests : HeadlessTestsBase
                 headless.InitializeAsync = () => tcs.Task;
             }
         };
-        webView.AdapterInitialized += (_, _) => adapterCreated = true;
+        webView.AdapterCreated += (_, _) => adapterCreated = true;
         window.Content = webView;
         window.Show();
 

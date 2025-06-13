@@ -94,11 +94,11 @@ public class NativeWebDialogTests : HeadlessTestsBase
     }
 
     [AvaloniaFact]
-    public void Should_Raise_AdapterInitialized_And_AdapterDestroyed()
+    public void Should_Raise_AdapterCreated_And_AdapterDestroyed()
     {
         var dialog = new NativeWebDialog();
         bool initialized = false, destroyed = false;
-        dialog.AdapterInitialized += (_, _) => initialized = true;
+        dialog.AdapterCreated += (_, _) => initialized = true;
         dialog.AdapterDestroyed += (_, _) => destroyed = true;
 
         dialog.Show();

@@ -341,7 +341,7 @@ namespace Avalonia.Xpf.Controls
         /// </summary>
         public IPlatformHandle? TryGetWebViewPlatformHandle() => TryGetAdapter();
 
-        public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterInitialized;
+        public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterCreated;
         public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterDestroyed;
         public event EventHandler<Core.WebViewEnvironmentRequestedEventArgs>? EnvironmentRequested;
 
@@ -381,7 +381,7 @@ namespace Avalonia.Xpf.Controls
                 dialogImpl = new WindowNativeWebViewDialog(factory);
             }
 
-            dialogImpl.AdapterInitialized += DialogImplOnAdapterInitialized;
+            dialogImpl.AdapterCreated += DialogImplOnAdapterCreated;
             dialogImpl.Closing += DialogImplOnClosing;
 
             if (_initialCanUserResize is not null)
@@ -396,13 +396,13 @@ namespace Avalonia.Xpf.Controls
             _implTcs.SetResult(dialogImpl);
 
             if (dialogImpl.TryGetAdapter() is { } adapter && !_dialogInitialized)
-                DialogImplOnAdapterInitialized(dialogImpl, new Core.WebViewAdapterEventArgs(adapter));
+                DialogImplOnAdapterCreated(dialogImpl, new Core.WebViewAdapterEventArgs(adapter));
         }
 
         private void DialogImplOnAdapterDestroyed(object? sender, Core.WebViewAdapterEventArgs e)
         {
             var dialog = (Core.INativeWebViewDialog)sender!;
-            dialog.AdapterInitialized -= DialogImplOnAdapterInitialized;
+            dialog.AdapterCreated -= DialogImplOnAdapterCreated;
             dialog.AdapterDestroyed -= DialogImplOnAdapterDestroyed;
 
             var adapter = (Core.IWebViewAdapter)e.TryGetPlatformHandle()!;
@@ -415,7 +415,7 @@ namespace Avalonia.Xpf.Controls
             AdapterDestroyed?.Invoke(this, e);
         }
 
-        private void DialogImplOnAdapterInitialized(object? sender, Core.WebViewAdapterEventArgs e)
+        private void DialogImplOnAdapterCreated(object? sender, Core.WebViewAdapterEventArgs e)
         {
             if (_dialogInitialized)
             {
@@ -424,7 +424,7 @@ namespace Avalonia.Xpf.Controls
 
             _dialogInitialized = true;
             var dialog = (Core.INativeWebViewDialog)sender!;
-            dialog.AdapterInitialized -= DialogImplOnAdapterInitialized;
+            dialog.AdapterCreated -= DialogImplOnAdapterCreated;
             dialog.AdapterDestroyed += DialogImplOnAdapterDestroyed;
 
             var adapter = (Core.IWebViewAdapter)e.TryGetPlatformHandle()!;
@@ -442,7 +442,7 @@ namespace Avalonia.Xpf.Controls
                 adapter.Source = url;
             else if (_initialSource is string html)
                 adapter.NavigateToString(html);
-            AdapterInitialized?.Invoke(this, e);
+            AdapterCreated?.Invoke(this, e);
         }
 
         private void DialogImplOnClosing(object? sender, EventArgs e)

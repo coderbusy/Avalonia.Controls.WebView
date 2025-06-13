@@ -182,9 +182,9 @@ public partial class MainView : UserControl
         e.Handled = true;
     }
 
-    private unsafe void NativeWebView_OnAdapterInitialized(object? sender, WebViewAdapterEventArgs e)
+    private unsafe void NativeWebView_OnAdapterCreated(object? sender, WebViewAdapterEventArgs e)
     {
-        LogList.Text += "\r\nNativeWebView_OnAdapterInitialized " + e.TryGetPlatformHandle()?.GetType().Name;
+        LogList.Text += "\r\nNativeWebView_OnAdapterCreated " + e.TryGetPlatformHandle()?.GetType().Name;
 
         // if (e.TryGetPlatformHandle() is IWindowsWebView2PlatformHandle webView2)
         // {

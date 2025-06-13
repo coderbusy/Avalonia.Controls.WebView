@@ -210,7 +210,7 @@ namespace Avalonia.Xpf.Controls
         }
 
         /// <inheritdoc/>
-        public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterInitialized;
+        public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterCreated;
 
         /// <inheritdoc/>
         public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterDestroyed;
@@ -340,7 +340,7 @@ namespace Avalonia.Xpf.Controls
                 _ => new EmptyNativeWebViewControlImpl()
             };
 
-            controlHostImpl.AdapterInitialized += ControlHostImplOnAdapterInitialized;
+            controlHostImpl.AdapterCreated += ControlHostImplOnAdapterCreated;
             controlHostImpl.AdapterDestroyed += ControlHostImplOnAdapterDeinitialized;
 #if AVALONIA
             VisualChildren.Add((Control)controlHostImpl);
@@ -411,7 +411,7 @@ namespace Avalonia.Xpf.Controls
             AdapterDestroyed?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
         }
 
-        private void ControlHostImplOnAdapterInitialized(object? sender, Core.IWebViewAdapter adapter)
+        private void ControlHostImplOnAdapterCreated(object? sender, Core.IWebViewAdapter adapter)
         {
             if (_navigationStarted is not null)
                 adapter.NavigationStarted += WebViewAdapterOnNavigationStarted;
@@ -448,7 +448,7 @@ namespace Avalonia.Xpf.Controls
                 adapter.NavigateToString(html);
             }
 
-            AdapterInitialized?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
+            AdapterCreated?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
         }
 
 #if WPF

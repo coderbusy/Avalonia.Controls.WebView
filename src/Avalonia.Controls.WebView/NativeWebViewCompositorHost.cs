@@ -23,7 +23,7 @@ internal class NativeWebViewCompositorHost(WebViewAdapter.CompositorHostAdapterF
     private readonly BitmapFrameChain _frameChain = new();
 
     /// <inheritdoc />
-    public event EventHandler<IWebViewAdapter>? AdapterInitialized;
+    public event EventHandler<IWebViewAdapter>? AdapterCreated;
 
     /// <inheritdoc />
     public event EventHandler<IWebViewAdapter>? AdapterDestroyed;
@@ -105,7 +105,7 @@ internal class NativeWebViewCompositorHost(WebViewAdapter.CompositorHostAdapterF
     {
         var adapter = (IWebViewAdapterWithOffscreenBuffer)sender!;
         _webViewReadyCompletion?.TrySetResult(adapter);
-        AdapterInitialized?.Invoke(this, adapter);
+        AdapterCreated?.Invoke(this, adapter);
         adapter.DrawRequested += OffscreenAdapter_OnDrawRequested;
     }
 

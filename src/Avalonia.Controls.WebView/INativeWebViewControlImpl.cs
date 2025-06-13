@@ -10,8 +10,8 @@ namespace Avalonia.Xpf.Controls;
 
 internal interface INativeWebViewControlImpl
 {
-    /// <inheritdoc cref="NativeWebView.AdapterInitialized"/>.
-    event EventHandler<IWebViewAdapter>? AdapterInitialized;
+    /// <inheritdoc cref="NativeWebView.AdapterCreated"/>.
+    event EventHandler<IWebViewAdapter>? AdapterCreated;
 
     /// <inheritdoc cref="NativeWebView.AdapterDestroyed"/>.
     event EventHandler<IWebViewAdapter>? AdapterDestroyed;

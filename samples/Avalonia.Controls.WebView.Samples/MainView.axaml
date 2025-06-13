@@ -17,7 +17,7 @@
                                WebMessageReceived="NativeWebView_OnWebMessageReceived"
                                WebResourceRequested="NativeWebView_OnWebResourceRequested"
                                NewWindowRequested="NativeWebView_OnNewWindowRequested"
-                               AdapterInitialized="NativeWebView_OnAdapterInitialized"
+                               AdapterCreated="NativeWebView_OnAdapterCreated"
                                AdapterDestroyed="NativeWebView_OnAdapterDestroyed"
                                KeyDown="InputElement_OnKeyDown"
                                KeyUp="InputElement_OnKeyUp" />

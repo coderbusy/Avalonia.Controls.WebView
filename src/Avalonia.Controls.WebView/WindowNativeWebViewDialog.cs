@@ -30,7 +30,7 @@ namespace Avalonia.Xpf.Controls
                 _ => new EmptyNativeWebViewControlImpl()
             };
 
-            _controlHostImpl.AdapterInitialized += (_, adapter) => AdapterInitialized?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
+            _controlHostImpl.AdapterCreated += (_, adapter) => AdapterCreated?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
             _controlHostImpl.AdapterDestroyed += (_, adapter) => AdapterDestroyed?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
 
             Content = _controlHostImpl;
@@ -57,7 +57,7 @@ namespace Avalonia.Xpf.Controls
             remove => _closing -= value;
         }
 
-        public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterInitialized;
+        public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterCreated;
         public event EventHandler<Core.WebViewAdapterEventArgs>? AdapterDestroyed;
 
         bool Core.INativeWebViewDialog.Show(IPlatformHandle _) => false;

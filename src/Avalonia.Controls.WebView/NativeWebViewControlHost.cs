@@ -24,7 +24,7 @@ namespace Avalonia.Xpf.Controls
         private ReparentingScope? _reparentingScope;
 
         /// <inheritdoc />
-        public event EventHandler<IWebViewAdapter>? AdapterInitialized;
+        public event EventHandler<IWebViewAdapter>? AdapterCreated;
 
         /// <inheritdoc />
         public event EventHandler<IWebViewAdapter>? AdapterDestroyed;
@@ -83,7 +83,7 @@ namespace Avalonia.Xpf.Controls
         {
             var adapter = (IWebViewAdapter)sender!;
             _webViewReadyCompletion?.TrySetResult(adapter);
-            AdapterInitialized?.Invoke(this, adapter);
+            AdapterCreated?.Invoke(this, adapter);
         }
 
         /// <inheritdoc />

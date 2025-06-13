@@ -44,7 +44,7 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog, IGtkWebView
             gtk_container_add(window, scrolled);
             _nativeWebView = nativeWebView;
             Dispatcher.UIThread.InvokeAsync(() =>
-                AdapterInitialized?.Invoke(this, new WebViewAdapterEventArgs(_nativeWebView)));
+                AdapterCreated?.Invoke(this, new WebViewAdapterEventArgs(_nativeWebView)));
         });
     }
 
@@ -150,7 +150,7 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog, IGtkWebView
         return true;
     }
 
-    public event EventHandler<WebViewAdapterEventArgs>? AdapterInitialized;
+    public event EventHandler<WebViewAdapterEventArgs>? AdapterCreated;
     public event EventHandler<WebViewAdapterEventArgs>? AdapterDestroyed;
 
     public IPlatformHandle? TryGetPlatformHandle() => this;

@@ -14,6 +14,19 @@ using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
 
 namespace Avalonia.Controls;
 
+/// <summary>
+/// Environment arguments that can be used to redefine creation options for the underlying webview implementation. 
+/// <list type="bullet">
+///     <listheader>
+///         <term>Can be one of the following</term>
+///     </listheader>
+///     <item><see cref="WindowsWebView2EnvironmentRequestedEventArgs"/></item>
+///     <item><see cref="WindowsWebView1EnvironmentRequestedEventArgs"/></item>
+///     <item><see cref="AppleWKWebViewEnvironmentRequestedEventArgs"/></item>
+///     <item><see cref="GtkWebViewEnvironmentRequestedEventArgs"/></item>
+///     <item><see cref="AndroidWebViewEnvironmentRequestedEventArgs"/></item>
+/// </list>
+/// </summary>
 public abstract class WebViewEnvironmentRequestedEventArgs : EventArgs
 {
     /// <summary>
@@ -132,8 +145,8 @@ internal interface INativeWebViewDialog : IDisposable
     /// </summary>
     event EventHandler Closing;
 
-    /// <see cref="IWebViewHolder.AdapterInitialized"/>
-    event EventHandler<WebViewAdapterEventArgs>? AdapterInitialized;
+    /// <see cref="IWebViewHolder.AdapterCreated"/>
+    event EventHandler<WebViewAdapterEventArgs>? AdapterCreated;
 
     /// <see cref="IWebViewHolder.AdapterDestroyed"/>
     event EventHandler<WebViewAdapterEventArgs>? AdapterDestroyed;
@@ -169,15 +182,22 @@ internal interface INativeWebViewDialog : IDisposable
 internal interface IWebViewHolder
 {
     /// <summary>
-    ///     AdapterInitialized dispatches after underlying webview adapter was initialized.
+    ///     AdapterCreated dispatches after underlying webview adapter was initialized.
     /// </summary>
-    public event EventHandler<WebViewAdapterEventArgs>? AdapterInitialized;
+    public event EventHandler<WebViewAdapterEventArgs>? AdapterCreated;
 
     /// <summary>
     ///     AdapterDestroyed dispatches after underlying webview adapter was destroyed.
     /// </summary>
     public event EventHandler<WebViewAdapterEventArgs>? AdapterDestroyed;
 
+    /// <summary>
+    ///     Fired before the underlying webview adapter is created, allowing customization of the webview environment.
+    /// </summary>
+    /// <remarks>
+    ///     Use this event to modify environment options (such as enabling private mode or dev tools) before the webview is initialized.
+    ///     The event argument type depends on the platform.
+    /// </remarks>
     public event EventHandler<WebViewEnvironmentRequestedEventArgs>? EnvironmentRequested;
 
     /// <summary>
@@ -193,7 +213,7 @@ internal interface IWebViewHolder
     /// <inheritdoc cref="Avalonia.Controls.WebViewAdapterEventArgs.TryGetPlatformHandle"/>
     /// <remarks>
     /// <para>Return handle can be used to access additional native APIs by using it with PInvokes.</para> 
-    /// <para>Should be used together with <see cref="AdapterInitialized"/> and <see cref="AdapterDestroyed"/>.</para>
+    /// <para>Should be used together with <see cref="AdapterCreated"/> and <see cref="AdapterDestroyed"/>.</para>
     /// </remarks>
     IPlatformHandle? TryGetPlatformHandle();
 }
@@ -251,6 +271,14 @@ internal interface IWebView
     /// </summary>
     event EventHandler<WebMessageReceivedEventArgs> WebMessageReceived;
 
+    /// <summary>
+    /// Fires when the WebView is performing a URL request to a matching URL.
+    /// </summary>
+    /// <remarks>
+    /// Arguments include request information, and headers dictionary.
+    /// Headers dictionary can be readonly depending on the request or platform.
+    /// Always check result of the `TrySet` and `TryRemove` methods.
+    /// </remarks>
     event EventHandler<WebResourceRequestedEventArgs> WebResourceRequested;
     
     /// <summary>
