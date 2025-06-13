@@ -7,24 +7,18 @@ namespace Avalonia.Platform;
 
 public sealed class WindowsWebView2EnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether to prefer WebView1 instead of WebView2.
+    /// </summary>
     internal bool PreferWebView1Instead { get; set; }
 
-    // /// <summary>
-    // /// This setting determines the UserAgent of WebView.
-    // /// </summary>
-    // /// <remarks>
-    // /// This property may be overridden if the User-Agent header is set in a request.
-    // /// </remarks>
-    // See https://github.com/MicrosoftEdge/WebView2Feedback/issues/4993
-    // public string? UserAgent { get; set; }
-
     /// <summary>
-    /// Gets or sets already existing ICoreWebView2Environment COM reference handle that webview adapter will use instead of managing its own.
+    /// Gets or sets an existing ICoreWebView2Environment COM reference handle that the webview adapter will use instead of managing its own.
     /// </summary>
     public IntPtr ExplicitEnvironment { get; set; }
 
     /// <summary>
-    /// ProfileName property is to specify a profile name, which is only allowed to contain the following ASCII characters.
+    /// Gets or sets the profile name, which must contain only allowed ASCII characters.
     /// </summary>
     public string? ProfileName { get; set; }
 
@@ -39,23 +33,23 @@ public sealed class WindowsWebView2EnvironmentRequestedEventArgs : WebViewEnviro
     public string? UserDataFolder { get; set; }
 
     /// <summary>
-    /// Gets or sets the value to use for the AdditionalBrowserArguments property of the CoreWebView2EnvironmentOptions parameter passed to CreateAsync(String, String, CoreWebView2EnvironmentOptions) when creating an environment with this instance.
+    /// Gets or sets the additional browser arguments to use for the CoreWebView2EnvironmentOptions parameter passed to CreateAsync(String, String, CoreWebView2EnvironmentOptions) when creating an environment with this instance.
     /// </summary>
     /// <remarks>
-    /// The arguments are passed to the browser process as part of the command. For more information about using command-line switches with Chromium browser processes, navigate to https://www.chromium.org/developers/how-tos/run-chromium-with-flags/.
+    /// The arguments are passed to the browser process as part of the command. For more information about using command-line switches with Chromium browser processes, see https://www.chromium.org/developers/how-tos/run-chromium-with-flags/.
     /// </remarks>
     public string? AdditionalBrowserArguments { get; set; }
 
     /// <summary>
-    /// The default display language for WebView.
+    /// Gets or sets the default display language for WebView.
     /// </summary>
     /// <remarks>
-    /// It applies to browser UI such as context menu and dialogs. It also applies to the accept-languages HTTP header that WebView sends to websites. The intended locale value is in the format of BCP 47 Language Tags
+    /// Applies to browser UI such as context menus and dialogs, and to the accept-languages HTTP header sent to websites. The locale value should be in the format of BCP 47 Language Tags.
     /// </remarks>
     public string? Language { get; set; }
 
     /// <summary>
-    /// IsInPrivateModeEnabled property is to enable/disable InPrivate mode.
+    /// Gets or sets a value indicating whether InPrivate mode is enabled.
     /// </summary>
     public bool IsInPrivateModeEnabled { get; set; }
 }

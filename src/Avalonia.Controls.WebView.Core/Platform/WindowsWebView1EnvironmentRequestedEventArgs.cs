@@ -8,12 +8,12 @@ namespace Avalonia.Platform;
 public sealed class WindowsWebView1EnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
     /// <summary>
-    /// The enterprise ID for apps that are Windows Information Protection-enabled.
+    /// Gets or sets the enterprise ID for applications that are Windows Information Protection-enabled.
     /// </summary>
     public IntPtr EnterpriseId { get; set; }
 
     /// <summary>
-    /// A boolean value indicating whether the privateNetworkClientServer capability is enabled.
+    /// Gets or sets a value indicating whether the privateNetworkClientServer capability is enabled.
     /// </summary>
     public bool? PrivateNetworkClientServerEnabled { get; set; }
 }

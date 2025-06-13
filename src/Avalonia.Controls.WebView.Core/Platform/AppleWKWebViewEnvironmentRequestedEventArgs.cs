@@ -7,27 +7,27 @@ namespace Avalonia.Platform;
 public sealed class AppleWKWebViewEnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
     /// <summary>
-    /// Creates a new data store object that stores website data in memory, and does not write that data to disk.
+    /// Gets or sets a value indicating whether to use a non-persistent data store that stores website data in memory and does not write data to disk.
     /// </summary>
     public bool NonPersistentDataStore { get; set; }
 
     /// <summary>
-    /// Creates a new persistent data store object with the unique identifier you provide.
+    /// Gets or sets the unique identifier for a persistent data store object.
     /// </summary>
     public string? DataStoreIdentifier { get; set; }
 
     /// <summary>
-    /// The app name that appears in the user agent string.
+    /// Gets or sets the application name that appears in the user agent string.
     /// </summary>
     public string? ApplicationNameForUserAgent { get; set; }
 
     /// <summary>
-    /// A Boolean value that indicates whether the web view should automatically upgrade supported HTTP requests to HTTPS.
+    /// Gets or sets a value indicating whether the web view should automatically upgrade supported HTTP requests to HTTPS.
     /// </summary>
     public bool UpgradeKnownHostsToHTTPS { get; set; } = true;
 
     /// <summary>
-    /// A Boolean value that indicates whether the web view limits navigation to pages within the app’s domain.
+    /// Gets or sets a value indicating whether the web view limits navigation to pages within the application's domain.
     /// </summary>
     public bool LimitsNavigationsToAppBoundDomains { get; set; } = false;
 }

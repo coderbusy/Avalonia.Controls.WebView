@@ -7,42 +7,44 @@ namespace Avalonia.Platform;
 public sealed class GtkWebViewEnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
     /// <summary>
-    /// Set the UserAgent property by appending the application details to the default user agent.
+    /// Gets or sets the application name to append to the default user agent string.
     /// </summary>
     public string? ApplicationNameForUserAgent { get; set; }
 
     /// <summary>
-    /// Experimental support for GTK WebView that can be hosted in the same Avalonia window, without overlapping other controls.
+    /// Gets or sets a value indicating whether to enable experimental offscreen support for GTK WebView, allowing it to be hosted in the same Avalonia window without overlapping other controls.
     /// </summary>
     public bool ExperimentalOffscreen { get; set; }
 
     /// <summary>
-    /// An ephemeral webview handles all websites data as non-persistent, and nothing will be written to the client storage.
-    /// Note that if you create an ephemeral webview all other parameters to configure data directories will be ignored.
+    /// Gets or sets a value indicating whether the webview should use an ephemeral data manager, handling all website data as non-persistent and not writing anything to client storage.
     /// </summary>
+    /// <remarks>
+    /// If enabled, all other parameters to configure data directories will be ignored.
+    /// </remarks>
     public bool EphemeralDataManager { get; set; }
 
     /// <summary>
-    /// The base directory for Website data. This is used as a base directory for any Website data when no specific data directory has been provided.
+    /// Gets or sets the base directory for website data, used as a base directory when no specific data directory is provided.
     /// </summary>
     public string? BaseDataDirectory { get; set; }
 
     /// <summary>
-    /// The base directory for Website cache. This is used as a base directory for any Website cache when no specific cache directory has been provided.
+    /// Gets or sets the base directory for website cache, used as a base directory when no specific cache directory is provided.
     /// </summary>
     public string? BaseCacheDirectory { get; set; }
 
     /// <summary>
-    /// Use a single process to perform content rendering. The process is shared among all the WebKitWebView instances created by the application.
-    /// True by default.
+    /// Gets or sets a value indicating whether to use a single process for content rendering, shared among all WebKitWebView instances created by the application.
     /// </summary>
     public bool SharedProcessModel { get; set; } = true;
 
     /// <summary>
-    /// Disable the cache completely, which substantially reduces memory usage. Useful for applications that only access a single local file, with no navigation to other pages. No remote resources will be cached.
+    /// Gets or sets a value indicating whether to disable the cache completely, substantially reducing memory usage.
     /// </summary>
     /// <remarks>
-    /// Equivalent of WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER. When disabled, WEBKIT_CACHE_MODEL_DOCUMENT_BROWSER is used.
+    /// Useful for applications that only access a single local file, with no navigation to other pages. No remote resources will be cached.
+    /// Equivalent to WEBKIT_CACHE_MODEL_DOCUMENT_VIEWER. When disabled, WEBKIT_CACHE_MODEL_DOCUMENT_BROWSER is used.
     /// </remarks>
     public bool DisableCache { get; set; } = false;
 }
