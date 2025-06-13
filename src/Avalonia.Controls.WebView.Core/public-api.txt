@@ -5,6 +5,11 @@ Avalonia.Controls.WebViewNavigationCompletedEventArgs
 Avalonia.Controls.WebViewNavigationEventArgs
 Avalonia.Controls.WebMessageReceivedEventArgs
 Avalonia.Controls.WebViewNewWindowRequestedEventArgs
+Avalonia.Controls.WebViewEnvironmentRequestedEventArgs
+Avalonia.Controls.WebResourceRequestedEventArgs
+Avalonia.Controls.WebViewWebRequestHeaders
+Avalonia.Controls.WebViewWebResourceRequest
+Avalonia.Controls.WebViewAdapterEventArgs
 Avalonia.Controls.Android.*
 Avalonia.Platform.*
 System.Runtime.*

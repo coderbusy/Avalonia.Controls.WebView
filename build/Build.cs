@@ -61,6 +61,7 @@ class Build : NukeBuild
                     .SetProjectFile(srcProject)
                     .SetVerbosity(DotNetVerbosity.minimal)
                     .AddProperty("PackageVersion", GetVersion())
+                    .AddProperty("ILMergeBuild", true)
                     .SetVersion(GetVersion())
                     .SetConfiguration(Configuration)
                 );

@@ -12,7 +12,7 @@
     <WarningsAsErrors>$(WarningsAsErrors);CA1420;CA1421;</WarningsAsErrors>
     <!-- Already included by CsWin32 -->
     <PolySharpExcludeGeneratedTypes>System.Diagnostics.CodeAnalysis.UnscopedRefAttribute</PolySharpExcludeGeneratedTypes>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies Condition="'$(ILMergeBuild)' == 'true'">true</CopyLocalLockFileAssemblies>
     <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
     <AvnLicensingEmitBuildTime>true</AvnLicensingEmitBuildTime>
     <DefineConstants Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">$(DefineConstants);COM_SOURCE_GEN</DefineConstants>
