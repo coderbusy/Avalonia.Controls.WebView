@@ -174,13 +174,13 @@ internal class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebViewPlatform
     {
         set
         {
-            webkit_web_view_set_background_color (WebViewHandle, new GdkRGBA
-            {
-                alpha = value.A /  255.0f,
-                red = value.R /  255.0f,
-                green = value.G /  255.0f,
-                blue = value.B /  255.0f,
-            });
+            // webkit_web_view_set_background_color (WebViewHandle, new GdkRGBA
+            // {
+            //     alpha = value.A /  255.0f,
+            //     red = value.R /  255.0f,
+            //     green = value.G /  255.0f,
+            //     blue = value.B /  255.0f,
+            // });
         }
     }
 

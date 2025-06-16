@@ -50,14 +50,15 @@ internal class GtkX11WebViewAdapter(GtkWebViewEnvironmentRequestedEventArgs envi
     {
         set
         {
-            var screen = gtk_window_get_screen (_windowHandle);
-            var rgbaVisual = gdk_screen_get_rgba_visual (screen);
-
-            if (rgbaVisual == IntPtr.Zero)
-                return;
-
-            gtk_widget_set_visual (_windowHandle, rgbaVisual);
-            gtk_widget_set_app_paintable (_windowHandle, true);
+            // Transparency doesn't seem to work well
+            // var screen = gtk_window_get_screen (_windowHandle);
+            // var rgbaVisual = gdk_screen_get_rgba_visual (screen);
+            //
+            // if (rgbaVisual == IntPtr.Zero)
+            //     return;
+            //
+            // gtk_widget_set_visual (_windowHandle, rgbaVisual);
+            // gtk_widget_set_app_paintable (_windowHandle, true);
 
             base.DefaultBackground = value;
         }

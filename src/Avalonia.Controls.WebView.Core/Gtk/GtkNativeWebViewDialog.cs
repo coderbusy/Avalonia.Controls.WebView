@@ -73,14 +73,15 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog, IGtkWebView
     {
         set
         {
-            var screen = gtk_window_get_screen (_windowHandle);
-            var rgba_visual = gdk_screen_get_rgba_visual (screen);
-
-            if (rgba_visual == IntPtr.Zero)
-                return;
-
-            gtk_widget_set_visual (_windowHandle, rgba_visual);
-            gtk_widget_set_app_paintable (_windowHandle, true);
+            // Transparency doesn't seem to work well
+            // var screen = gtk_window_get_screen (_windowHandle);
+            // var rgba_visual = gdk_screen_get_rgba_visual (screen);
+            //
+            // if (rgba_visual == IntPtr.Zero)
+            //     return;
+            //
+            // gtk_widget_set_visual (_windowHandle, rgba_visual);
+            // gtk_widget_set_app_paintable (_windowHandle, true);
 
             _nativeWebView!.DefaultBackground = value;
         }
