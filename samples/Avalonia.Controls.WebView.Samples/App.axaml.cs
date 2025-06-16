@@ -11,6 +11,7 @@ public class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+        this.AttachDeveloperTools();
 
         Dispatcher.UIThread.UnhandledException += (sender, args) =>
         {

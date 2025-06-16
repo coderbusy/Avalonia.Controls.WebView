@@ -7,9 +7,9 @@ using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
-using Avalonia.Controls.Platform;
 using Avalonia.Controls.Win.WebView2.Interop;
 using Avalonia.Logging;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 
@@ -81,6 +81,24 @@ internal abstract partial class WebView2BaseAdapter : IWebViewAdapterWithCookieM
     }
 
     public event EventHandler? Initialized;
+
+    public Color DefaultBackground
+    {
+        set
+        {
+            if (_controller is ICoreWebView2Controller2 controller2)
+            {
+                controller2.SetDefaultBackgroundColor(new COREWEBVIEW2_COLOR
+                {
+                    // WebView2 doesn't support any decimal alpha channel 
+                    A = value.A > 130 ? (byte)255 : (byte)0,
+                    R = value.R,
+                    G = value.G,
+                    B = value.B,
+                });
+            }
+        }
+    }
 
     public bool GoBack()
     {

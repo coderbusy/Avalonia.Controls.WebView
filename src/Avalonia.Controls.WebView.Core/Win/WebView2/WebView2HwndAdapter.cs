@@ -8,7 +8,7 @@ using Avalonia.Platform;
 namespace Avalonia.Controls.Win.WebView2;
 
 [SupportedOSPlatform("windows6.1")] // win7
-internal partial class WebView2HwndAdapter(IPlatformHandle handle, WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
+internal partial class WebView2HwndAdapter(IPlatformHandle parent, IPlatformHandle handle, WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
     : WebView2BaseAdapter(handle, environmentArgs)
 {
     public override IntPtr Handle { get; } = handle.Handle;
@@ -18,6 +18,8 @@ internal partial class WebView2HwndAdapter(IPlatformHandle handle, WindowsWebVie
         IntPtr handle, WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
     {
         var handler = new WebView2ControllerHandler();
+
+        WindowsUtility.MakeHwndTransparent(parent.Handle);
 
         var hasCustomOptions = environmentArgs.IsInPrivateModeEnabled
                                || !string.IsNullOrEmpty(environmentArgs.ProfileName);

@@ -13,6 +13,7 @@ using Avalonia.Android;
 using Avalonia.Controls.Macios;
 using Avalonia.Controls.Utils;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
@@ -49,6 +50,15 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     public string HandleDescriptor => "Android.Webkit.WebView";
     public bool IsInitialized => true;
     public event EventHandler? Initialized;
+
+    public Color DefaultBackground
+    {
+        set
+        {
+            _webView.SetBackgroundColor(new global::Android.Graphics.Color(
+                value.R, value.G, value.B, value.A));
+        }
+    }
 
     public void SizeChanged(PixelSize containerSize)
     {

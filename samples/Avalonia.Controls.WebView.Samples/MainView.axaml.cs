@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 
@@ -224,5 +226,81 @@ public partial class MainView : UserControl
             wkWebView.LimitsNavigationsToAppBoundDomains = true;
         }
     }
-}
 
+    private void Make_Transparent_Clicked(object? sender, RoutedEventArgs e)
+    {
+        TransparentWebView.Background = Brushes.Transparent;
+    }
+
+    private void Make_Solid_Background_Clicked(object? sender, RoutedEventArgs e)
+    {
+        TransparentWebView.Background = Brushes.Green;
+    }
+
+    private void Make_Default_Background_Clicked(object? sender, RoutedEventArgs e)
+    {
+        TransparentWebView.ClearValue(NativeWebView.BackgroundProperty);
+    }
+
+    private void Make_Gradient_Background_Clicked(object? sender, RoutedEventArgs e)
+    {
+        TransparentWebView.Background = new LinearGradientBrush
+        {
+            StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
+            EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
+            GradientStops =
+            [
+                new GradientStop(Colors.Green, 0),
+                new GradientStop(Colors.Transparent, 1)
+            ]
+        };
+    }
+
+    private void TransparentWebView_OnAttachedToLogicalTree(object? sender, LogicalTreeAttachmentEventArgs e)
+    {
+        TransparentWebView.NavigateToString(
+            """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>WebView Transparency Demo</title>
+                <style>
+                    html, body {
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                        background: transparent;
+                    }
+                    body {
+                        min-height: 100vh;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .demo-content {
+                        font-family: sans-serif;
+                        font-size: 2em;
+                        font-weight: bold;
+                        padding: 2em 3em;
+                        border-radius: 16px;
+                        /* Text is always readable: black with white shadow (for white bg), or white with black shadow (for dark bg) */
+                        color: #111;
+                        text-shadow: 0 2px 8px #fff, 0 0 2px #fff, 0 0 1px #fff;
+                    }
+                    body[style*="background-color: black"] .demo-content,
+                    body[style*="background: black"] .demo-content {
+                        color: #fff;
+                        text-shadow: 0 2px 8px #000, 0 0 2px #000, 0 0 1px #000;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="demo-content">
+                    WebView Transparency Demo
+                </div>
+            </body>
+            </html>
+            """);
+    }
+}

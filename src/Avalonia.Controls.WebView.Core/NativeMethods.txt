@@ -1,3 +1,5 @@
 CoCreateInstance
 GetWindowRect
 SetParent
+GetWindowLong
+SetWindowLong

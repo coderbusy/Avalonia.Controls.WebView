@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Rendering;
 using Avalonia.Controls.Utils;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
@@ -57,6 +58,13 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
 
     public IntPtr Handle { get; } = new(Interlocked.Increment(ref s_headlessHandleCounted));
     public string HandleDescriptor => "HeadlessWebViewAdapter";
+
+    public Color DefaultBackground
+    {
+        set
+        {
+        }
+    }
 
     public void SizeChanged(PixelSize containerSize)
     {

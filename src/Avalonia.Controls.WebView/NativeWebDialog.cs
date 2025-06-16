@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Avalonia.Controls.Gtk;
 using Avalonia.Platform;
@@ -212,7 +213,11 @@ namespace Avalonia.Xpf.Controls
         }
 
         /// <inheritdoc/>
-        public void NavigateToString(string text)
+        public void NavigateToString(
+#if NET8_0_OR_GREATER
+            [StringSyntax("html")]
+#endif
+            string text)
         {
             if (TryGetAdapter() is { } adapter)
                 adapter.NavigateToString(text);

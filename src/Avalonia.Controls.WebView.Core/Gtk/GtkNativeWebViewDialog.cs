@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using static Avalonia.Controls.Gtk.GtkInterop;
@@ -67,6 +68,24 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog, IGtkWebView
     public event EventHandler? Closing;
 
     public IWebViewAdapter? TryGetAdapter() => _nativeWebView;
+
+    public Color DefaultBackground
+    {
+        set
+        {
+            // Transparency doesn't seem to work well
+            // var screen = gtk_window_get_screen (_windowHandle);
+            // var rgba_visual = gdk_screen_get_rgba_visual (screen);
+            //
+            // if (rgba_visual == IntPtr.Zero)
+            //     return;
+            //
+            // gtk_widget_set_visual (_windowHandle, rgba_visual);
+            // gtk_widget_set_app_paintable (_windowHandle, true);
+
+            _nativeWebView!.DefaultBackground = value;
+        }
+    }
 
     public string? Title
     {

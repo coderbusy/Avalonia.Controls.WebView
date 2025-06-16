@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Utils;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using static Avalonia.Controls.Gtk.GtkInterop;
@@ -167,6 +168,20 @@ internal class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebViewPlatform
 
     public void SetParent(IPlatformHandle parent)
     {
+    }
+
+    public virtual Color DefaultBackground
+    {
+        set
+        {
+            // webkit_web_view_set_background_color (WebViewHandle, new GdkRGBA
+            // {
+            //     alpha = value.A /  255.0f,
+            //     red = value.R /  255.0f,
+            //     green = value.G /  255.0f,
+            //     blue = value.B /  255.0f,
+            // });
+        }
     }
 
     public virtual void SizeChanged(PixelSize containerSize)

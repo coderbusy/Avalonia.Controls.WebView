@@ -9,6 +9,7 @@ using Avalonia.Controls.Platform;
 using Avalonia.Controls.Win.WebView1.Interop;
 using Avalonia.Controls.Win.WebView2;
 using Avalonia.Logging;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 
@@ -22,21 +23,24 @@ internal sealed class WebView1Adapter : IWebViewAdapter, IWindowsWebView1Platfor
     private IWebViewControlSite? _webViewControlSite;
     private Action? _subscriptions;
 
-    public WebView1Adapter(IPlatformHandle handle, WebView1Process process)
+    public WebView1Adapter(IPlatformHandle parent, IPlatformHandle handle, WebView1Process process)
     {
         process.AddOne();
         _process = process;
         Handle = handle.Handle;
-        Initialize();
+        Initialize(parent);
     }
 
     public IntPtr Handle { get; }
     public string? HandleDescriptor => "HWDN";
 
-    private async void Initialize()
+    private async void Initialize(IPlatformHandle parent)
     {
         try
         {
+            // Seems like WebView1 doesn't support transparency at all
+            // WindowsUtility.MakeHwndTransparent(parent.Handle);
+
             if (!PInvoke.GetWindowRect(new HWND(Handle), out var rect))
                 rect = RECT.FromXYWH(0, 0, 100, 100);
 
@@ -163,6 +167,20 @@ internal sealed class WebView1Adapter : IWebViewAdapter, IWindowsWebView1Platfor
     {
         _webViewControl?.Stop();
         return true;
+    }
+
+    public Color DefaultBackground
+    {
+        set
+        {
+            _webViewControl?.put_DefaultBackgroundColor(new winrtColor
+            {
+                A = 255,// value.A, -- doesn't seem to be supported with interop
+                R = value.R,
+                G = value.G,
+                B = value.B,
+            });
+        }
     }
 
     public void SizeChanged(PixelSize containerSize)

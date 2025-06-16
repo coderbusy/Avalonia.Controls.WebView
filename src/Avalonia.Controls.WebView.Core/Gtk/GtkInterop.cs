@@ -153,6 +153,9 @@ internal static unsafe partial class GtkInterop
     public static extern nint webkit_web_view_run_javascript_finish(IntPtr webView, IntPtr result, GError** error);
 
     [DllImport(LibWebKit)]
+    public static extern void webkit_web_view_set_background_color(IntPtr webView, GdkRGBA color);
+
+    [DllImport(LibWebKit)]
     public static extern void webkit_javascript_result_unref(IntPtr jsResult);
 
     [DllImport(LibWebKit)]
@@ -236,6 +239,23 @@ internal static unsafe partial class GtkInterop
 
     [DllImport(LibGtk)]
     internal static extern void gtk_window_set_position(IntPtr window, int positionType);
+
+    [DllImport(LibGtk)]
+    internal static extern IntPtr gtk_window_get_screen(IntPtr window);
+
+    [DllImport(LibGdk)]
+    internal static extern IntPtr gdk_screen_get_rgba_visual(IntPtr window);
+
+    [DllImport(LibGtk)]
+    internal static extern IntPtr gtk_widget_set_visual(IntPtr widget, IntPtr visual);
+
+#if NET8_0_OR_GREATER
+    [LibraryImport(LibGtk)]
+    internal static partial IntPtr gtk_widget_set_app_paintable(IntPtr widget, [MarshalAs(UnmanagedType.Bool)] bool paintable);
+#else
+    [DllImport(LibGtk)]
+    internal static extern IntPtr gtk_widget_set_app_paintable(IntPtr widget, bool paintable);
+#endif
 
     [DllImport(LibGtk)]
     internal static extern void gtk_widget_realize(IntPtr gtkWidget);
@@ -449,6 +469,14 @@ internal static unsafe partial class GtkInterop
         public uint Domain;
         public int Code;
         public nint Message;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct GdkRGBA {
+        public double red;
+        public double green;
+        public double blue;
+        public double alpha;
     }
 
     [StructLayout(LayoutKind.Sequential)]

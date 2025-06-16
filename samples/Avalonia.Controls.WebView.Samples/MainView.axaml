@@ -32,6 +32,23 @@
             <NativeWebView Source="https://webrtc.github.io/samples/"
                            NewWindowRequested="NativeWebView_OnNewWindowRequested" />
         </TabItem>
+        <TabItem Header="Transparent">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                            Margin="10">
+                    <Button Content="Transparent" Click="Make_Transparent_Clicked" />
+                    <Button Content="Solid" Click="Make_Solid_Background_Clicked" />
+                    <Button Content="Default" Click="Make_Default_Background_Clicked" />
+                    <Button Content="Gradient" Click="Make_Gradient_Background_Clicked" />
+                </StackPanel>
+                <Border Background="Yellow">
+                    <NativeWebView x:Name="TransparentWebView"
+                                   AttachedToLogicalTree="TransparentWebView_OnAttachedToLogicalTree"/>
+                </Border>
+            </DockPanel>
+        </TabItem>
         <TabItem Header="WebAuthenticationBroker">
             <StackPanel>
                 <TextBox x:Name="RequestUri"

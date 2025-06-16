@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Media;
 using Core = Avalonia.Controls;
 using Avalonia.Platform;
 #if WPF
@@ -17,6 +18,7 @@ namespace Avalonia.Xpf.Controls
     internal class WindowNativeWebViewDialog : Window, Core.INativeWebViewDialog
     {
         private readonly INativeWebViewControlImpl _controlHostImpl;
+        private Color? _initialDefaultBackground;
         private EventHandler? _closing;
 
         public WindowNativeWebViewDialog(Core.WebViewAdapter.AdapterFactory? adapterFactory)
@@ -30,7 +32,11 @@ namespace Avalonia.Xpf.Controls
                 _ => new EmptyNativeWebViewControlImpl()
             };
 
-            _controlHostImpl.AdapterCreated += (_, adapter) => AdapterCreated?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
+            _controlHostImpl.AdapterCreated += (_, adapter) =>
+            {
+                adapter.DefaultBackground = _initialDefaultBackground ?? Colors.Transparent;
+                AdapterCreated?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
+            };
             _controlHostImpl.AdapterDestroyed += (_, adapter) => AdapterDestroyed?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
 
             Content = _controlHostImpl;
@@ -49,6 +55,22 @@ namespace Avalonia.Xpf.Controls
 #endif
 
         public Core.IWebViewAdapter? TryGetAdapter() => _controlHostImpl.TryGetAdapter();
+
+        public Color DefaultBackground
+        {
+            set
+            {
+                if (_controlHostImpl.TryGetAdapter() is { } adapter)
+                {
+                    adapter.DefaultBackground = value;
+                }
+                else
+                {
+                    _initialDefaultBackground = value;
+                }
+            }
+        }
+
         public void Dispose() {}
 
         event EventHandler? Core.INativeWebViewDialog.Closing

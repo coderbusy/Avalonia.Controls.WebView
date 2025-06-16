@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using Avalonia.Media;
 using Avalonia.Platform;
 using static Avalonia.Controls.Gtk.GtkInterop;
 using static Avalonia.Controls.Gtk.AvaloniaGtk;
@@ -43,6 +44,24 @@ internal class GtkX11WebViewAdapter(GtkWebViewEnvironmentRequestedEventArgs envi
 
         RunOnGlibThreadAsync(() => gtk_widget_show_all(_windowHandle));
         base.OnInitialized();
+    }
+
+    public override Color DefaultBackground
+    {
+        set
+        {
+            // Transparency doesn't seem to work well
+            // var screen = gtk_window_get_screen (_windowHandle);
+            // var rgbaVisual = gdk_screen_get_rgba_visual (screen);
+            //
+            // if (rgbaVisual == IntPtr.Zero)
+            //     return;
+            //
+            // gtk_widget_set_visual (_windowHandle, rgbaVisual);
+            // gtk_widget_set_app_paintable (_windowHandle, true);
+
+            base.DefaultBackground = value;
+        }
     }
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.NonPublicFields, "X11NativeControlHost+DumbWindow", "Avalonia.X11")]

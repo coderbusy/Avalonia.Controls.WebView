@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls.Rendering;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
@@ -130,6 +131,8 @@ internal interface INativeWebViewDialog : IDisposable
 {
     IWebViewAdapter? TryGetAdapter();
 
+    Color DefaultBackground { set; }
+    
     /// <summary>
     /// Gets or sets WebView dialog title.
     /// </summary>
@@ -331,6 +334,8 @@ internal interface IWebViewAdapter : IWebView, IDisposable, IPlatformHandle
 {
     bool IsInitialized { get; }
     event EventHandler? Initialized;
+
+    Color DefaultBackground { set; }
 
     void SizeChanged(PixelSize containerSize);
 

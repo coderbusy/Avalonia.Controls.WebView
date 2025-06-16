@@ -1,5 +1,6 @@
 ﻿#if AVALONIA || WPF
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
 using AvInput = Avalonia.Input;
@@ -14,6 +15,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows.Media;
 
 #elif AVALONIA
+using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Input;
@@ -47,9 +49,14 @@ namespace Avalonia.Xpf.Controls
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source), typeof(Uri), typeof(NativeWebView),
             new PropertyMetadata(new Uri("about:blank"), SourcePropertyChangedCallback));
+        public new static readonly DependencyProperty BackgroundProperty =
+            Control.BackgroundProperty.AddOwner(typeof(NativeWebView),
+                new PropertyMetadata(null, DefaultBackgroundPropertyChangedCallback));
 #elif AVALONIA
         public static readonly StyledProperty<Uri> SourceProperty = AvaloniaProperty.Register<NativeWebView, Uri>(
             nameof(Source), new Uri("about:blank"));
+        public static readonly StyledProperty<IBrush?> BackgroundProperty =
+            Border.BackgroundProperty.AddOwner<NativeWebView>();
 #endif
 
         private readonly TaskCompletionSource<INativeWebViewControlImpl> _controlHostImplTcs = new();
@@ -222,6 +229,18 @@ namespace Avalonia.Xpf.Controls
             set => SetValue(SourceProperty, value);
         }
 
+#if AVALONIA
+        public IBrush? Background
+        {
+            get => GetValue(BackgroundProperty);
+#else
+        public new Brush? Background
+        {
+            get => (Brush)GetValue(BackgroundProperty);
+#endif
+            set => SetValue(BackgroundProperty, value);
+        }
+
         /// <inheritdoc/>
         public Core.NativeWebViewCommandManager? TryGetCommandManager() =>
             TryGetAdapter() switch
@@ -267,7 +286,11 @@ namespace Avalonia.Xpf.Controls
         }
 
         /// <inheritdoc/>
-        public void NavigateToString(string text)
+        public void NavigateToString(
+#if NET8_0_OR_GREATER
+            [StringSyntax("html")]
+#endif
+            string text)
         {
             if (TryGetAdapter() is { } adapter)
                 adapter.NavigateToString(text);
@@ -448,6 +471,7 @@ namespace Avalonia.Xpf.Controls
                 adapter.NavigateToString(html);
             }
 
+            EnsureBackground(Background);
             AdapterCreated?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
         }
 
@@ -459,6 +483,15 @@ namespace Avalonia.Xpf.Controls
                 && e.NewValue is Uri source)
             {
                 @this.Navigate(source);
+            }
+        }
+
+        private static void DefaultBackgroundPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var @this = (NativeWebView)d;
+            if (e.NewValue is Brush background)
+            {
+                @this.EnsureBackground(background);
             }
         }
 
@@ -479,6 +512,25 @@ namespace Avalonia.Xpf.Controls
             TryGetAdapter()?.SizeChanged(PixelSize.FromSizeWithDpi(new Size(RenderSize.Width, RenderSize.Height), newDpi.DpiScaleX));
         }
 
+        private void EnsureBackground(Brush? background)
+        {
+            if (TryGetAdapter() is { } adapter)
+            {
+                if (background is null)
+                {
+                    var window = Window.GetWindow(this);
+                    background = window?.Background ?? Brushes.White;
+                }
+                adapter.DefaultBackground = background switch
+                {
+                    SolidColorBrush solid => new Avalonia.Media.Color(solid.Color.A, solid.Color.B, solid.Color.G, solid.Color.B),
+                    // non-solid brush - try to emulate in OnRender with our own rendering
+                    _ => Avalonia.Media.Colors.Transparent
+                };
+                InvalidateVisual();
+            }
+        }
+
 #elif AVALONIA
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
@@ -497,12 +549,37 @@ namespace Avalonia.Xpf.Controls
                 _ = Dispatcher.UIThread.InvokeAsync(() => TryGetAdapter()?.SizeChanged(
                     PixelSize.FromSize(Bounds.Size, TopLevel.GetTopLevel(this)!.RenderScaling)), DispatcherPriority.Background);
             }
+            else if (change.Property == BackgroundProperty)
+            {
+                EnsureBackground(change.GetNewValue<IBrush>());
+            }
         }
 
         protected override void OnSizeChanged(SizeChangedEventArgs e)
         {
             base.OnSizeChanged(e);
             TryGetAdapter()?.SizeChanged(PixelSize.FromSize(e.NewSize, TopLevel.GetTopLevel(this)!.RenderScaling));
+        }
+
+        private void EnsureBackground(IBrush? background)
+        {
+            if (TryGetAdapter() is { } adapter)
+            {
+                if (background is null)
+                {
+                    var topLevel = TopLevel.GetTopLevel(this);
+                    while (topLevel is IPopupHost)
+                        topLevel = TopLevel.GetTopLevel(topLevel.Parent as Visual);
+                    background = topLevel?.Background ?? Brushes.White;
+                }
+                adapter.DefaultBackground = background switch
+                {
+                    ISolidColorBrush solid => new Avalonia.Media.Color(solid.Color.A, solid.Color.R, solid.Color.G, solid.Color.B),
+                    // non-solid brush - try to emulate in OnRender with our own rendering
+                    _ => Avalonia.Media.Colors.Transparent
+                };
+                InvalidateVisual();
+            }
         }
 #endif
 
@@ -535,11 +612,19 @@ namespace Avalonia.Xpf.Controls
         }
 #endif
 
-#if AVALONIA
+#if WPF
+        protected override void OnRender(DrawingContext context)
+        {
+            var backgroundToDraw = Background is { } brush and not SolidColorBrush ? brush : Brushes.Transparent;
+            context.DrawRectangle(backgroundToDraw, null, new System.Windows.Rect(default, RenderSize));
+            base.OnRender(context);
+        }
+#elif AVALONIA
 
         public override void Render(DrawingContext context)
         {
-            context.DrawRectangle(Brushes.Transparent, null, Bounds);
+            var backgroundToDraw = Background is { } brush and not ISolidColorBrush ? brush : Brushes.Transparent;
+            context.DrawRectangle(backgroundToDraw, null, Bounds);
             base.Render(context);
         }
 

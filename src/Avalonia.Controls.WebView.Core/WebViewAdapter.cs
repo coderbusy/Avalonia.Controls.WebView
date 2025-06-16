@@ -62,7 +62,7 @@ internal static class WebViewAdapter
                     return new NativeHostAdapterFactory((parent, createChild) =>
                     {
                         if (OperatingSystemEx.IsWindows())
-                            return new Win.WebView2.WebView2HwndAdapter(createChild(parent), args);
+                            return new Win.WebView2.WebView2HwndAdapter(parent, createChild(parent), args);
                         throw new PlatformNotSupportedException();
                     });
                 }
@@ -75,7 +75,7 @@ internal static class WebViewAdapter
                     return new NativeHostAdapterFactory((parent, createChild) =>
                     {
                         if (OperatingSystemEx.IsWindows())
-                            return new Win.WebView1.WebView1Adapter(createChild(parent), process);
+                            return new Win.WebView1.WebView1Adapter(parent, createChild(parent), process);
                         throw new PlatformNotSupportedException();
                     });
                 }
