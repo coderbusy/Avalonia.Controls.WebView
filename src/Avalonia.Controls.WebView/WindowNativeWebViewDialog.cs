@@ -34,8 +34,7 @@ namespace Avalonia.Xpf.Controls
 
             _controlHostImpl.AdapterCreated += (_, adapter) =>
             {
-                if (_initialDefaultBackground is not null)
-                    adapter.DefaultBackground = _initialDefaultBackground.Value;
+                adapter.DefaultBackground = _initialDefaultBackground ?? Colors.Transparent;
                 AdapterCreated?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
             };
             _controlHostImpl.AdapterDestroyed += (_, adapter) => AdapterDestroyed?.Invoke(this, new Core.WebViewAdapterEventArgs(adapter));
