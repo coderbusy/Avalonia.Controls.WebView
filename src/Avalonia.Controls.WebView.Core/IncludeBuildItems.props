@@ -1,7 +1,6 @@
 <Project>
 
   <ItemGroup Label="Common Group">
-    <PackageReference Include="AvaloniaUI.Licensing" Version="2.0.0-cibuild000076" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
   </ItemGroup>
 
