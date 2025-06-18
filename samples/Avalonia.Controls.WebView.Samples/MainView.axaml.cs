@@ -110,7 +110,7 @@ public partial class MainView : UserControl
     {
         LogList.Text += "\r\nWindow_OnKeyDown " + e.Key + " " + e.KeyModifiers;
 
-        if (e.Key == Key.P)
+        if (e is { Key: Key.P, KeyModifiers: KeyModifiers.Control })
         {
             using (WebView.BeginReparenting())
             {
@@ -302,5 +302,12 @@ public partial class MainView : UserControl
             </body>
             </html>
             """);
+    }
+
+    private void GridWebViewButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        GridWebView.Source = Uri.TryCreate(GridWebViewSource.Text, UriKind.Absolute, out var source) ?
+            source :
+            new Uri("about:blank");
     }
 }
