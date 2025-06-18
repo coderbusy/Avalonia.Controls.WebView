@@ -5,7 +5,7 @@
     <UseWpf>true</UseWpf>
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
     <RootNamespace>Avalonia.Xpf.Controls</RootNamespace>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies Condition="'$(ILMergeBuild)' == 'true'">true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
