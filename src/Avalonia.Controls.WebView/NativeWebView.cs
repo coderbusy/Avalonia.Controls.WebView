@@ -1,6 +1,8 @@
 ﻿#if AVALONIA || WPF
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
 using AvInput = Avalonia.Input;
@@ -12,13 +14,14 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
-
+using ControlSize = System.Windows.Size;
 #elif AVALONIA
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using ControlSize = Avalonia.Size;
 #endif
 
 #if AVALONIA
@@ -53,6 +56,14 @@ namespace Avalonia.Xpf.Controls
             nameof(Source), new Uri("about:blank"));
         public static readonly StyledProperty<IBrush?> BackgroundProperty =
             Border.BackgroundProperty.AddOwner<NativeWebView>();
+
+        // Container.Sizing was added in 11.3, but we want to use this property before that, with a reasoable fallback (see MeasureOverride)
+        private static readonly Action<NativeWebView>? s_setSizing =
+            AvaloniaPropertyRegistry.Instance.GetRegisteredAttached(typeof(NativeWebView))
+                .FirstOrDefault(p => p.Name == "Sizing") is { } sizingProp
+            && Enum.ToObject(sizingProp.PropertyType, 3 /* ContainerSizing.WidthAndHeight */) is { } value ?
+                webView => webView.SetValue(sizingProp, value) :
+                null;
 #endif
 
         private readonly TaskCompletionSource<INativeWebViewControlImpl> _controlHostImplTcs = new();
@@ -87,6 +98,10 @@ namespace Avalonia.Xpf.Controls
                     _ignoreNavigation = false;
                 }
             };
+
+#if AVALONIA
+            s_setSizing?.Invoke(this);
+#endif
         }
 
         internal INativeWebViewControlImpl? TryGetImpl() =>
@@ -409,6 +424,24 @@ namespace Avalonia.Xpf.Controls
             {
                 _ignoreFocusChanges = false;
             }
+        }
+
+        protected override ControlSize MeasureOverride(ControlSize availableSize)
+        {
+            // NativeWebView should behave like Container.Sizing was set to WidthAndHeight.
+            // I.e. aggressively taking all available size if not infinity.
+            // But this property is only supported in 11.3, while WebView targets 11.1 (ideally).
+            // Also WPF doesn't have an equivalent.
+            // Keeping this hack makes some sort of a compromise, where on Ava 11.3 we have this property and and potentially reset by user if needed.
+            var measured = base.MeasureOverride(availableSize);
+#if AVALONIA
+            if (s_setSizing is not null)
+                return measured;
+#endif
+
+            return new ControlSize(
+                double.IsInfinity(availableSize.Width) ? measured.Width : availableSize.Width,
+                double.IsInfinity(availableSize.Height) ? measured.Height : availableSize.Height);
         }
 
         private void WithFocusOnLostFocus(object? sender, Core.IWebViewAdapterWithFocus.LostFocusDirection e)

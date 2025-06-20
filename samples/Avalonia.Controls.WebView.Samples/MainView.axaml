@@ -67,6 +67,18 @@
                 </Grid>
             </Expander>
         </TabItem>
+        <TabItem Header="ScrollViewer">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"
+                          Padding="8">
+                <StackPanel>
+                    <TextBlock Text="Hello" />
+                    <NativeWebView MinHeight="500"
+                                   Source="https://avaloniaui.net" />
+                    <TextBlock Text="There" />
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
         <TabItem Header="WebAuthenticationBroker">
             <StackPanel>
                 <TextBox x:Name="RequestUri"
