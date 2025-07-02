@@ -9,12 +9,12 @@ https://avaloniaui.net/xpf
 
 ## Features
 
-- **Native Web Rendering**: Uses platform-specific web engines (WebView2 on Windows, WebKit on macOS, WebKitGTK on Linux)
-- **Lightweight**: No embedded browser engine required - significantly smaller application footprint
-- **AOT Compatible**: Full support for Ahead-of-Time compilation and publishing
-- **Flexible Platform Configuration**: Configure WebView2 profiles, persistent storage locations, and other platform-specific settings
-- **Full Web Integration**: Complete support for cookies, JavaScript execution, bidirectional messaging, and HTTP headers interception
-- **Authentication Support**: Built-in web authentication broker for OAuth and web-based authentication flows
+- **Platform-Native Engines**: WebView2 (Windows), WebKit (macOS), WebKitGTK (Linux)
+- **Lightweight**: No embedded browser engine required - smaller application footprint
+- **AOT Compatible**: Compatible with Ahead-of-Time compilation and trimming
+- **Platform Configuration**: Supports WebView2 profiles, persistent storage paths, and many other platform-specific options
+- **Web APIs**: JavaScript execution, bidirectional messaging, cookie management, HTTP header interception
+- **Authentication**: Web authentication broker for OAuth and web-based authentication
 
 ## Quick Start
 
@@ -25,7 +25,13 @@ https://docs.avaloniaui.net/xpf/embedding/web-view
 
 ### NativeWebView Control
 
-The main WebView control for displaying web content in your application.
+The main control for embedding web content in your app.
+
+```xaml
+<!-- Add to your XAML -->
+<wb:NativeWebView x:Name="WebView" 
+                  Source="https://avaloniaui.net" />
+```
 
 **Documentation**: https://docs.avaloniaui.net/accelerate/components/webview/nativewebview
 
