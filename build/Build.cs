@@ -103,7 +103,7 @@ class Build : NukeBuild
                     .GlobFiles(Path.Combine("bin", Configuration, "**", projectName + ".dll"));
                 foreach (var mergeRootDll in mergeRootDlls)
                 {
-                    string[] depNamesToMerge = ["Avalonia.Controls.WebView.Core.dll"];
+                    string[] depNamesToMerge = ["Avalonia.Controls.WebView.Core.dll", "AvaloniaUI.Licensing.dll"];
                     var dependenciesToMerge = mergeRootDll.Parent
                         .GlobFiles("*.dll")
                         .Where(f => Array.IndexOf(depNamesToMerge, f.Name) >= 0);
