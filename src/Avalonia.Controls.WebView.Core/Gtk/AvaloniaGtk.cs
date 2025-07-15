@@ -69,6 +69,21 @@ internal static class AvaloniaGtk
     public static T RunOnGlibThread<T>(Func<T> callback)
     {
         var task = CachedDelegate<T>.Run(callback);
+        return task.GetAwaiter().GetResult();
+    }
+
+    public static void RunOnGlibThread(Action callback)
+    {
+        _ = RunOnGlibThread(() =>
+        {
+            callback();
+            return (object?)null;
+        });
+    }
+
+    public static T RunOnGlibThreadFrame<T>(Func<T> callback)
+    {
+        var task = CachedDelegate<T>.Run(callback);
         if (!task.IsCompleted)
         {
             var frame = new DispatcherFrame();
@@ -79,9 +94,9 @@ internal static class AvaloniaGtk
         return task.GetAwaiter().GetResult();
     }
 
-    public static void RunOnGlibThread(Action callback)
+    public static void RunOnGlibThreadFrame(Action callback)
     {
-        _ = RunOnGlibThread(() =>
+        _ = RunOnGlibThreadFrame(() =>
         {
             callback();
             return (object?)null;
