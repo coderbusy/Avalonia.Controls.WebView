@@ -22,7 +22,7 @@ jobs:
     - name: CreateNugetPackages
       env:
         BABEL_LICENSE: ${{ secrets.BABEL_LICENSE_SECRET }}
-      run: dotnet run --project ${{github.workspace}}/build/_build.csproj --target CreateNugetPackages --configuration Release --output ${{github.workspace}}/artifacts/packages/
+      run: dotnet run --project ${{github.workspace}}/build/_build.csproj -- --target CreateNugetPackages --configuration Release --output ${{github.workspace}}/artifacts/packages/
 
     - name: Upload Avalonia nupkg artifact
       uses: actions/upload-artifact@v4

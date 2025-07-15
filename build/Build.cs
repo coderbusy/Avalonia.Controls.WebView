@@ -19,11 +19,6 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 class Build : NukeBuild
 {
-    /// Support plugins are available for:
-    ///   - JetBrains ReSharper        https://nuke.build/resharper
-    ///   - JetBrains Rider            https://nuke.build/rider
-    ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
-    ///   - Microsoft VSCode           https://nuke.build/vscode
     public static int Main() => IsLocalBuild ?
         Execute<Build>(x => x.CopyPackagesToNuGetCache) :
         Execute<Build>(x => x.CreateNugetPackages);
@@ -34,21 +29,16 @@ class Build : NukeBuild
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = Configuration.Release;
-
     [Parameter]
     readonly AbsolutePath Output = RootDirectory / "artifacts" / "packages";
-
-    string CiRunNumber => Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
-    
-    string RefName => Environment.GetEnvironmentVariable("GITHUB_REF_NAME");
+    [Parameter]
+    readonly string? VersionOverride;
 
     Target OutputParameters => _ => _
         .Executes(() =>
         {
             Log.Information($"Configuration: {Configuration}");
             Log.Information($"Output: {Output}");
-            Log.Information($"CiRunNumber: {CiRunNumber}");
-            Log.Information($"CiRunNumber: {RefName}");
             Log.Information($"Version: {GetVersion()}");
         });
 
@@ -250,21 +240,32 @@ class Build : NukeBuild
 
     string GetVersion()
     {
-        if (RunningTargets.Concat(ScheduledTargets).Any(t => t.Name == nameof(CopyPackagesToNuGetCache)))
+        // VersionOverride
+        if (VersionOverride is { } version)
         {
-            return "9999.0.0-localbuild";
+            return version;
         }
-        if (Version.TryParse(RefName, out var version))
+
+        var refName =  Environment.GetEnvironmentVariable("GITHUB_REF_NAME");
+        // Release tag
+        if (Version.TryParse(refName, out var tagVersion))
         {
-            return RefName;
+            return tagVersion.ToString();
         }
-        else if (Regex.Match(RefName ?? "", """release\/(?<ver>[\d\.]*)""") is { Success: true } match)
+        // Release branch
+        else if (Regex.Match(refName ?? "", """release\/(?<ver>[\d\.]*)""") is { Success: true } match)
         {
             return match.Groups["ver"].Value;
         }
-        else if (CiRunNumber is not null)
+        // CI build number
+        else if (int.TryParse(Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER"), out var ciRun))
         {
-            return "1.0.999-cibuild" + int.Parse(CiRunNumber).ToString("0000000") + "-alpha";
+            return "1.0.999-cibuild" + ciRun.ToString("0000000") + "-alpha";
+        }
+
+        if (RunningTargets.Concat(ScheduledTargets).Any(t => t.Name == nameof(CopyPackagesToNuGetCache)))
+        {
+            return "9999.0.0-localbuild";
         }
 
         return "1.0.999-localbuild-alpha";
