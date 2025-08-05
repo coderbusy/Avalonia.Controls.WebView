@@ -137,6 +137,7 @@ public partial class MainView : UserControl
                 var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
                 {
                     DefaultExtension = ".pdf",
+                    SuggestedFileName = "page",
                     FileTypeChoices = [new FilePickerFileType("Pdf") { Patterns = [".pdf"] }]
                 });
                 if (file is not null)
@@ -145,9 +146,8 @@ public partial class MainView : UserControl
                     await page.CopyToAsync(writeStream);
                 }
 #elif WPF
-                var saveFileDialog = new SaveFileDialog { DefaultExt = ".pdf", Filter = "PDF files (*.pdf)|*.pdf" };
-                saveFileDialog.ShowDialog();
-                if (saveFileDialog.FileName is { } fileName)
+                var saveFileDialog = new SaveFileDialog { DefaultExt = ".pdf", FileName = "page", Filter = "PDF files (*.pdf)|*.pdf" };
+                if (saveFileDialog.ShowDialog() == true)
                 {
                     await using var writeStream = saveFileDialog.OpenFile();
                     await page.CopyToAsync(writeStream);
