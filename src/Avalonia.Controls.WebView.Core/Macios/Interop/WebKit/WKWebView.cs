@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -22,6 +23,9 @@ internal class WKWebView : AppleView
     private static readonly IntPtr s_canGoForward = Libobjc.sel_getUid("canGoForward");
     private static readonly IntPtr s_goForward = Libobjc.sel_getUid("goForward");
 
+    private static readonly IntPtr s_printOperationWithPrintInfo = Libobjc.sel_getUid("printOperationWithPrintInfo:");
+    private static readonly IntPtr s_createPDFWithConfiguration = Libobjc.sel_getUid("createPDFWithConfiguration:completionHandler:");
+
     private static readonly IntPtr s_reload = Libobjc.sel_getUid("reload");
     private static readonly IntPtr s_stopLoading = Libobjc.sel_getUid("stopLoading");
 
@@ -30,6 +34,7 @@ internal class WKWebView : AppleView
 
     private static readonly unsafe IntPtr s_evaluateScriptCallback = new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void>)&EvaluateScriptCallback);
     private static readonly unsafe IntPtr s_callAsyncJavaScriptCallback = new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void>)&CallAsyncJavaScriptCallback);
+    private static readonly unsafe IntPtr s_createPDFCallback = new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void>)&CreatePDFCallback);
 
     static unsafe WKWebView()
     {
@@ -98,6 +103,31 @@ internal class WKWebView : AppleView
             GC.SuppressFinalize(scriptStr);
             var block = BlockLiteral.GetBlockForFunctionPointer(s_evaluateScriptCallback, GCHandle.ToIntPtr(stateHandle));
             Libobjc.void_objc_msgSend(Handle, s_evaluateJavaScript, scriptStr.Handle, block);
+            return await tcs.Task;
+        }
+        finally
+        {
+            stateHandle.Free();
+        }
+    }
+
+    public NSPrintOperation? PrintOperationWithPrintInto(NSPrintInfo printInfo)
+    {
+        var operation = Libobjc.intptr_objc_msgSend(Handle, s_printOperationWithPrintInfo, printInfo.Handle);
+        return operation != IntPtr.Zero ? new NSPrintOperation(operation, false) : null;
+    }
+
+    public async Task<MemoryStream> CreatePdf(WKPDFConfiguration? configuration)
+    {
+        var tcs = new TaskCompletionSource<MemoryStream>();
+        var stateHandle = GCHandle.Alloc(tcs);
+        try
+        {
+            var block = BlockLiteral.GetBlockForFunctionPointer(s_createPDFCallback, GCHandle.ToIntPtr(stateHandle));
+            Libobjc.void_objc_msgSend(Handle,
+                s_createPDFWithConfiguration,
+                configuration?.Handle ?? IntPtr.Zero,
+                block);
             return await tcs.Task;
         }
         finally
@@ -181,6 +211,38 @@ internal class WKWebView : AppleView
         {
             _ = state.CompletionSource.TrySetResult(NSString.TryGetString(value));
         }
+    }
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static unsafe void CreatePDFCallback(IntPtr block, IntPtr data, IntPtr nsError)
+    {
+        var statePtr = BlockLiteral.TryGetBlockState(block);
+        if (GCHandle.FromIntPtr(statePtr).Target is not TaskCompletionSource<MemoryStream> state)
+            return;
+
+        if (nsError != default)
+        {
+            _ = state.TrySetException(NSError.ToException(nsError));
+        }
+        else
+        {
+            var dataLength = (int)CFDataGetLength(data);
+            var dataBytes = new byte[dataLength];
+            fixed (byte* dataPtr = dataBytes)
+                CFDataGetBytes(data, new(0, dataLength), dataPtr);
+            state.SetResult(new MemoryStream(dataBytes, 0, dataBytes.Length, true, true));
+        }
+    }
+
+    private const string CoreFoundationLibrary = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
+    [DllImport(CoreFoundationLibrary, CallingConvention = CallingConvention.Cdecl)]
+    private static extern IntPtr CFDataGetLength(IntPtr cfData);
+    [DllImport(CoreFoundationLibrary, CallingConvention = CallingConvention.Cdecl)]
+    private static extern unsafe void CFDataGetBytes(IntPtr cfData, CFRange range, byte* buffer);
+    private struct CFRange(nint location, nint lentgh)
+    {
+        public nint Location = location;
+        public nint Length = lentgh;
     }
 
     internal record JSCallState(IntPtr WebView, TaskCompletionSource<string?> CompletionSource);

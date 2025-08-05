@@ -131,11 +131,19 @@ internal static unsafe partial class Libobjc
     [DllImport(libobjc, EntryPoint = "objc_msgSend")]
     public static extern void void_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, IntPtr param3);
     [DllImport(libobjc, EntryPoint = "objc_msgSend")]
+    public static extern void void_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, IntPtr param3, IntPtr param4);
+    [DllImport(libobjc, EntryPoint = "objc_msgSend")]
     public static extern void void_objc_msgSend(IntPtr basePtr, IntPtr selector, IntPtr param1, IntPtr param2, IntPtr param3, IntPtr param4, IntPtr param5);
+    [DllImport(libobjc, EntryPoint = "objc_msgSend")]
+    public static extern void void_objc_msgSend(IntPtr basePtr, IntPtr selector, CGRect param1);
     [DllImport(libobjc, EntryPoint = "objc_msgSend")]
     public static extern void void_objc_msgSend(IntPtr basePtr, IntPtr selector, int param1);
     [DllImport(libobjc, EntryPoint = "objc_msgSend")]
     public static extern void void_objc_msgSend(IntPtr basePtr, IntPtr selector, int param1, IntPtr param2);
+    [DllImport(libobjc, EntryPoint = "objc_msgSend")]
+    public static extern CGRect CGRect_objc_msgSend(IntPtr basePtr, IntPtr selector);
+    [DllImport(libobjc, EntryPoint = "objc_msgSend")]
+    public static extern CGSize CGSize_objc_msgSend(IntPtr basePtr, IntPtr selector);
 
     [DllImport(libobjc, EntryPoint = "objc_msgSendSuper")]
     public static extern void void_objc_msgSendSuper(IntPtr superRef, IntPtr selector);

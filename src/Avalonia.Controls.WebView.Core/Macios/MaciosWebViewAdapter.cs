@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Versioning;
@@ -18,7 +19,7 @@ namespace Avalonia.Controls.Macios;
 [SupportedOSPlatform("macos")]
 [SupportedOSPlatform("ios")]
 internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWithInputRedirect,
-    IWebViewAdapterWithCookieManager, IWebViewAdapterWithCommands, IAppleWKWebViewPlatformHandle
+    IWebViewAdapterWithCookieManager, IWebViewAdapterWithCommands, IWebViewWithPrint, IAppleWKWebViewPlatformHandle
 {
     private const string PostAvWebViewMessageName = "postAvWebViewMessage";
 
@@ -406,6 +407,36 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
     {
         using var cookieStore = _config.WebsiteDataStore.HttpCookieStore;
         return await cookieStore.GetAllCookies();
+    }
+
+    public bool ShowPrintUI()
+    {
+        if (!OperatingSystemEx.IsMacOSVersionAtLeast(11, 0))
+            return false;
+
+        var window = AppleView.GetWindow(_webView.Handle);
+        if (window == IntPtr.Zero)
+            return false;
+
+        var printInfo = new NSPrintInfo();
+        var operation = _webView.PrintOperationWithPrintInto(printInfo);
+        if (operation is null)
+            return false;
+
+        _ = operation.RunOperationModalForWindow(window);
+        return true;
+    }
+
+    public async Task<Stream> PrintToPdfStreamAsync()
+    {
+        if (!OperatingSystemEx.IsMacOSVersionAtLeast(11, 0)
+            && !OperatingSystemEx.IsIOSVersionAtLeast(14, 0))
+            throw new PlatformNotSupportedException();
+
+        using var configuration = new WKPDFConfiguration();
+        if (OperatingSystemEx.IsIOS() && _webView.ScrollView?.ContentSize is { } contentSize)
+            configuration.Rect = new CGRect(0, 0, contentSize.Width, contentSize.Height);
+        return await _webView.CreatePdf(configuration);
     }
 
     public void Copy() => _webView.Copy();

@@ -33,7 +33,8 @@ internal unsafe class AppleView : NSManagedObjectBase
     private static readonly IntPtr s_backgroundColor =  Libobjc.sel_getUid("backgroundColor");
     private static readonly IntPtr s_setBackgroundColor =  Libobjc.sel_getUid("setBackgroundColor:");
     private static readonly IntPtr s_opaque =  Libobjc.sel_getUid("isOpaque");
-    private static readonly IntPtr s_setOpaque =  Libobjc.sel_getUid("setOpaque:"); 
+    private static readonly IntPtr s_setOpaque =  Libobjc.sel_getUid("setOpaque:");
+    private static readonly IntPtr s_contentSize =  Libobjc.sel_getUid("contentSize"); 
 
     private static readonly NSString s_drawsBackground = NSString.Create("drawsBackground");
 
@@ -103,6 +104,11 @@ internal unsafe class AppleView : NSManagedObjectBase
     {
         get => ValueForKey(s_drawsBackground) == NSNumber.Yes.Handle;
         set => SetValueForKey(value ? NSNumber.Yes.Handle : NSNumber.No.Handle, s_drawsBackground);
+    }
+
+    public CGSize ContentSize
+    {
+        get => Libobjc.CGSize_objc_msgSend(Handle, s_contentSize);
     }
 
     public void Copy() => Libobjc.void_objc_msgSend(Handle, s_copy);
