@@ -171,6 +171,15 @@ internal class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebViewPlatform
     {
     }
 
+    public void ShowPrintUI()
+    {
+        RunOnGlibThreadAsync(() =>
+        {
+            using var operation = new GtkPrintOperation(WebViewHandle);
+            operation.RunDialog(IntPtr.Zero);
+        });
+    }
+
     public async Task<Stream> PrintToPdfStreamAsync()
     {
         var tempFile = Path.GetTempFileName();
@@ -179,8 +188,8 @@ internal class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebViewPlatform
         {
             await RunOnGlibThreadAsync(() =>
             {
-                operation = new GtkPrintOperation(WebViewHandle, tempFile);
-                operation.Print();
+                operation = new GtkPrintOperation(WebViewHandle);
+                operation.PrintToFile(tempFile);
             }).ConfigureAwait(false);
 
             await operation!.Task.ConfigureAwait(false);

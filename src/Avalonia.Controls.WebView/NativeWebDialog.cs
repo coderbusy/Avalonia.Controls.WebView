@@ -367,6 +367,15 @@ namespace Avalonia.Xpf.Controls
             TryGetAdapter() is Core.IWebViewAdapterWithCookieManager adapter ? new Core.NativeWebViewCookieManager(adapter) : null;
 
         /// <inheritdoc/>
+        public void ShowPrintUI()
+        {
+            if (TryGetAdapter() is Core.IWebViewWithPrintToPdf adapter)
+                adapter.ShowPrintUI();
+            else
+                throw new PlatformNotSupportedException();
+        }
+
+        /// <inheritdoc/>
         public Task<Stream> PrintToPdfStreamAsync() => TryGetAdapter() is Core.IWebViewWithPrintToPdf adapter ?
             adapter.PrintToPdfStreamAsync() :
             Task.FromException<Stream>(new PlatformNotSupportedException());

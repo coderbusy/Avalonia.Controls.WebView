@@ -177,6 +177,9 @@ internal static unsafe partial class GtkInterop
     public static extern void webkit_print_operation_print(IntPtr operation);
 
     [DllImport(LibWebKit)]
+    public static extern int webkit_print_operation_run_dialog(IntPtr operation, IntPtr parentWindow);
+
+    [DllImport(LibWebKit)]
     public static extern void webkit_print_operation_set_print_settings(IntPtr operation, IntPtr settings);
 
     [DllImport(LibWebKit)]

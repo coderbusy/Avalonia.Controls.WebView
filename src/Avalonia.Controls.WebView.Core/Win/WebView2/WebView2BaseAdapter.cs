@@ -190,6 +190,16 @@ internal abstract partial class WebView2BaseAdapter : IWebViewAdapterWithCookieM
         _controller.SetParentWindow(parent.Handle);
     }
 
+    public void ShowPrintUI()
+    {
+        if (TryGetWebView2() is not ICoreWebView2_16 webView)
+        {
+            throw new InvalidOperationException("WebView Adapter is not initialized");
+        }
+
+        webView.ShowPrintUI(0);
+    }
+
     public Task<Stream> PrintToPdfStreamAsync()
     {
         if (TryGetWebView2() is not ICoreWebView2_16 webView)

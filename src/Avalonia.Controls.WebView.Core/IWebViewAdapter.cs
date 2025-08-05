@@ -215,6 +215,12 @@ internal interface IWebViewHolder
     NativeWebViewCookieManager? TryGetCookieManager();
 
     /// <summary>
+    /// Opens the print dialog to print the current web page.
+    /// </summary>
+    /// <exception cref="PlatformNotSupportedException">Platform is not supported.</exception>
+    void ShowPrintUI();
+
+    /// <summary>
     /// Provides the Pdf data of current web page asynchronously.
     /// </summary>
     /// <exception cref="PlatformNotSupportedException">Platform is not supported.</exception>
@@ -400,5 +406,6 @@ internal interface IWebViewAdapterWithOffscreenBuffer : IWebViewAdapter
 
 internal interface IWebViewWithPrintToPdf : IWebViewAdapter
 {
+    void ShowPrintUI();
     Task<Stream> PrintToPdfStreamAsync();
 }

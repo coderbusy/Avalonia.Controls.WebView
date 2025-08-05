@@ -159,6 +159,22 @@ public partial class MainView : UserControl
                 LogList.Text += "\r\nPrint failed " + ex;
             }
         }
+        else if (e is { Key: Key.D }
+#if AVALONIA
+            && modifiers.HasFlag(KeyModifiers.Control))
+#elif WPF
+            && modifiers.HasFlag(ModifierKeys.Control))
+#endif
+        {
+            try
+            {
+                WebView.ShowPrintUI();
+            }
+            catch (Exception ex)
+            {
+                LogList.Text += "\r\nPrintUI failed " + ex;
+            }
+        }
         else if (e is { Key: Key.R }
 #if AVALONIA
                          && modifiers.HasFlag(KeyModifiers.Control))

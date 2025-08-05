@@ -15,16 +15,12 @@ internal class GtkPrintOperation : IDisposable
     private readonly IntPtr _operation;
     private readonly IntPtr _settings;
 
-    public unsafe GtkPrintOperation(IntPtr webView, string outputFile)
+    public unsafe GtkPrintOperation(IntPtr webView)
     {
         _tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _operation = webkit_print_operation_new(webView);
         _settings = gtk_print_settings_new();
-        gtk_print_settings_set(_settings, "output-file-format", "pdf");
-        gtk_print_settings_set(_settings, "printer", "Print to File");
-        gtk_print_settings_set(_settings, "output-uri", new Uri(outputFile).AbsoluteUri);
-
         webkit_print_operation_set_print_settings(_operation, _settings);
 
         _failedCallback = new GtkSignal(_operation, "failed",
@@ -35,7 +31,18 @@ internal class GtkPrintOperation : IDisposable
 
     public Task Task => _tcs.Task;
 
-    public void Print() => webkit_print_operation_print(_operation);
+    public void PrintToFile(string outputFile)
+    {
+        gtk_print_settings_set(_settings, "output-file-format", "pdf");
+        gtk_print_settings_set(_settings, "printer", "Print to File");
+        gtk_print_settings_set(_settings, "output-uri", new Uri(outputFile).AbsoluteUri);
+        webkit_print_operation_print(_operation);
+    }
+
+    public void RunDialog(IntPtr window)
+    {
+        webkit_print_operation_run_dialog(_operation, window);
+    }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static unsafe void PrintOperationFailedCallback(IntPtr operation, GError* error, IntPtr data)
