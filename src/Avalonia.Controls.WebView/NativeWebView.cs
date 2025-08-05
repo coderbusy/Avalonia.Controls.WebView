@@ -274,10 +274,11 @@ namespace Avalonia.Xpf.Controls
         /// <inheritdoc/>
         public void ShowPrintUI()
         {
-            if (TryGetAdapter() is Core.IWebViewWithPrint adapter)
-                adapter.ShowPrintUI();
-            else
-                throw new PlatformNotSupportedException();
+            if (TryGetAdapter() is not Core.IWebViewWithPrint adapter
+                || !adapter.ShowPrintUI())
+            {
+                InvokeScript("window.print();");
+            }
         }
 
         /// <inheritdoc/>
