@@ -1,6 +1,7 @@
 #if ANDROID
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Android.App;
@@ -79,6 +80,7 @@ internal static class AndroidWebAuthenticationBroker
                 ? GetActivity(view) : null;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075")]
     private static global::Android.Views.View? GetAvaloniaView(TopLevel topLevel)
     {
         var implType = topLevel.PlatformImpl?.GetType();
