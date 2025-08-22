@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Logging;
@@ -57,47 +59,79 @@ internal static class AvaloniaGtk
 #endif
     }
 
-    public static Task<T> RunOnGlibThreadAsync<T>(Func<T> callback) => CachedDelegate<T>.Run(callback);
-
-    public static Task RunOnGlibThreadAsync(Action callback) => CachedDelegate<object?>.Run(() =>
+    public static Task<T> RunOnGlibThreadAsync<T>(Func<T> callback,
+        [CallerMemberName] string? callerMethod = null,
+        [CallerArgumentExpression(nameof(callback))] string? callerExpression = null)
     {
-        callback();
-        return (object?)null;
-    });
+        LogDebug(callerMethod, callerExpression);
 
-    public static T RunOnGlibThread<T>(Func<T> callback)
+        return CachedDelegate<T>.Run(callback);
+    }
+
+    public static Task RunOnGlibThreadAsync(Action callback,
+        [CallerMemberName] string? callerMethod = null,
+        [CallerArgumentExpression(nameof(callback))] string? callerExpression = null)
     {
+        LogDebug(callerMethod, callerExpression);
+
+        return CachedDelegate.Run(callback);
+    }
+
+    public static T RunOnGlibThread<T>(Func<T> callback,
+        [CallerMemberName] string? callerMethod = null,
+        [CallerArgumentExpression(nameof(callback))] string? callerExpression = null)
+    {
+        LogDebug(callerMethod, callerExpression);
+
         var task = CachedDelegate<T>.Run(callback);
         return task.GetAwaiter().GetResult();
     }
 
-    public static void RunOnGlibThread(Action callback)
+    public static void RunOnGlibThread(Action callback,
+        [CallerMemberName] string? callerMethod = null,
+        [CallerArgumentExpression(nameof(callback))] string? callerExpression = null)
     {
-        _ = RunOnGlibThread(() =>
-        {
-            callback();
-            return (object?)null;
-        });
+        LogDebug(callerMethod, callerExpression);
+
+        var task = CachedDelegate.Run(callback);
+        task.GetAwaiter().GetResult();
     }
 
-    public static T RunOnGlibThreadFrame<T>(Func<T> callback)
+    public static T RunOnGlibThreadFrame<T>(Func<T> callback,
+        [CallerMemberName] string? callerMethod = null,
+        [CallerArgumentExpression(nameof(callback))] string? callerExpression = null)
     {
+        LogDebug(callerMethod, callerExpression);
+
         var task = CachedDelegate<T>.Run(callback);
         if (!task.IsCompleted)
         {
             WebViewDispatcher.PushFrameForTask(task);
         }
-
         return task.GetAwaiter().GetResult();
     }
 
-    public static void RunOnGlibThreadFrame(Action callback)
+    public static void RunOnGlibThreadFrame(Action callback,
+        [CallerMemberName] string? callerMethod = null,
+        [CallerArgumentExpression(nameof(callback))] string? callerExpression = null)
     {
-        _ = RunOnGlibThread(() =>
+        LogDebug(callerMethod, callerExpression);
+
+        var task = CachedDelegate.Run(callback);
+        if (!task.IsCompleted)
         {
-            callback();
-            return (object?)null;
-        });
+            WebViewDispatcher.PushFrameForTask(task);
+        }
+        task.GetAwaiter().GetResult();
+    }
+
+    [Conditional("DEBUG")]
+    private static void LogDebug(string? callerMethod, string? callerExpression, [CallerMemberName] string? runMethod = null)
+    {
+#if DEBUG
+        Debug.WriteLine($"[{runMethod}]: [{callerMethod}] {callerExpression}");
+        Debug.WriteLine("");
+#endif
     }
 
     private static class CachedDelegate<T>
@@ -114,5 +148,17 @@ internal static class AvaloniaGtk
             "Avalonia.X11")]
         public static Task<T> Run(Func<T> callback) => s_runOnGlibThread?.Invoke(callback)
                                                        ?? throw new InvalidOperationException("Avalonia.X11 is not referenced");
+    }
+
+    private static class CachedDelegate
+    {
+        public static Task Run(Action callback)
+        {
+            return CachedDelegate<object?>.Run(() =>
+            {
+                callback();
+                return null;
+            });
+        }
     }
 }
