@@ -338,7 +338,7 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    private static void LoadChanged(IntPtr webView, WebKitLoadEvent loadEvent, IntPtr data)
+    private static void LoadChanged(IntPtr webView, int loadEvent, IntPtr data)
     {
         if (data == IntPtr.Zero || GCHandle.FromIntPtr(data).Target is not GtkWebViewAdapter adapter
             || adapter.NavigationCompleted is not { } handler)
@@ -346,7 +346,7 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
             return;
         }
 
-        switch (loadEvent)
+        switch ((WebKitLoadEvent)loadEvent)
         {
             case WebKitLoadEvent.Committed:
                 adapter._source = adapter.GetSourceUnsafe();
