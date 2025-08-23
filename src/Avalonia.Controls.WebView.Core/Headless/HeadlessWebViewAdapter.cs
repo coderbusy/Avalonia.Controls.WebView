@@ -31,11 +31,19 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
     private int _historyIndex = -1;
     private bool _disposed;
 
-    public HeadlessWebViewAdapter(HeadlessWebViewEnvironmentRequestedEventArgs environmentArgs)
+    private HeadlessWebViewAdapter(HeadlessWebViewEnvironmentRequestedEventArgs environmentArgs)
     {
         _environmentArgs = environmentArgs;
+    }
 
-        _ = InitializeAsync();
+    public static async Task<HeadlessWebViewAdapter> CreateAsync(HeadlessWebViewEnvironmentRequestedEventArgs environmentArgs)
+    {
+        if (environmentArgs.InitializeAsync != null)
+            await environmentArgs.InitializeAsync();
+        else
+            await Task.Yield();
+
+        return new HeadlessWebViewAdapter(environmentArgs);
     }
 
     public event EventHandler<WebViewNavigationCompletedEventArgs>? NavigationCompleted;
@@ -151,15 +159,6 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
             return true;
         }
         return false;
-    }
-
-    private async Task InitializeAsync()
-    {
-        if (IsInitialized) return;
-        if (_environmentArgs.InitializeAsync != null)
-            await _environmentArgs.InitializeAsync();
-        IsInitialized = true;
-        Initialized?.Invoke(this, EventArgs.Empty);
     }
 
     private HeadlessWebViewPage? GetCurrentPage()

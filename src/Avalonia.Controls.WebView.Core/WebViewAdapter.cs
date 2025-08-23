@@ -30,11 +30,7 @@ internal static class WebViewAdapter
             // Headless platform doesn't support NativeControlHost yet,
             // But compositor solution kinda works there.
             // Even though it's not production ready part of WebView (compositor/offscreen impl is not enabled by default).
-            return new CompositorHostAdapterFactory(async _ =>
-            {
-                await Task.Yield();
-                return new Headless.HeadlessWebViewAdapter(args);
-            });
+            return new CompositorHostAdapterFactory(async _ => await Headless.HeadlessWebViewAdapter.CreateAsync(args));
         }
 
 #if ANDROID // Android is the only backend which conditionally compiled, the rest is always present and loaded in runtime
