@@ -26,22 +26,22 @@ namespace Avalonia.Controls.Android;
 internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWithInputRedirect, IWebViewAdapterWithCookieManager, IAndroidWebViewPlatformHandle
 {
     private const string PostAvWebViewMessageName = "postAvWebViewMessage";
-    private static bool _canSetDataDirectorySuffix = true;
-    private readonly WebView _webView;
+    private static bool s_canSetDataDirectorySuffix = true;
     private readonly JavaScriptInterface _jsInterface;
+    private WebView? _webView;
 
     public AndroidWebViewAdapter(IPlatformHandle parent, AndroidWebViewEnvironmentRequestedEventArgs environmentArgs)
     {
         var parentContext = (parent as AndroidViewControlHandle)?.View.Context
                             ?? global::Android.App.Application.Context;
 
-        if (_canSetDataDirectorySuffix && environmentArgs.DataDirectorySuffix is { Length :> 0 } dataDirectorySuffix
+        if (s_canSetDataDirectorySuffix && environmentArgs.DataDirectorySuffix is { Length :> 0 } dataDirectorySuffix
             && OperatingSystem.IsAndroidVersionAtLeast(28))
         {
             WebView.SetDataDirectorySuffix(dataDirectorySuffix);
         }
 
-        _canSetDataDirectorySuffix = false;
+        s_canSetDataDirectorySuffix = false;
         _webView = new WebView(parentContext);
         _jsInterface = new JavaScriptInterface(this);
 
@@ -84,16 +84,14 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
         }
     }
 
-    public IntPtr Handle => _webView.Handle;
+    public IntPtr Handle => _webView?.Handle ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter));
     public string HandleDescriptor => "Android.Webkit.WebView";
-    public bool IsInitialized => true;
-    public event EventHandler? Initialized;
 
     public Media.Color DefaultBackground
     {
         set
         {
-            _webView.SetBackgroundColor(new Color(
+            _webView?.SetBackgroundColor(new Color(
                 value.R, value.G, value.B, value.A));
         }
     }
@@ -108,12 +106,12 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
         //noop
     }
 
-    public bool CanGoBack => _webView.CanGoBack();
-    public bool CanGoForward => _webView.CanGoForward();
+    public bool CanGoBack => _webView?.CanGoBack() ?? false;
+    public bool CanGoForward => _webView?.CanGoForward() ?? false;
 
     public Uri Source
     {
-        get => Uri.TryCreate(_webView.Url, UriKind.Absolute, out var uri) ? uri : WebViewHelper.EmptyPage;
+        get => Uri.TryCreate(_webView?.Url, UriKind.Absolute, out var uri) ? uri : WebViewHelper.EmptyPage;
         set => Navigate(value);
     }
 
@@ -128,6 +126,8 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
 
     public bool GoBack()
     {
+        if (_webView is null)
+            throw new ObjectDisposedException(nameof(AndroidWebViewAdapter));
         if (_webView.CanGoBack())
         {
             _webView.GoBack();
@@ -138,6 +138,8 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
 
     public bool GoForward()
     {
+        if (_webView is null)
+            throw new ObjectDisposedException(nameof(AndroidWebViewAdapter));
         if (_webView.CanGoForward())
         {
             _webView.GoForward();
@@ -149,45 +151,51 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     public Task<string?> InvokeScript(string script)
     {
         var tcs = new TaskCompletionSource<string?>();
-        _webView.EvaluateJavascript(script, new AndroidJavaScriptValueCallback(tcs));
+        (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter)))
+            .EvaluateJavascript(script, new AndroidJavaScriptValueCallback(tcs));
         return tcs.Task;
     }
 
     public void Navigate(Uri url)
     {
-        _webView.LoadUrl(url.ToString());
+        (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter)))
+            .LoadUrl(url.ToString());
     }
 
     public void NavigateToString(string text)
     {
-        _webView.LoadDataWithBaseURL("http://localhost", text, "text/html", "UTF-8", null);
+        (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter)))
+            .LoadDataWithBaseURL("http://localhost", text, "text/html", "UTF-8", null);
     }
 
     public bool Refresh()
     {
+        if (_webView is null) return false;
         _webView.Reload();
         return true;
     }
 
     public bool Stop()
     {
+        if (_webView is null) return false;
         _webView.StopLoading();
         return true;
     }
 
     public void Dispose()
     {
-        _webView.Dispose();
+        _webView?.Dispose();
+        _webView = null;
     }
 
     public void Focus()
     {
-        _ = _webView.RequestFocus();
+        _ = (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter))).RequestFocus();
     }
 
     public void ResignFocus()
     {
-        _webView.ClearFocus();
+        (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter))).ClearFocus();
     }
 
     public void AddOrUpdateCookie(Cookie cookie)
@@ -256,6 +264,9 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
         {
             base.DoUpdateVisitedHistory(view, url, isReload);
 
+            if (adapter._webView is null)
+                return;
+
             if (!string.IsNullOrEmpty(url))
             {
                 var uri = new Uri(url);
@@ -283,6 +294,9 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
 
         private bool ShouldOverrideUrlLoading(string urlStr, IWebResourceRequest? request)
         {
+            if (adapter._webView is null)
+                return false;
+
             Uri? url = null;
             if (urlStr.StartsWith("data:text/html;charset=utf-8;base64,", StringComparison.OrdinalIgnoreCase))
             {
@@ -361,6 +375,9 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
         public override void OnPageFinished(WebView? view, string? url)
         {
             base.OnPageFinished(view, url);
+
+            if (adapter._webView is null)
+                return;
 
             adapter._webView.EvaluateJavascript(
                 """
