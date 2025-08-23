@@ -31,10 +31,15 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     private WebView? _webView;
 
     public AndroidWebViewAdapter(IPlatformHandle parent, AndroidWebViewEnvironmentRequestedEventArgs environmentArgs)
+        : this(
+            (parent as AndroidViewControlHandle)?.View.Context ?? global::Android.App.Application.Context,
+            environmentArgs)
     {
-        var parentContext = (parent as AndroidViewControlHandle)?.View.Context
-                            ?? global::Android.App.Application.Context;
+        
+    }
 
+    public AndroidWebViewAdapter(global::Android.Content.Context parentContext, AndroidWebViewEnvironmentRequestedEventArgs environmentArgs)
+    {
         if (s_canSetDataDirectorySuffix && environmentArgs.DataDirectorySuffix is { Length :> 0 } dataDirectorySuffix
             && OperatingSystem.IsAndroidVersionAtLeast(28))
         {
@@ -46,7 +51,8 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
         _jsInterface = new JavaScriptInterface(this);
 
         _webView.Settings.JavaScriptEnabled = true;
-        _webView.Settings.DomStorageEnabled = true;
+        _webView.Settings.DomStorageEnabled = environmentArgs.DomStorageEnabled;
+        _webView.Settings.DatabaseEnabled = environmentArgs.DatabaseEnabled;
 
         _webView.Settings.CacheMode = environmentArgs.DisableCache
             ? CacheModes.NoCache
@@ -84,14 +90,15 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
         }
     }
 
-    public IntPtr Handle => _webView?.Handle ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter));
+    public WebView WebView => _webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter));
+    public IntPtr Handle => WebView.Handle;
     public string HandleDescriptor => "Android.Webkit.WebView";
 
     public Media.Color DefaultBackground
     {
         set
         {
-            _webView?.SetBackgroundColor(new Color(
+            WebView.SetBackgroundColor(new Color(
                 value.R, value.G, value.B, value.A));
         }
     }
@@ -126,11 +133,9 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
 
     public bool GoBack()
     {
-        if (_webView is null)
-            throw new ObjectDisposedException(nameof(AndroidWebViewAdapter));
-        if (_webView.CanGoBack())
+        if (CanGoBack)
         {
-            _webView.GoBack();
+            WebView.GoBack();
             return true;
         }
         return false;
@@ -138,11 +143,9 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
 
     public bool GoForward()
     {
-        if (_webView is null)
-            throw new ObjectDisposedException(nameof(AndroidWebViewAdapter));
-        if (_webView.CanGoForward())
+        if (CanGoForward)
         {
-            _webView.GoForward();
+            WebView.GoForward();
             return true;
         }
         return false;
@@ -151,21 +154,18 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     public Task<string?> InvokeScript(string script)
     {
         var tcs = new TaskCompletionSource<string?>();
-        (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter)))
-            .EvaluateJavascript(script, new AndroidJavaScriptValueCallback(tcs));
+        WebView.EvaluateJavascript(script, new AndroidJavaScriptValueCallback(tcs));
         return tcs.Task;
     }
 
     public void Navigate(Uri url)
     {
-        (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter)))
-            .LoadUrl(url.ToString());
+        WebView.LoadUrl(url.ToString());
     }
 
     public void NavigateToString(string text)
     {
-        (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter)))
-            .LoadDataWithBaseURL("http://localhost", text, "text/html", "UTF-8", null);
+        WebView.LoadDataWithBaseURL("http://localhost", text, "text/html", "UTF-8", null);
     }
 
     public bool Refresh()
@@ -190,12 +190,12 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
 
     public void Focus()
     {
-        _ = (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter))).RequestFocus();
+        _ = WebView.RequestFocus();
     }
 
     public void ResignFocus()
     {
-        (_webView ?? throw new ObjectDisposedException(nameof(AndroidWebViewAdapter))).ClearFocus();
+        WebView.ClearFocus();
     }
 
     public void AddOrUpdateCookie(Cookie cookie)

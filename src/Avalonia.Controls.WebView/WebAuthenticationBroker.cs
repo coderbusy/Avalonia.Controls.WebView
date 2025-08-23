@@ -37,7 +37,8 @@ namespace Avalonia.Xpf.Controls
 #endif
 
             var supportsNativeWebDialog =
-                OperatingSystemEx.IsWindows() || OperatingSystemEx.IsLinux() || OperatingSystemEx.IsMacOS();
+                OperatingSystemEx.IsWindows() || OperatingSystemEx.IsLinux() || OperatingSystemEx.IsMacOS() ||
+                OperatingSystemEx.IsAndroid();
 
             if (!(supportsNativeWebDialog & options.PreferNativeWebDialog)
 #if WPF
@@ -101,6 +102,13 @@ namespace Avalonia.Xpf.Controls
                 else if (args is GtkWebViewEnvironmentRequestedEventArgs gtkWebView
                          && options.NonPersistent)
                     gtkWebView.EphemeralDataManager = true;
+                else if (args is AndroidWebViewEnvironmentRequestedEventArgs androidWebView
+                         && options.NonPersistent)
+                {
+                    androidWebView.DisableCache = true;
+                    androidWebView.DatabaseEnabled = false;
+                    androidWebView.DomStorageEnabled = false;
+                }
             };
             dialog.Closing += OnClosing;
             dialog.NavigationStarted += OnNavigationStarted;

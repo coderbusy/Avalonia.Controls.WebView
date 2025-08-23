@@ -12,6 +12,16 @@ public sealed class AndroidWebViewEnvironmentRequestedEventArgs : WebViewEnviron
     public bool BuiltInZoomControls { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets a value indicating whether DOM storage is enabled in the Android WebView.
+    /// </summary>
+    public bool DomStorageEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the database storage API is enabled in the Android WebView.
+    /// </summary>
+    public bool DatabaseEnabled { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the application name to append to the default user agent string.
     /// </summary>
     public string? ApplicationNameForUserAgent { get; set; }

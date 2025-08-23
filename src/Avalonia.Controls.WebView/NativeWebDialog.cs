@@ -381,10 +381,14 @@ namespace Avalonia.Xpf.Controls
 
         internal async Task<bool> Show(IPlatformHandle owner) => (await GetOrInitialize()).Show(owner);
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async Task Initialize()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
+#if ANDROID
+            var dialogImpl = new Android.AndroidNativeWebViewDialog(args => EnvironmentRequested?.Invoke(this, args));
+#else
             Core.INativeWebViewDialog dialogImpl;
-
             // Special case for GTK, as we want to use GTK window instead of Avalonia window there.
             if (Core.OperatingSystemEx.IsLinux() && !Core.WebViewAdapter.UseHeadless)
             {
@@ -396,6 +400,7 @@ namespace Avalonia.Xpf.Controls
                 var factoryTask = Core.WebViewAdapter.CreateFactory(args => EnvironmentRequested?.Invoke(this, args));   
                 dialogImpl = new WindowNativeWebViewDialog(factoryTask);
             }
+#endif
 
             dialogImpl.AdapterCreated += DialogImplOnAdapterCreated;
             dialogImpl.Closing += DialogImplOnClosing;
