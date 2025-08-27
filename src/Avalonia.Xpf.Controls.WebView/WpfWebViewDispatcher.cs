@@ -10,8 +10,8 @@ internal sealed class WpfWebViewDispatcher : WebViewDispatcher
 {
     private static bool s_setupCompleted;
 
-    public override void CheckAccessHandler() =>
-        Dispatcher.CurrentDispatcher.CheckAccess();
+    public override void VerifyAccessHandler() =>
+        Dispatcher.CurrentDispatcher.VerifyAccess();
 
     public override Task InvokeAsyncHandler(Action a) =>
         Dispatcher.CurrentDispatcher.InvokeAsync(a).Task;
