@@ -27,7 +27,7 @@ internal static unsafe partial class GtkInterop
 #endif
 
     [DllImport(LibGLib)]
-    internal static extern uint g_timeout_add_once(uint interval, IntPtr callback, IntPtr userData);
+    internal static extern uint g_timeout_add(uint interval, IntPtr callback, IntPtr userData);
 
 #if NET7_0_OR_GREATER
     [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]

@@ -165,7 +165,7 @@ internal static class AvaloniaGtk
         static unsafe void StartCallback(Action callback)
         {
             var data = GCHandle.ToIntPtr(GCHandle.Alloc(callback));
-            GtkInterop.g_timeout_add_once(0U, new((delegate* unmanaged[Cdecl]<IntPtr, void>)&SourceOnceFunc), data);
+            GtkInterop.g_timeout_add(0U, new((delegate* unmanaged[Cdecl]<IntPtr, int>)&SourceOnceFunc), data);
         }
 
         static async Task<T> PublicApi(Func<T> callback)
@@ -193,7 +193,7 @@ internal static class AvaloniaGtk
         (Func<Task<bool>>?)Delegate.CreateDelegate(typeof(Func<Task<bool>>), method);
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    private static void SourceOnceFunc(IntPtr userData)
+    private static int SourceOnceFunc(IntPtr userData)
     {
         var gcHandle = GCHandle.FromIntPtr(userData);
         var target = (Action) gcHandle.Target!;
