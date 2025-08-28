@@ -468,13 +468,13 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
             var headers = webkit_uri_request_get_http_headers(request);
             headersImpl = headers != IntPtr.Zero ?
                 new Soup3HttpHeaders(headers, false) : // seems like we can't mutate headers in this callback
-                new DictionaryNativeHttpRequestHeaders(new Dictionary<string, string>());
+                DictionaryNativeHttpRequestHeaders.ImmutableInstance;
         }
         else
         {
             Logger.TryGet(LogEventLevel.Verbose, "WebView")?.Log(null,
                 "LibSoup3.0 is not available, header information won't be read");
-            headersImpl = new DictionaryNativeHttpRequestHeaders(new Dictionary<string, string>());
+            headersImpl = DictionaryNativeHttpRequestHeaders.ImmutableInstance;
         }
 
         var headersWrapper = new NativeHeadersCollection(headersImpl);

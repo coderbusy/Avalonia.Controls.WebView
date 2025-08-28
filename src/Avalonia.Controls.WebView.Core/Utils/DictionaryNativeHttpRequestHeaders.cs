@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -7,6 +8,9 @@ namespace Avalonia.Controls.Utils;
 internal class DictionaryNativeHttpRequestHeaders(IEnumerable<KeyValuePair<string, string>> headers, bool immutable)
     : INativeHttpRequestHeaders
 {
+    public static DictionaryNativeHttpRequestHeaders ImmutableInstance { get; } =
+        new(new ReadOnlyDictionary<string, string>(new Dictionary<string, string>()), true);
+
     public bool Immutable => !TryGetMutable(out _);
 
     public bool TryClear()

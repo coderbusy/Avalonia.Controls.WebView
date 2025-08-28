@@ -192,8 +192,7 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
                     {
                         Uri = page.Uri,
                         Method = System.Net.Http.HttpMethod.Get,
-                        Headers = new NativeHeadersCollection(
-                            new DictionaryNativeHttpRequestHeaders(new Dictionary<string, string>(), true))
+                        Headers = new NativeHeadersCollection(DictionaryNativeHttpRequestHeaders.ImmutableInstance)
                     }
                 });
         }

@@ -315,7 +315,7 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
                 var headersWrapper = new NativeHeadersCollection(
                     headers is not null ?
                         new DictionaryNativeHttpRequestHeaders(headers, !canEditHeaders) :
-                        new DictionaryNativeHttpRequestHeaders(new Dictionary<string, string>(), true));
+                        DictionaryNativeHttpRequestHeaders.ImmutableInstance);
                 var webResourceArgs = new WebResourceRequestedEventArgs
                 {
                     Request = new WebViewWebResourceRequest
