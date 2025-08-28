@@ -37,6 +37,24 @@ jobs:
           path: ${{github.workspace}}/artifacts/packages/Avalonia.Xpf.Controls.WebView.*.nupkg
           retention-days: 1
 
+  publish-nightly-release:
+    runs-on: [self-hosted, Linux]
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+
+      - uses: actions/download-artifact@v4
+        with:
+            name: xpf
+            path: ./nupkgs
+
+      - name: Publish Nightly release
+        run: dotnet nuget push ./nupkgs/**/*.nupkg  --api-key ${{secrets.INTERNAL_FEED_API_KEY}} --source ${{ vars.INTERNAL_FEED_UPLOAD_URL }}
+
+      - name: Clean packages
+        if: always()
+        run: rm -rf ./nupkgs
+
   publish-xpf-release:
     runs-on: [self-hosted, Linux]
     needs: build
