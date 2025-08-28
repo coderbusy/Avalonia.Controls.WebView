@@ -47,6 +47,10 @@ jobs:
         with:
             name: xpf
             path: ./nupkgs
+      - uses: actions/download-artifact@v4
+        with:
+            name: avalonia
+            path: ./nupkgs
 
       - name: Publish Nightly release
         run: dotnet nuget push ./nupkgs/**/*.nupkg  --api-key ${{secrets.INTERNAL_FEED_API_KEY}} --source ${{ vars.INTERNAL_FEED_UPLOAD_URL }}
