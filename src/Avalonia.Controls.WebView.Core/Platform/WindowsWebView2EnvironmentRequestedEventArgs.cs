@@ -22,6 +22,11 @@ public sealed class WindowsWebView2EnvironmentRequestedEventArgs : WebViewEnviro
     public IntPtr ExplicitEnvironment { get; set; }
 
     /// <summary>
+    /// Determines whether to enable single sign on with Azure Active Directory (AAD) resources inside WebView using the logged in Windows account and single sign on (SSO) with web sites using Microsoft account associated with the login in Windows account.
+    /// </summary>
+    public bool AllowSingleSignOnUsingOSPrimaryAccount { get; set; }
+
+    /// <summary>
     /// Gets or sets the profile name, which must contain only allowed ASCII characters.
     /// </summary>
     public string? ProfileName { get; set; }
