@@ -7,6 +7,10 @@ namespace Avalonia.Platform;
 
 public sealed class WindowsWebView2EnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
+    internal WindowsWebView2EnvironmentRequestedEventArgs(DeferralManager deferralManager) : base(deferralManager)
+    {
+    }
+
     /// <summary>
     /// Gets or sets a value indicating whether to prefer WebView1 instead of WebView2.
     /// </summary>

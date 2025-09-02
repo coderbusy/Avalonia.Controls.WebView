@@ -28,17 +28,26 @@ internal class AndroidNativeWebViewDialog(Action<WebViewEnvironmentRequestedEven
 
     public void Show()
     {
-        Show(null);
+        ShowCore(null);
     }
 
     public bool Show(IPlatformHandle? owner)
     {
+        ShowCore(owner);
+        return true;
+    }
+    
+    // ReSharper disable once AsyncVoidMethod - let it flow to Dispatcher
+    private async void ShowCore(IPlatformHandle? owner)
+    {
         if (_isOpen)
-            return false;
+            return;
 
         _context = (owner as AndroidViewControlHandle)?.View.Context ?? global::Android.App.Application.Context;
-        var args = new AndroidWebViewEnvironmentRequestedEventArgs();
+        var deferralManager = new DeferralManager();
+        var args = new AndroidWebViewEnvironmentRequestedEventArgs(deferralManager);
         environmentRequested(args);
+        await deferralManager.WaitForDeferralsAsync();
         var adapter = new AndroidWebViewAdapter(_context, args);
         adapter.DefaultBackground = DefaultBackground;
 
@@ -69,7 +78,6 @@ internal class AndroidNativeWebViewDialog(Action<WebViewEnvironmentRequestedEven
         _context.StartActivity(intent);
 
         _isOpen = true;
-        return true;
     }
 
     public void Close()

@@ -22,11 +22,15 @@ internal static class WebViewAdapter
     public static async Task<AdapterFactory?> CreateFactory(Action<WebViewEnvironmentRequestedEventArgs> environmentRequested)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
+        var deferralManager = new DeferralManager();
         if (UseHeadless)
         {
-            var args = new HeadlessWebViewEnvironmentRequestedEventArgs();
+            var args = new HeadlessWebViewEnvironmentRequestedEventArgs(deferralManager);
             environmentRequested(args);
+
+            await deferralManager.WaitForDeferralsAsync();
             await Task.Yield();
+
             // Headless platform doesn't support NativeControlHost yet,
             // But compositor solution kinda works there.
             // Even though it's not production ready part of WebView (compositor/offscreen impl is not enabled by default).
@@ -37,8 +41,9 @@ internal static class WebViewAdapter
             // TODO: I would like to avoid Xamarin.Android here (as an extra target), and make it in-line with the rest. 
         if (OperatingSystem.IsAndroid())
         {
-            var args = new AndroidWebViewEnvironmentRequestedEventArgs();
+            var args = new AndroidWebViewEnvironmentRequestedEventArgs(deferralManager);
             environmentRequested(args);
+            await deferralManager.WaitForDeferralsAsync();
             return new NativeHostAdapterFactory((parent, _) =>
             {
                 IWebViewAdapter adapter = new Android.AndroidWebViewAdapter(parent, args);
@@ -48,8 +53,9 @@ internal static class WebViewAdapter
 #else
         if (OperatingSystemEx.IsMacOS() || OperatingSystemEx.IsIOS())
         {
-            var args = new AppleWKWebViewEnvironmentRequestedEventArgs();
+            var args = new AppleWKWebViewEnvironmentRequestedEventArgs(deferralManager);
             environmentRequested(args);
+            await deferralManager.WaitForDeferralsAsync();
             return new NativeHostAdapterFactory((_, _) =>
             {
                 // NOTE: we add double platform condition here to shut up Roslyn Analyzer false positives.
@@ -66,8 +72,9 @@ internal static class WebViewAdapter
         if (OperatingSystemEx.IsWindows())
         {
             {
-                var args = new WindowsWebView2EnvironmentRequestedEventArgs();
+                var args = new WindowsWebView2EnvironmentRequestedEventArgs(deferralManager);
                 environmentRequested(args);
+                await deferralManager.WaitForDeferralsAsync();
                 if (!args.PreferWebView1Instead
                     && Win.WebView2.CoreWebView2Environment.TryFindWebView2Runtime(args.BrowserExecutableFolder) !=
                     IntPtr.Zero)
@@ -77,8 +84,9 @@ internal static class WebViewAdapter
                 }
             }
             {
-                var args = new WindowsWebView1EnvironmentRequestedEventArgs();
+                var args = new WindowsWebView1EnvironmentRequestedEventArgs(deferralManager);
                 environmentRequested(args);
+                await deferralManager.WaitForDeferralsAsync();
                 if (Win.WebView1.WebView1Process.GetOrCreateProcess(args) is { } process)
                 {
                     var builder = await Win.WebView1.WebView1Adapter.CreateBuilder(process);
@@ -89,8 +97,9 @@ internal static class WebViewAdapter
 
         if (OperatingSystemEx.IsLinux())
         {
-            var args = new GtkWebViewEnvironmentRequestedEventArgs();
+            var args = new GtkWebViewEnvironmentRequestedEventArgs(deferralManager);
             environmentRequested(args);
+            await deferralManager.WaitForDeferralsAsync();
             if (args.ExperimentalOffscreen)
             {
                 var builder = await Gtk.GtkOffscreenAvaloniaWebViewAdapter.CreateBuilder(args);
@@ -105,8 +114,9 @@ internal static class WebViewAdapter
 
         // if (OperatingSystemEx.IsBrowser())
         // {
-        //     var args = new GtkWebViewEnvironmentRequestedEventArgs();
+        //     var args = new GtkWebViewEnvironmentRequestedEventArgs(deferralManager);
         //     environmentRequested(args);
+        //     await deferralManager.WaitForDeferralsAsync();
         //     return new NativeHostAdapterFactory((parent, _) => new Browser.BrowserIFrameAdapter(args));
         // }
 #endif

@@ -39,8 +39,10 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog, IGtkWebView
 
     public static async Task<INativeWebViewDialog> CreateAsync(Action<WebViewEnvironmentRequestedEventArgs> environmentRequested)
     {
-        var args = new GtkWebViewEnvironmentRequestedEventArgs();
+        var deferralManager = new DeferralManager();
+        var args = new GtkWebViewEnvironmentRequestedEventArgs(deferralManager);
         environmentRequested(args);
+        await deferralManager.WaitForDeferralsAsync();
         if (CheckAccess())
             return new GtkNativeWebViewDialog(args);
         return await RunOnGlibThreadAsync(() => new GtkNativeWebViewDialog(args));

@@ -6,6 +6,10 @@ namespace Avalonia.Platform;
 
 public sealed class AndroidWebViewEnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
+    internal AndroidWebViewEnvironmentRequestedEventArgs(DeferralManager deferralManager) : base(deferralManager)
+    {
+    }
+
     /// <summary>
     /// Gets or sets a value indicating whether built-in zoom controls are enabled in the Android WebView.
     /// </summary>

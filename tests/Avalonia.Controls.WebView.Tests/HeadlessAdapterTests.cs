@@ -28,12 +28,15 @@ public class HeadlessAdapterTests : HeadlessTestsBase
         var webView = new NativeWebView();
         var tcs = new TaskCompletionSource();
         var adapterCreated = false;
-        webView.EnvironmentRequested += (_, args) =>
+        webView.EnvironmentRequested += async (_, args) =>
         {
             if (args is HeadlessWebViewEnvironmentRequestedEventArgs headless)
             {
                 headless.InitializeAsync = () => tcs.Task;
             }
+
+            using var deferral = args.GetDeferral();
+            await Task.Delay(10);
         };
         webView.AdapterCreated += (_, _) => adapterCreated = true;
         window.Content = webView;

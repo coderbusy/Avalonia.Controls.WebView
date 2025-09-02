@@ -30,10 +30,22 @@ namespace Avalonia.Controls;
 /// </summary>
 public abstract class WebViewEnvironmentRequestedEventArgs : EventArgs
 {
+    private readonly DeferralManager _deferralManager;
+
+    private protected WebViewEnvironmentRequestedEventArgs(DeferralManager deferralManager)
+    {
+        _deferralManager = deferralManager;
+    }
+
     /// <summary>
     /// <see cref="EnableDevTools"/> controls whether the user is able to use the context menu or keyboard shortcuts to open the DevTools window.
     /// </summary>
     public bool EnableDevTools { get; set; }
+
+    /// <summary>
+    /// Gets a deferral that can be used to delay the completion of the event.
+    /// </summary>
+    public IDisposable GetDeferral() => _deferralManager.GetDeferral();
 }
 
 public sealed class WebMessageReceivedEventArgs : EventArgs
