@@ -6,7 +6,6 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
-using AndroidX.AppCompat.App;
 
 namespace Avalonia.Controls.Android
 {
