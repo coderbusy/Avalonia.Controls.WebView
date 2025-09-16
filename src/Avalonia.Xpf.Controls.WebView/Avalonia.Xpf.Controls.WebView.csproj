@@ -6,6 +6,7 @@
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
     <RootNamespace>Avalonia.Xpf.Controls</RootNamespace>
     <CopyLocalLockFileAssemblies Condition="'$(ILMergeBuild)' == 'true'">true</CopyLocalLockFileAssemblies>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../../Avalonia.Controls.WebView/CHANGELOG.md"))</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
