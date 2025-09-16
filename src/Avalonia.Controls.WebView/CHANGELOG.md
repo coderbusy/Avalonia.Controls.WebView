@@ -9,12 +9,12 @@
 - Implements Android `WebResourceRequested` header interception
 - Fixes Android `WebResourceRequested` not being executed on the UI thread
 
-## 11.3.8
+# 11.3.8
 
 - Fixes Gtk `NativeWebDialog` depending on the libsoap3.0, even if it's not installed
 - Fixes Gtk `NativeWebDialog` relying on `g_timeout_add_once` on older platforms
 
-## 11.3.7
+# 11.3.7
 
 - Implements Android `NativeWebDialog`
 - Implements Android `AndroidWebViewEnvironmentRequestedEventArgs`
