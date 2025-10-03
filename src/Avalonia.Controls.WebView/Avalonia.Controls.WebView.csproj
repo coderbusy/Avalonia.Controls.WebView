@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AvaloniaUI.Licensing" Version="2.0.999-cibuild0000087-alpha" />
+    <PackageReference Include="AvaloniaUI.Licensing" Version="$(AvaloniaLicensingVersion)" />
     <ProjectReference Include="..\Avalonia.Controls.WebView.Core\Avalonia.Controls.WebView.Core.csproj" PrivateAssets="all" />
   </ItemGroup>
 
