@@ -18,6 +18,20 @@ public abstract class HeadlessTestsBase : IDisposable
         Dispatcher.UIThread.RunJobs();
     }
 
+    protected Task WaitForAdapterCreation(NativeWebView webView)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        webView.AdapterCreated += (_, _) => tcs.SetResult(true);
+        return tcs.Task;
+    }
+
+    protected Task WaitForAdapterCreation(NativeWebDialog webView)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        webView.AdapterCreated += (_, _) => tcs.SetResult(true);
+        return tcs.Task;
+    }
+
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)

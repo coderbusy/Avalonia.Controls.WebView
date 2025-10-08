@@ -8,36 +8,52 @@ using Avalonia.Platform;
 namespace Avalonia.Controls.Win.WebView2;
 
 [SupportedOSPlatform("windows6.1")] // win7
-internal partial class WebView2HwndAdapter(IPlatformHandle parent, IPlatformHandle handle, WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
-    : WebView2BaseAdapter(handle, environmentArgs)
+internal partial class WebView2HwndAdapter(IPlatformHandle handle, ICoreWebView2Controller controller)
+    : WebView2BaseAdapter(controller)
 {
     public override IntPtr Handle { get; } = handle.Handle;
     public override string HandleDescriptor { get; } = handle.HandleDescriptor!; // Expected to be HWND always.
 
-    protected override Task<ICoreWebView2Controller> CreateWebView2Controller(ICoreWebView2Environment env,
-        IntPtr handle, WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
+    public static async Task<WebViewAdapter.NativeWebViewAdapterBuilder> CreateBuilder(
+        WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
     {
-        var handler = new WebView2ControllerHandler();
+        var env = await CoreWebView2Environment.CreateAsync(environmentArgs);
 
-        WindowsUtility.MakeHwndTransparent(parent.Handle);
-
-        var hasCustomOptions = environmentArgs.IsInPrivateModeEnabled
-                               || !string.IsNullOrEmpty(environmentArgs.ProfileName);
-        if (hasCustomOptions && env is ICoreWebView2Environment10 env10)
+        return (parent, createChild) =>
         {
-            var options = env10.CreateCoreWebView2ControllerOptions();
-            options.SetIsInPrivateModeEnabled(environmentArgs.IsInPrivateModeEnabled);
-            if (environmentArgs.ProfileName is not null)
-                options.SetProfileName(environmentArgs.ProfileName);
+            var thisHandle = createChild(parent);
+            WindowsUtility.MakeHwndTransparent(parent.Handle);
+            var task = InitializeAsync(thisHandle, env, environmentArgs);
+            return new WebViewAdapter.AdapterWrapper(thisHandle, task);
 
-            env10.CreateCoreWebView2ControllerWithOptions(handle, options, handler);
-        }
-        else
-        {
-            env.CreateCoreWebView2Controller(handle, handler);
-        }
+            static async Task<IWebViewAdapter> InitializeAsync(
+                IPlatformHandle thisHandle, ICoreWebView2Environment env,
+                WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
+            {
+                var handler = new WebView2ControllerHandler();
 
-        return handler.Result.Task;
+                var hasCustomOptions = environmentArgs.IsInPrivateModeEnabled
+                                       || !string.IsNullOrEmpty(environmentArgs.ProfileName);
+                if (hasCustomOptions && env is ICoreWebView2Environment10 env10)
+                {
+                    var options = env10.CreateCoreWebView2ControllerOptions();
+                    options.SetIsInPrivateModeEnabled(environmentArgs.IsInPrivateModeEnabled);
+                    if (environmentArgs.ProfileName is not null)
+                        options.SetProfileName(environmentArgs.ProfileName);
+
+                    env10.CreateCoreWebView2ControllerWithOptions(thisHandle.Handle, options, handler);
+                }
+                else
+                {
+                    env.CreateCoreWebView2Controller(thisHandle.Handle, handler);
+                }
+
+                var controller = await handler.Result.Task;
+                var webView = new WebView2HwndAdapter(thisHandle, controller);
+                await webView.InitializeAsync(environmentArgs);
+                return webView;
+            }
+        };
     }
 
 #if COM_SOURCE_GEN

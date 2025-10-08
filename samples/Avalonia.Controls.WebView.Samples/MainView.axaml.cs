@@ -108,7 +108,6 @@ public partial class MainView : UserControl
             .Take(4)
             .Select(static e => e.Length > 100 ? e[..100] : e));
         LogList.Text += "\r\nNativeWebView_OnWebResourceRequested " + requestFormatted;
-        var wasSet = e.Request.Headers.TrySet("X-MyHeader", "Value");
     }
 
     private void InputElement_OnKeyDown(object? sender, KeyEventArgs e)
@@ -389,6 +388,24 @@ public partial class MainView : UserControl
         GridWebView.Source = Uri.TryCreate(GridWebViewSource.Text, UriKind.Absolute, out var source) ?
             source :
             new Uri("about:blank");
+    }
+
+    private void GridWebViewDialogButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new NativeWebDialog()
+        {
+            Source = Uri.TryCreate(GridWebViewSource.Text, UriKind.Absolute, out var source) ?
+                source :
+                new Uri("about:blank"),
+            Title = "Avalonia WebView Demo" 
+        };
+        dialog.Show();
+    }
+
+    private void Headers_OnWebResourceRequested(object? sender, AC.WebResourceRequestedEventArgs e)
+    {
+        e.Request.Headers.TryGetValue("User-Agent", out var userAgent);
+        e.Request.Headers.TrySet("X-MyHeader", $"Time: {DateTime.Now:O}");
     }
 
 #if AVALONIA

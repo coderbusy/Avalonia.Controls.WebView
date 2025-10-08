@@ -2,51 +2,65 @@
 using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
+using Avalonia.Controls.Rendering;
 using Avalonia.Controls.Win.WebView2.Interop;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 
 namespace Avalonia.Controls.Win.WebView2;
 
 [SupportedOSPlatform("windows10.0.17763.0")]
-internal partial class WebView2CompAdapter : WebView2BaseAdapter
+internal partial class WebView2CompAdapter(ICoreWebView2CompositionController controller)
+    // ICoreWebView2Controller can be queried from ICoreWebView2CompositionController. 
+    // ReSharper disable once SuspiciousTypeConversion.Global
+    : WebView2BaseAdapter((ICoreWebView2Controller)controller), IWebViewAdapterWithOffscreenBuffer
 {
-    private WebView2CompAdapter(IPlatformHandle handle, WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
-        : base(handle, environmentArgs)
-    {
-    }
-
+    
     public override IntPtr Handle => default; // TODO complete webview2 compositor
-
     public override string HandleDescriptor => "Windows.UI.Composition.ContainerVisual";
 
-    protected override async Task<ICoreWebView2Controller> CreateWebView2Controller(ICoreWebView2Environment env,
-        IntPtr handle, WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
+    public static async Task<WebViewAdapter.OffscreenWebViewAdapterBuilder> CreateBuilder(
+        WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
     {
-        var handler = new WebView2CompositionControllerHandler();
+        var env = await CoreWebView2Environment.CreateAsync(environmentArgs);
 
-        var hasCustomOptions = environmentArgs.IsInPrivateModeEnabled
-                               || !string.IsNullOrEmpty(environmentArgs.ProfileName);
-        if (hasCustomOptions && env is ICoreWebView2Environment10 env10)
+        return async (parent) =>
         {
-            var options = env10.CreateCoreWebView2ControllerOptions();
-            options.SetIsInPrivateModeEnabled(environmentArgs.IsInPrivateModeEnabled);
-            if (environmentArgs.ProfileName is not null)
-                options.SetProfileName(environmentArgs.ProfileName);
+            var parentHandle = TopLevel.GetTopLevel(parent)?.TryGetPlatformHandle()?.Handle
+                               ?? throw new InvalidOperationException("Parent must be a TopLevel control.");
+            var handler = new WebView2CompositionControllerHandler();
 
-            env10.CreateCoreWebView2CompositionControllerWithOptions(handle, options, handler);
-        }
-        else if (env is ICoreWebView2Environment3 env3)
-        {
-            env3.CreateCoreWebView2CompositionController(handle, handler);
-        }
-        else
-        {
-            throw new NotSupportedException();
-        }
+            var hasCustomOptions = environmentArgs.IsInPrivateModeEnabled
+                                   || !string.IsNullOrEmpty(environmentArgs.ProfileName);
+            if (hasCustomOptions && env is ICoreWebView2Environment10 env10)
+            {
+                var options = env10.CreateCoreWebView2ControllerOptions();
+                options.SetIsInPrivateModeEnabled(environmentArgs.IsInPrivateModeEnabled);
+                if (environmentArgs.ProfileName is not null)
+                    options.SetProfileName(environmentArgs.ProfileName);
 
-        // ICoreWebView2Controller can be queried from ICoreWebView2CompositionController. 
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        return (ICoreWebView2Controller)await handler.Result.Task;
+                env10.CreateCoreWebView2CompositionControllerWithOptions(parentHandle, options, handler);
+            }
+            else if (env is ICoreWebView2Environment3 env3)
+            {
+                env3.CreateCoreWebView2CompositionController(parentHandle, handler);
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+
+            var controller = await handler.Result.Task;
+            var webView = new WebView2CompAdapter(controller);
+            await webView.InitializeAsync(environmentArgs);
+            return webView;
+        };
+    }
+
+    public event Action? DrawRequested;
+    public Task UpdateWriteableBitmap(FrameChainBase<WriteableBitmap, PixelSize>.IProducer producer)
+    {
+        throw new NotImplementedException();
     }
 
 #if COM_SOURCE_GEN

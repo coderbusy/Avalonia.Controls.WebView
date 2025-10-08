@@ -24,6 +24,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Polyfill" Version="8.8.0" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -33,9 +37,5 @@
   </ItemGroup>
 
   <Import Project="../Avalonia.Controls.WebView.Core/IncludeBuildItems.props" />
-  <Import Project="$(RepositoryPropsRoot)/Constants.targets" />
-  <Import Project="$(RepositoryPropsRoot)/NullableEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/PolyfillEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/SignEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/TrimmingEnable.targets" />
+  <Import Project="$(RepositoryTargetsRoot)/SignEnable.targets" />
 </Project>

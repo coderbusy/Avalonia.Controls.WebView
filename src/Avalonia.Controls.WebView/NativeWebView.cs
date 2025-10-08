@@ -17,11 +17,13 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using ControlSize = System.Windows.Size;
 #elif AVALONIA
+using System.Linq;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using AvaloniaUI.Licensing;
 using ControlSize = Avalonia.Size;
 #endif
 
@@ -71,7 +73,15 @@ namespace Avalonia.Xpf.Controls
 
         static NativeWebView()
         {
+            // XPF customers don't need a special license to use XPF controls.
+#if !WPF
+            AvaloniaLicenseInformation.LoadAndValidateLibrary(
+                AvaloniaLicenseProduct.WebView.Name!,
+                buildTime: DateTimeOffset.FromUnixTimeSeconds(AvnLicensingConstants.BuildTimeUnixTimestamp));
+#endif
+
 #if WPF
+            WpfWebViewDispatcher.Setup();
             FocusableProperty.OverrideMetadata(typeof(NativeWebView), new FrameworkPropertyMetadata(true));
             BackgroundProperty.OverrideMetadata(typeof(NativeWebView), new FrameworkPropertyMetadata(BackgroundPropertyChangedCallback));
 #elif AVALONIA
@@ -81,12 +91,6 @@ namespace Avalonia.Xpf.Controls
 
         public NativeWebView()
         {
-            // XPF customers don't need a special license to use XPF controls.
-#if !WPF
-            Core.Licensing.ValidateWebView();
-#endif
-            
-            Initialized += OnInitialized;
             _navigationCompleted += (_, e) =>
             {
                 _ignoreNavigation = true;
@@ -360,37 +364,45 @@ namespace Avalonia.Xpf.Controls
 
         private void WebViewAdapterOnWebMessageReceived(object? sender, Core.WebMessageReceivedEventArgs e)
         {
+            Core.WebViewDispatcher.VerifyAccess();
             _webMessageReceived?.Invoke(this, e);
         }
 
         private void WebViewAdapterOnWebResourceRequested(object? sender, Core.WebResourceRequestedEventArgs e)
         {
+            Core.WebViewDispatcher.VerifyAccess();
             _webResourceRequested?.Invoke(this, e);
         }
 
         private void WebViewAdapterOnNavigationStarted(object? sender, Core.WebViewNavigationStartingEventArgs e)
         {
+            Core.WebViewDispatcher.VerifyAccess();
             _navigationStarted?.Invoke(this, e);
         }
 
         private void WebViewAdapterOnNavigationCompleted(object? sender, Core.WebViewNavigationCompletedEventArgs e)
         {
+            Core.WebViewDispatcher.VerifyAccess();
             _navigationCompleted?.Invoke(this, e);
         }
 
         private void WebViewAdapterOnNewWindowRequested(object? sender, Core.WebViewNewWindowRequestedEventArgs e)
         {
+            Core.WebViewDispatcher.VerifyAccess();
             _newWindowRequested?.Invoke(this, e);
         }
 
-        private void OnInitialized(object? sender, EventArgs e)
-#if WPF
-            // Due to differences in initialization order between Avalonia and WPF, we delay adapter creation on WPF,
-            // because it's happening way too early there, even before subscribers were ready  
-            => Dispatcher.InvokeAsync(() =>
-#endif
+#if AVALONIA
+        protected override async void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
         {
-            var adapterFactory = Core.WebViewAdapter.CreateFactory(args => EnvironmentRequested?.Invoke(this, args));
+            base.OnAttachedToVisualTree(e);
+#elif WPF
+        protected override async void OnVisualParentChanged(DependencyObject oldParent)
+        {
+            base.OnVisualParentChanged(oldParent);
+#endif
+
+            var adapterFactory = await Core.WebViewAdapter.CreateFactory(args => EnvironmentRequested?.Invoke(this, args));
             INativeWebViewControlImpl controlHostImpl = adapterFactory switch
             {
 #if !WPF
@@ -415,12 +427,10 @@ namespace Avalonia.Xpf.Controls
             OnVisualChildrenChanged(visual, null);
 #endif
         }
-#if WPF
-        );
-#endif
 
         private void WithFocusOnGotFocus(object? sender, EventArgs e)
         {
+            Core.WebViewDispatcher.VerifyAccess();
             _ignoreFocusChanges = true;
             try
             {
@@ -462,6 +472,7 @@ namespace Avalonia.Xpf.Controls
 
         private void WithFocusOnLostFocus(object? sender, Core.IWebViewAdapterWithFocus.LostFocusDirection e)
         {
+            Core.WebViewDispatcher.VerifyAccess();
             // TODO: add avalonia APIs once possible
 #if WPF
             switch (e)
@@ -479,6 +490,7 @@ namespace Avalonia.Xpf.Controls
 
         private void WithInputOnInput(global::Avalonia.Interactivity.RoutedEventArgs obj)
         {
+            Core.WebViewDispatcher.VerifyAccess();
             AvInput.IInputElement? element;
 #if AVALONIA
             element = this;
@@ -667,7 +679,7 @@ namespace Avalonia.Xpf.Controls
             if (!_ignoreFocusChanges
                 && TryGetAdapter() is Core.IWebViewAdapterWithFocus adapterWithFocus)
             {
-                _ = adapterWithFocus.Focus();
+                adapterWithFocus.Focus();
             }
         }
 
@@ -681,7 +693,7 @@ namespace Avalonia.Xpf.Controls
             if (!_ignoreFocusChanges
                 && TryGetAdapter() is Core.IWebViewAdapterWithFocus adapterWithFocus)
             {
-                _ = adapterWithFocus.ResignFocus();
+                adapterWithFocus.ResignFocus();
             }
         }
 #endif

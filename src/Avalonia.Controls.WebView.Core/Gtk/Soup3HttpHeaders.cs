@@ -7,7 +7,7 @@ using static Avalonia.Controls.Gtk.GtkInterop;
 
 namespace Avalonia.Controls.Gtk;
 
-internal sealed class SoupHttpHeaders(IntPtr headers, bool immutable) : INativeHttpRequestHeaders
+internal sealed class Soup3HttpHeaders(IntPtr headers, bool immutable) : INativeHttpRequestHeaders
 {
     public bool Immutable => immutable;
 

@@ -3,33 +3,43 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Platform;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
 using static Avalonia.Controls.Gtk.GtkInterop;
 using static Avalonia.Controls.Gtk.AvaloniaGtk;
 
 namespace Avalonia.Controls.Gtk;
 
-internal unsafe class GtkOffscreenAvaloniaWebViewAdapter(GtkWebViewEnvironmentRequestedEventArgs environmentArgs, Control parent) : GtkOffscreenWebViewAdapter(environmentArgs)
+internal sealed class GtkOffscreenAvaloniaWebViewAdapter : GtkOffscreenWebViewAdapter
 {
-    private static readonly IntPtr s_showOptionMenuCallback =
-        new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, GdkEvent*, GdkRectangle*, IntPtr, bool>)&ShowOptionMenuCallback);
-    private static readonly IntPtr s_contextMenuCallback =
-        new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, GdkEvent*, IntPtr, IntPtr, bool>)&ContextMenuCallback);
-    private static readonly IntPtr s_optionsMenuClosedCallback =
+    private static readonly unsafe IntPtr s_showOptionMenuCallback =
+        new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, GdkEvent*, GdkRectangle*, IntPtr, int>)&ShowOptionMenuCallback);
+    private static readonly unsafe IntPtr s_contextMenuCallback =
+        new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, GdkEvent*, IntPtr, IntPtr, int>)&ContextMenuCallback);
+    private static readonly unsafe IntPtr s_optionsMenuClosedCallback =
         new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void>)&MenuClosedCallback);
 
-    private readonly Control _parent = parent;
     private GtkSignal? _showOptionMenuSignal;
     //private GtkSignal? _contextMenuSignal;
     private HashSet<IDisposable> _openedMenus = new();
 
-    protected override void InitializeSafe()
+    private GtkOffscreenAvaloniaWebViewAdapter(GtkWebViewEnvironmentRequestedEventArgs environmentArgs) : base(environmentArgs)
     {
-        base.InitializeSafe();
         _showOptionMenuSignal = new GtkSignal(WebViewHandle, "show-option-menu", s_showOptionMenuCallback, this);
-        //_contextMenuSignal = new GtkSignal(WebViewHandle, "context-menu", s_contextMenuCallback, this);
+    }
+
+    public Control? Parent { get; private set; }
+
+    public static async Task<WebViewAdapter.OffscreenWebViewAdapterBuilder> CreateBuilder(
+        GtkWebViewEnvironmentRequestedEventArgs environmentArgs)
+    {
+        var adapter = await RunOnGlibThreadAsync(() => new GtkOffscreenAvaloniaWebViewAdapter(environmentArgs));
+        return (parent) =>
+        {
+            adapter.Parent = parent;
+            return Task.FromResult<IWebViewAdapterWithOffscreenBuffer>(adapter);
+        };
     }
 
     protected override void DisposeSafe(bool disposing)
@@ -50,29 +60,29 @@ internal unsafe class GtkOffscreenAvaloniaWebViewAdapter(GtkWebViewEnvironmentRe
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    private static unsafe bool ContextMenuCallback(IntPtr webview, IntPtr menu, GdkEvent* sourceEvent, IntPtr hitTest, IntPtr data)
+    private static unsafe int ContextMenuCallback(IntPtr webview, IntPtr menu, GdkEvent* sourceEvent, IntPtr hitTest, IntPtr data)
     {
         if (data == IntPtr.Zero || GCHandle.FromIntPtr(data).Target is not GtkOffscreenAvaloniaWebViewAdapter adapter)
         {
-            return false;
+            return False;
         }
 
-        return false;
+        return False;
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    private static unsafe bool ShowOptionMenuCallback(IntPtr webview, IntPtr menu, GdkEvent* sourceEvent, GdkRectangle* rect, IntPtr data)
+    private static unsafe int ShowOptionMenuCallback(IntPtr webview, IntPtr menu, GdkEvent* sourceEvent, GdkRectangle* rect, IntPtr data)
     {
         if (data == IntPtr.Zero || GCHandle.FromIntPtr(data).Target is not GtkOffscreenAvaloniaWebViewAdapter adapter)
         {
-            return false;
+            return False;
         }
 
         var isMouseRequest = sourceEvent is not null && sourceEvent->Type == GdkEventType.GDK_BUTTON_PRESS;
         var openMenuState = new GtkOptionsMenuState(menu, isMouseRequest, *rect, adapter);
         openMenuState.Open();
 
-        return true;
+        return True;
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
@@ -108,7 +118,7 @@ internal unsafe class GtkOffscreenAvaloniaWebViewAdapter(GtkWebViewEnvironmentRe
 
         public void ClosedRequested()
         {
-            Dispatcher.UIThread.InvokeAsync(() => { _contextMenu?.Close(); });
+            WebViewDispatcher.InvokeAsync(() => { _contextMenu?.Close(); });
         }
 
         public void Open()
@@ -116,9 +126,9 @@ internal unsafe class GtkOffscreenAvaloniaWebViewAdapter(GtkWebViewEnvironmentRe
             _adapter._openedMenus.Add(this);
             var nativeMenuItems = ExtractMenu(_menu);
 
-            Dispatcher.UIThread.InvokeAsync(() =>
+            WebViewDispatcher.InvokeAsync(() =>
             {
-                var actualWebView = (Control)_adapter._parent.GetVisualParent()!;
+                var actualWebView = (Control?)_adapter.Parent?.GetVisualParent()!;
                 var pixelRect = new PixelRect(_rect.x, _rect.y, _rect.width, _rect.height);
                 _contextMenu = new ContextMenu
                 {

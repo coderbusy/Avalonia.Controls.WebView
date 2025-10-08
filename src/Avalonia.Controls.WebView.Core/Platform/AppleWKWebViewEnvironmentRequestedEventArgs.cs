@@ -6,6 +6,10 @@ namespace Avalonia.Platform;
 
 public sealed class AppleWKWebViewEnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
+    internal AppleWKWebViewEnvironmentRequestedEventArgs(DeferralManager deferralManager) : base(deferralManager)
+    {
+    }
+
     /// <summary>
     /// Gets or sets a value indicating whether to use a non-persistent data store that stores website data in memory and does not write data to disk.
     /// </summary>

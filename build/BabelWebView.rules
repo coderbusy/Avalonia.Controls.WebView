@@ -1,0 +1,18 @@
+﻿<Rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	version="2.0">
+
+    <!-- Mono Android is very sensitive -->
+	<Rule name="DontRenameAndroidJavaScriptValueCallback"
+		feature="renaming"
+		exclude="true"
+		applyToMembers="true">
+		<Pattern>*JavaScriptValueCallback</Pattern>
+	</Rule>
+    <Rule name="DontRenameJavaScriptInterface"
+        feature="renaming"
+        exclude="true"
+        applyToMembers="true">
+        <Pattern>*JavaScriptInterface</Pattern>
+    </Rule>
+
+</Rules>

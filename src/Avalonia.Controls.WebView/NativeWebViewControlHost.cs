@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
+using Core = Avalonia.Controls;
 #if WPF
 using Avalonia.Controls;
 using System.Windows;
@@ -37,17 +38,17 @@ namespace Avalonia.Xpf.Controls
             }
 
             _webViewReadyCompletion = new TaskCompletionSource<IWebViewAdapter?>();
-            var adapter = factory.Invoke(parent, p => base.CreateNativeControlCore(p));
-            if (adapter.IsInitialized)
-            {
-                WebViewAdapterOnInitialized(adapter, EventArgs.Empty);
-            }
-            else
-            {
-                adapter.Initialized += WebViewAdapterOnInitialized;
-            }
 
-            return adapter;
+            var adapterWrapper = factory.InvokeAsync(parent, p => base.CreateNativeControlCore(p));
+            CompleteAdapter(adapterWrapper);
+            return adapterWrapper.AdapterHandle;
+
+            // ReSharper disable once AsyncVoidMethod - let it flow to the dispatcher
+            async void CompleteAdapter(WebViewAdapter.AdapterWrapper wrapper)
+            {
+                var adapter = await wrapper.AdapterInitializeTask;
+                WebViewAdapterOnInitialized(adapter);
+            }
         }
 
         /// <inheritdoc />
@@ -73,15 +74,13 @@ namespace Avalonia.Xpf.Controls
 
                 _webViewReadyCompletion?.TrySetCanceled();
                 _webViewReadyCompletion = null;
-                adapter.Initialized -= WebViewAdapterOnInitialized;
                 AdapterDestroyed?.Invoke(this, adapter);
                 adapter.Dispose();
             }
         }
 
-        private void WebViewAdapterOnInitialized(object? sender, EventArgs e)
+        private void WebViewAdapterOnInitialized(IWebViewAdapter adapter)
         {
-            var adapter = (IWebViewAdapter)sender!;
             _webViewReadyCompletion?.TrySetResult(adapter);
             AdapterCreated?.Invoke(this, adapter);
         }
@@ -112,13 +111,7 @@ namespace Avalonia.Xpf.Controls
                 var task = DisposeAsync().AsTask();
                 if (!task.IsCompleted)
                 {
-                    var frame = new DispatcherFrame();
-                    _ = task.ContinueWith(static (_, s) => ((DispatcherFrame)s!).Continue = false, frame);
-#if WPF
-                    Dispatcher.PushFrame(frame);
-#elif AVALONIA
-                    Dispatcher.UIThread.PushFrame(frame);
-#endif
+                    Core.WebViewDispatcher.PushFrameForTask(task);
                 }
 
                 task.GetAwaiter().GetResult();

@@ -6,6 +6,10 @@ namespace Avalonia.Platform;
 
 public sealed class GtkWebViewEnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
+    internal GtkWebViewEnvironmentRequestedEventArgs(DeferralManager deferralManager) : base(deferralManager)
+    {
+    }
+
     /// <summary>
     /// Gets or sets the application name to append to the default user agent string.
     /// </summary>

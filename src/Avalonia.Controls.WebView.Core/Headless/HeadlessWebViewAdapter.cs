@@ -31,11 +31,19 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
     private int _historyIndex = -1;
     private bool _disposed;
 
-    public HeadlessWebViewAdapter(HeadlessWebViewEnvironmentRequestedEventArgs environmentArgs)
+    private HeadlessWebViewAdapter(HeadlessWebViewEnvironmentRequestedEventArgs environmentArgs)
     {
         _environmentArgs = environmentArgs;
+    }
 
-        _ = InitializeAsync();
+    public static async Task<HeadlessWebViewAdapter> CreateAsync(HeadlessWebViewEnvironmentRequestedEventArgs environmentArgs)
+    {
+        if (environmentArgs.InitializeAsync != null)
+            await environmentArgs.InitializeAsync();
+        else
+            await Task.Yield();
+
+        return new HeadlessWebViewAdapter(environmentArgs);
     }
 
     public event EventHandler<WebViewNavigationCompletedEventArgs>? NavigationCompleted;
@@ -43,7 +51,6 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
     public event EventHandler<WebViewNewWindowRequestedEventArgs>? NewWindowRequested;
     public event EventHandler<WebMessageReceivedEventArgs>? WebMessageReceived;
     public event EventHandler<WebResourceRequestedEventArgs>? WebResourceRequested;
-    public event EventHandler? Initialized;
 
     public bool CanGoBack => _historyIndex > 0;
     public bool CanGoForward => _historyIndex >= 0 && _historyIndex < _history.Count - 1;
@@ -53,8 +60,6 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
         get => GetCurrentPage()?.Uri ?? WebViewHelper.EmptyPage;
         set => Navigate(value);
     }
-
-    public bool IsInitialized { get; private set; }
 
     public IntPtr Handle { get; } = new(Interlocked.Increment(ref s_headlessHandleCounted));
     public string HandleDescriptor => "HeadlessWebViewAdapter";
@@ -156,15 +161,6 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
         return false;
     }
 
-    private async Task InitializeAsync()
-    {
-        if (IsInitialized) return;
-        if (_environmentArgs.InitializeAsync != null)
-            await _environmentArgs.InitializeAsync();
-        IsInitialized = true;
-        Initialized?.Invoke(this, EventArgs.Empty);
-    }
-
     private HeadlessWebViewPage? GetCurrentPage()
         => _historyIndex >= 0 && _historyIndex < _history.Count ? _history[_historyIndex] : null;
 
@@ -196,8 +192,7 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
                     {
                         Uri = page.Uri,
                         Method = System.Net.Http.HttpMethod.Get,
-                        Headers = new NativeHeadersCollection(
-                            new DictionaryNativeHttpRequestHeaders(new Dictionary<string, string>()))
+                        Headers = new NativeHeadersCollection(DictionaryNativeHttpRequestHeaders.ImmutableInstance)
                     }
                 });
         }

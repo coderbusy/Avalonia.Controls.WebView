@@ -15,6 +15,9 @@ internal static unsafe partial class GtkInterop
     internal const string LibGdk = "libgdk";
     internal const string LibSoup = "libsoup";
 
+    public const int True = 1;
+    public const int False = 0;
+
 #if NET7_0_OR_GREATER
     [LibraryImport(LibGLib, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial uint g_log_set_handler(string? logDomain, uint logLevels, IntPtr callback, IntPtr userData);
@@ -22,6 +25,9 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGLib)]
     internal static extern uint g_log_set_handler(string? logDomain, uint logLevels, IntPtr callback, IntPtr userData);
 #endif
+
+    [DllImport(LibGLib)]
+    internal static extern uint g_timeout_add(uint interval, IntPtr callback, IntPtr userData);
 
 #if NET7_0_OR_GREATER
     [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]
@@ -91,6 +97,19 @@ internal static unsafe partial class GtkInterop
 
     [DllImport(LibGio)]
     internal static extern IntPtr g_application_get_default();
+
+    [DllImport(LibGLib)]
+    internal static extern IntPtr g_main_context_default();
+
+#if NET7_0_OR_GREATER
+    [LibraryImport(LibGLib)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    internal static partial bool g_main_context_is_owner(IntPtr context);
+#else
+    [DllImport(LibGLib)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    internal static extern bool g_main_context_is_owner(IntPtr context);
+#endif
 
     [DllImport(LibWebKit)]
     internal static extern IntPtr webkit_web_view_get_user_content_manager(IntPtr webView);

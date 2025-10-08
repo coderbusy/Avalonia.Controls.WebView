@@ -5,14 +5,6 @@ VisualStudioVersion = 17.1.31903.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.Controls.WebView", "src\Avalonia.Controls.WebView\Avalonia.Controls.WebView.csproj", "{A7A0DDCE-B326-4655-A35A-0BD4F25A5493}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C16C5E24-7332-4BF2-8E37-15ECF632DDA7}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		Directory.Build.props = Directory.Build.props
-		NuGet.Config = NuGet.Config
-		Readme.md = Readme.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{DDB4C7B6-F4A1-4E5C-9306-D0DC34518721}"
 	ProjectSection(SolutionItems) = preProject
 		samples\NuGet.config = samples\NuGet.config
@@ -43,6 +35,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{317E6FB7-EFCE-4960-A14F-6A4E271CD8AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avalonia.Controls.WebView.Tests", "tests\Avalonia.Controls.WebView.Tests\Avalonia.Controls.WebView.Tests.csproj", "{D3CC6DD1-7415-4EA9-B949-B7D8EEC1DE87}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{A42162D8-587C-43C1-83E7-2E765164CA6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NukeExtensions", "build-common\nuke\NukeExtensions.csproj", "{0D54252D-7894-4688-9CE9-833175E42488}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -150,6 +146,7 @@ Global
 		{8C53D64F-EDF9-44B8-AFCE-755D740B0BC5}.Release|x86.Build.0 = Release|Any CPU
 		{9CBC444E-53F5-4EA3-8E26-DCD263742A54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9CBC444E-53F5-4EA3-8E26-DCD263742A54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CBC444E-53F5-4EA3-8E26-DCD263742A54}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{9CBC444E-53F5-4EA3-8E26-DCD263742A54}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{9CBC444E-53F5-4EA3-8E26-DCD263742A54}.Debug|x64.Build.0 = Debug|Any CPU
 		{9CBC444E-53F5-4EA3-8E26-DCD263742A54}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -196,6 +193,18 @@ Global
 		{D3CC6DD1-7415-4EA9-B949-B7D8EEC1DE87}.Release|x64.Build.0 = Release|Any CPU
 		{D3CC6DD1-7415-4EA9-B949-B7D8EEC1DE87}.Release|x86.ActiveCfg = Release|Any CPU
 		{D3CC6DD1-7415-4EA9-B949-B7D8EEC1DE87}.Release|x86.Build.0 = Release|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Debug|x64.Build.0 = Debug|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Debug|x86.Build.0 = Debug|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Release|x64.ActiveCfg = Release|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Release|x64.Build.0 = Release|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Release|x86.ActiveCfg = Release|Any CPU
+		{0D54252D-7894-4688-9CE9-833175E42488}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -212,6 +221,8 @@ Global
 		{4D152C34-38BE-4AFD-B0AE-25785AA049F3} = {DDB4C7B6-F4A1-4E5C-9306-D0DC34518721}
 		{2DB07C3D-8C01-40C3-8D96-8901479FCDEC} = {DDB4C7B6-F4A1-4E5C-9306-D0DC34518721}
 		{D3CC6DD1-7415-4EA9-B949-B7D8EEC1DE87} = {317E6FB7-EFCE-4960-A14F-6A4E271CD8AB}
+		{1B7D1386-5EF1-402A-B09C-135302BA3B9B} = {A42162D8-587C-43C1-83E7-2E765164CA6B}
+		{0D54252D-7894-4688-9CE9-833175E42488} = {A42162D8-587C-43C1-83E7-2E765164CA6B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {50B7605D-5AAC-492F-A704-B6D6448E2F25}

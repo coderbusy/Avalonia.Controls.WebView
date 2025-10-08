@@ -7,6 +7,10 @@ namespace Avalonia.Platform;
 
 public sealed class WindowsWebView2EnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
+    internal WindowsWebView2EnvironmentRequestedEventArgs(DeferralManager deferralManager) : base(deferralManager)
+    {
+    }
+
     /// <summary>
     /// Gets or sets a value indicating whether to prefer WebView1 instead of WebView2.
     /// </summary>
@@ -16,6 +20,11 @@ public sealed class WindowsWebView2EnvironmentRequestedEventArgs : WebViewEnviro
     /// Gets or sets an existing ICoreWebView2Environment COM reference handle that the webview adapter will use instead of managing its own.
     /// </summary>
     public IntPtr ExplicitEnvironment { get; set; }
+
+    /// <summary>
+    /// Determines whether to enable single sign on with Azure Active Directory (AAD) resources inside WebView using the logged in Windows account and single sign on (SSO) with web sites using Microsoft account associated with the login in Windows account.
+    /// </summary>
+    public bool AllowSingleSignOnUsingOSPrimaryAccount { get; set; }
 
     /// <summary>
     /// Gets or sets the profile name, which must contain only allowed ASCII characters.

@@ -7,25 +7,38 @@ using Avalonia.Controls.Rendering;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Avalonia.Threading;
 using static Avalonia.Controls.Gtk.GtkInterop;
 using static Avalonia.Controls.Gtk.AvaloniaGtk;
 
 namespace Avalonia.Controls.Gtk;
 
-internal unsafe class GtkOffscreenWebViewAdapter(GtkWebViewEnvironmentRequestedEventArgs environmentArgs)
-    : GtkWebViewAdapter(environmentArgs),
-    IWebViewAdapterWithOffscreenBuffer, IWebViewAdapterWithOffscreenInput
+internal abstract unsafe class GtkOffscreenWebViewAdapter : GtkWebViewAdapter,
+        IWebViewAdapterWithOffscreenBuffer, IWebViewAdapterWithOffscreenInput
 {
     private static readonly IntPtr s_drawCallback =
-        new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr*, IntPtr, bool>)&DrawCallback);
+        new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr*, IntPtr, int>)&DrawCallback);
 
+    private readonly bool _experimentalOffscreen;
     private IntPtr _windowHandle;
     private PixelSize _sizeRequest;
     private GtkSignal? _drawSignal;
 
-    public event Action? DrawRequested;
+    protected GtkOffscreenWebViewAdapter(GtkWebViewEnvironmentRequestedEventArgs args) : base(args)
+    {
+        _experimentalOffscreen = args.ExperimentalOffscreen;
+        _windowHandle = args.ExperimentalOffscreen ? gtk_offscreen_window_new() : gtk_window_new(0 /* GTK_WINDOW_TOPLEVEL */);
+        g_object_ref_sink(_windowHandle);
+        gtk_window_set_default_size(_windowHandle, 100, 100);
 
+        gtk_container_add(_windowHandle, WebViewHandle);
+        gtk_widget_set_has_window(WebViewHandle, true);
+        gtk_widget_realize(WebViewHandle);
+        gtk_widget_show_all(_windowHandle);
+        _drawSignal = new GtkSignal(WebViewHandle, "draw", s_drawCallback, this);
+    }
+
+    public event Action? DrawRequested;
+    
     public Task UpdateWriteableBitmap(FrameChainBase<WriteableBitmap, PixelSize>.IProducer producer)
     {
         if (_windowHandle == IntPtr.Zero)
@@ -41,7 +54,7 @@ internal unsafe class GtkOffscreenWebViewAdapter(GtkWebViewEnvironmentRequestedE
             }
 
             IntPtr pixbuf;
-            if (EnvironmentArgs.ExperimentalOffscreen)
+            if (_experimentalOffscreen)
             {
                 pixbuf = gtk_offscreen_window_get_pixbuf(_windowHandle);
             }
@@ -106,7 +119,7 @@ internal unsafe class GtkOffscreenWebViewAdapter(GtkWebViewEnvironmentRequestedE
         _sizeRequest = containerSize;
         RunOnGlibThreadAsync(() =>
         {
-            if (EnvironmentArgs.ExperimentalOffscreen)
+            if (_experimentalOffscreen)
                 gtk_window_set_default_size(_windowHandle, _sizeRequest.Width, _sizeRequest.Height);
             else
                 gtk_window_resize(_windowHandle, _sizeRequest.Width, _sizeRequest.Height);
@@ -249,22 +262,6 @@ internal unsafe class GtkOffscreenWebViewAdapter(GtkWebViewEnvironmentRequestedE
         return output;
     }
 
-    protected override void InitializeSafe()
-    {
-        base.InitializeSafe();
-
-        _windowHandle = EnvironmentArgs.ExperimentalOffscreen ? gtk_offscreen_window_new() : gtk_window_new(0 /* GTK_WINDOW_TOPLEVEL */);
-        g_object_ref_sink(_windowHandle);
-        gtk_window_set_default_size(_windowHandle, 100, 100);
-
-        gtk_container_add(_windowHandle, WebViewHandle);
-        gtk_widget_set_has_window(WebViewHandle, true);
-        gtk_widget_realize(WebViewHandle);
-        gtk_widget_show_all(_windowHandle);
-
-        _drawSignal = new GtkSignal(WebViewHandle, "draw", s_drawCallback, this);
-    }
-
     protected override void DisposeSafe(bool disposing)
     {
         if (disposing)
@@ -289,15 +286,15 @@ internal unsafe class GtkOffscreenWebViewAdapter(GtkWebViewEnvironmentRequestedE
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    private static unsafe bool DrawCallback(IntPtr widget, IntPtr* cairoTex, IntPtr data)
+    private static unsafe int DrawCallback(IntPtr widget, IntPtr* cairoTex, IntPtr data)
     {
         if (!GtkSignal.TryGetState<GtkOffscreenWebViewAdapter>(data, out var adapter))
         {
-            return false;
+            return False;
         }
 
-        Dispatcher.UIThread.InvokeAsync(() => adapter.DrawRequested?.Invoke());
-        return false;
+        WebViewDispatcher.InvokeAsync(() => adapter.DrawRequested?.Invoke());
+        return False;
     }
 
     private readonly ref struct EventSendState : IDisposable

@@ -21,12 +21,14 @@ public class NativeWebViewTests : HeadlessTestsBase
     }
 
     [AvaloniaFact]
-    public void Should_Expose_Command_Manager()
+    public async Task Should_Expose_Command_Manager()
     {
         var window = new Window();
         var webView = new NativeWebView();
         window.Content = webView;
         window.Show();
+
+        await WaitForAdapterCreation(webView); 
 
         Assert.NotNull(webView.TryGetCommandManager());
     }
@@ -50,7 +52,7 @@ public class NativeWebViewTests : HeadlessTestsBase
     }
 
     [AvaloniaFact]
-    public void Should_Raise_AdapterCreated_And_AdapterDestroyed()
+    public async Task Should_Raise_AdapterCreated_And_AdapterDestroyed()
     {
         var window = new Window();
         var webView = new NativeWebView();
@@ -59,6 +61,8 @@ public class NativeWebViewTests : HeadlessTestsBase
         webView.AdapterDestroyed += (_, _) => destroyed = true;
         window.Content = webView;
         window.Show();
+
+        await WaitForAdapterCreation(webView); 
 
         Assert.True(initialized);
 

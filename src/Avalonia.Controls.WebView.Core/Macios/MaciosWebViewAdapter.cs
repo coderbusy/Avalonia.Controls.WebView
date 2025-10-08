@@ -12,7 +12,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform;
-using Avalonia.Threading;
 
 namespace Avalonia.Controls.Macios;
 
@@ -94,8 +93,6 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
 
     public IntPtr Handle { get; }
     public string HandleDescriptor => OperatingSystemEx.IsMacOS() ? "NSView" : "UIView";
-    public bool IsInitialized => true;
-    public event EventHandler? Initialized;
 
     public bool CanGoBack => _webView.CanGoBack;
     public bool CanGoForward => _webView.CanGoForward;
@@ -176,10 +173,10 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
         _scriptHandler.Dispose();
         _navDelegate.Dispose();
         _config.Dispose();
-        Dispatcher.UIThread.InvokeAsync(() =>
+        WebViewDispatcher.InvokeAsync(() =>
         {
             _webView.Dispose();
-        }, DispatcherPriority.Background);
+        });
     }
 
     public Color DefaultBackground
@@ -204,9 +201,15 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
         // macOS control don't need to be explicitly parented
     }
 
-    public bool Focus() => OperatingSystemEx.IsMacOS() && _webView.MakeFirstResponder();
+    public void Focus()
+    {
+        if (OperatingSystemEx.IsMacOS()) _webView.MakeFirstResponder();
+    }
 
-    public bool ResignFocus() => OperatingSystemEx.IsMacOS() && _webView.RemoveFirstResponder();
+    public void ResignFocus()
+    {
+        if (OperatingSystemEx.IsMacOS()) _webView.RemoveFirstResponder();
+    }
 
     private async void OnScriptHandlerOnDidReceiveScriptMessage(object? sender, WKScriptMessageHandler.ScriptMessageEventArgs args)
     {
@@ -387,7 +390,7 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
             Key = physicalKey.ToQwertyKey(),
             KeyModifiers = modifiers
         };
-        Dispatcher.UIThread.Invoke(() => Input?.Invoke(args), DispatcherPriority.Input);
+        WebViewDispatcher.InvokeInput(() => Input?.Invoke(args));
         return args.Handled;
     }
 

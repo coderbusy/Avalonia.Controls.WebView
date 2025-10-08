@@ -7,6 +7,10 @@ namespace Avalonia.Platform;
 
 public sealed class WindowsWebView1EnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
+    internal WindowsWebView1EnvironmentRequestedEventArgs(DeferralManager deferralManager) : base(deferralManager)
+    {
+    }
+
     /// <summary>
     /// Gets or sets the enterprise ID for applications that are Windows Information Protection-enabled.
     /// </summary>

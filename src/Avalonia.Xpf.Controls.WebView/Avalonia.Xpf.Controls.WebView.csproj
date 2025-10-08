@@ -6,6 +6,7 @@
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
     <RootNamespace>Avalonia.Xpf.Controls</RootNamespace>
     <CopyLocalLockFileAssemblies Condition="'$(ILMergeBuild)' == 'true'">true</CopyLocalLockFileAssemblies>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../Avalonia.Controls.WebView/CHANGELOG.md"))</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,10 +44,6 @@
     </Compile>
   </ItemGroup>
 
-  <Import Project="$(RepositoryPropsRoot)/PackEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/Constants.targets" />
-  <Import Project="$(RepositoryPropsRoot)/NullableEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/PolyfillEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/SignEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/TrimmingEnable.targets" />
+  <Import Project="$(RepositoryTargetsRoot)/PackEnable.targets" />
+  <Import Project="$(RepositoryTargetsRoot)/SignEnable.targets" />
 </Project>

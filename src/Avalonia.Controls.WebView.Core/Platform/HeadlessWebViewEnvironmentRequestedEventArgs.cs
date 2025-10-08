@@ -8,6 +8,10 @@ namespace Avalonia.Platform;
 
 internal class HeadlessWebViewEnvironmentRequestedEventArgs : WebViewEnvironmentRequestedEventArgs
 {
+    internal HeadlessWebViewEnvironmentRequestedEventArgs(DeferralManager deferralManager) : base(deferralManager)
+    {
+    }
+
     /// <summary>
     /// Optional: Allows injecting a custom script engine for testing.
     /// </summary>

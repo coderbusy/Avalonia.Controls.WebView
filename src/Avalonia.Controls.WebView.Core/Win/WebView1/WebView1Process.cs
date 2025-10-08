@@ -37,7 +37,7 @@ internal class WebView1Process
     
     public static WebView1Process GetOrCreateProcess(WindowsWebView1EnvironmentRequestedEventArgs args)
     {
-        Dispatcher.UIThread.CheckAccess();
+        WebViewDispatcher.VerifyAccess();
 
         var mOptions = new ProcessOptions(args.EnterpriseId, args.PrivateNetworkClientServerEnabled);
         if (!s_processes.TryGetValue(mOptions, out var process))
@@ -71,13 +71,13 @@ internal class WebView1Process
 
     public void AddOne()
     {
-        Dispatcher.UIThread.CheckAccess();
+        WebViewDispatcher.VerifyAccess();
         _controlsCount += 1;
     }
 
     public void ReleaseOne()
     {
-        Dispatcher.UIThread.CheckAccess();
+        WebViewDispatcher.VerifyAccess();
         _controlsCount -= 1;
         if (_controlsCount == 0)
         {

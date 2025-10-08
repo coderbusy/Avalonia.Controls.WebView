@@ -11,7 +11,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+          # https://github.com/actions/checkout/issues/116#issuecomment-644419389
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+          submodules: 'recursive'
     - uses: actions/setup-dotnet@v4
       with:
           dotnet-version: '9.0.x'
@@ -36,6 +40,28 @@ jobs:
           name: xpf
           path: ${{github.workspace}}/artifacts/packages/Avalonia.Xpf.Controls.WebView.*.nupkg
           retention-days: 1
+
+  publish-nightly-release:
+    runs-on: [self-hosted, Linux]
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+
+      - uses: actions/download-artifact@v4
+        with:
+            name: xpf
+            path: ./nupkgs
+      - uses: actions/download-artifact@v4
+        with:
+            name: avalonia
+            path: ./nupkgs
+
+      - name: Publish Nightly release
+        run: dotnet nuget push ./nupkgs/**/*.nupkg  --api-key ${{secrets.INTERNAL_FEED_API_KEY}} --source ${{ vars.INTERNAL_FEED_UPLOAD_URL }}
+
+      - name: Clean packages
+        if: always()
+        run: rm -rf ./nupkgs
 
   publish-xpf-release:
     runs-on: [self-hosted, Linux]

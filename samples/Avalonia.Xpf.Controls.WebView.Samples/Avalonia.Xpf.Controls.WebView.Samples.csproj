@@ -1,4 +1,4 @@
-﻿<Project Sdk="Xpf.Sdk/1.6.0-cibuild002173">
+﻿<Project Sdk="Xpf.Sdk/1.6.0-cibuild002196">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -9,7 +9,9 @@
     <AssemblyName>XpfIntegrationTests</AssemblyName>
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <DisableAutomaticXpfInit>true</DisableAutomaticXpfInit>
     <AvaloniaXpfLicenseKey>$(XpfLicenseKey)</AvaloniaXpfLicenseKey>
+    <NoWarn>$(NoWarn);IL2067;IL2075</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,3 +27,4 @@
     </Compile>
   </ItemGroup>
 </Project>
+

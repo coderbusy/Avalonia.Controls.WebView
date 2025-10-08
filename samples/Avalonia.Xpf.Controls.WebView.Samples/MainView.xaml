@@ -35,6 +35,10 @@
             <controls:NativeWebView Source="https://www.w3schools.com/tags/att_input_type.asp"
                            NewWindowRequested="NativeWebView_OnNewWindowRequested" />
         </TabItem>
+        <TabItem Header="Headers">
+            <controls:NativeWebView Source="https://httpbin.io/headers"
+                                    WebResourceRequested="Headers_OnWebResourceRequested" />
+        </TabItem>
         <TabItem Header="GetUserMedia">
             <controls:NativeWebView Source="https://webrtc.github.io/samples/"
                            NewWindowRequested="NativeWebView_OnNewWindowRequested" />
@@ -65,14 +69,19 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBox x:Name="GridWebViewSource"
+                             Text="https://avaloniaui.net"
                              Grid.Row="0" Grid.Column="0" />
                     <Button x:Name="GridWebViewButton"
                             Content="GO"
                             Click="GridWebViewButton_OnClick"
                             Grid.Row="0" Grid.Column="1" />
-                    <StackPanel Grid.Row="1" Grid.Column="1">
+                    <Button Content="Dialog"
+                            Click="GridWebViewDialogButton_OnClick"
+                            Grid.Row="0" Grid.Column="2" />
+                    <StackPanel Grid.Row="1" Grid.Column="2">
                         <TextBlock Text="Another panel" />
                     </StackPanel>
                     <controls:NativeWebView x:Name="GridWebView"

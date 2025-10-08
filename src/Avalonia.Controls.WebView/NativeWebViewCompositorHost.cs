@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Avalonia.Controls.Gtk;
 using Avalonia.Controls.Rendering;
-using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Rendering.Composition;
-using Avalonia.Threading;
 
 #if AVALONIA
 namespace Avalonia.Controls;
@@ -58,7 +55,9 @@ internal class NativeWebViewCompositorHost(WebViewAdapter.CompositorHostAdapterF
         base.OnAttachedToVisualTree(e);
 
         _webViewReadyCompletion = new TaskCompletionSource<IWebViewAdapterWithOffscreenBuffer?>();
-        var adapter = factory.Invoke(this);
+        var adapterTask = factory.InvokeAsync(this);
+        CompleteAdapter();
+
         var compositorVisual = ElementComposition.GetElementVisual(this)!;
         _firstDraw = true;
         _customVisual = compositorVisual.Compositor.CreateCustomVisual(new VisualHandler());
@@ -66,13 +65,11 @@ internal class NativeWebViewCompositorHost(WebViewAdapter.CompositorHostAdapterF
         _customVisual.SendHandlerMessage(_frameChain.Consumer);
         ElementComposition.SetElementChildVisual(this, _customVisual);
 
-        if (adapter.IsInitialized)
+        // ReSharper disable once AsyncVoidMethod - let it flow to the dispatcher
+        async void CompleteAdapter()
         {
-            WebViewAdapterOnInitialized(adapter, EventArgs.Empty);
-        }
-        else
-        {
-            adapter.Initialized += WebViewAdapterOnInitialized;
+            var adapter = await adapterTask;
+            WebViewAdapterOnInitialized(adapter);
         }
     }
 
@@ -88,7 +85,6 @@ internal class NativeWebViewCompositorHost(WebViewAdapter.CompositorHostAdapterF
         if (adapter is not null)
         {
             adapter.DrawRequested -= OffscreenAdapter_OnDrawRequested;
-            adapter.Initialized -= WebViewAdapterOnInitialized;
             AdapterDestroyed?.Invoke(this, adapter);
             adapter.Dispose();
         }
@@ -101,9 +97,8 @@ internal class NativeWebViewCompositorHost(WebViewAdapter.CompositorHostAdapterF
         }
     }
 
-    private void WebViewAdapterOnInitialized(object? sender, EventArgs e)
+    private void WebViewAdapterOnInitialized(IWebViewAdapterWithOffscreenBuffer adapter)
     {
-        var adapter = (IWebViewAdapterWithOffscreenBuffer)sender!;
         _webViewReadyCompletion?.TrySetResult(adapter);
         AdapterCreated?.Invoke(this, adapter);
         adapter.DrawRequested += OffscreenAdapter_OnDrawRequested;

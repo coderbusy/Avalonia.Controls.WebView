@@ -3,9 +3,12 @@ using System.Runtime.InteropServices;
 
 namespace Avalonia.Controls.Gtk;
 
-public static partial class X11Interop
+internal static partial class X11Interop
 {
     private const string libX11 = "libX11.so.6";
+
+    [DllImport(libX11)]
+    public static extern IntPtr XOpenDisplay(IntPtr display);
 
 #if NET7_0_OR_GREATER
     [LibraryImport(libX11)]

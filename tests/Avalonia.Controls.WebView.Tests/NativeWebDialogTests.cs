@@ -1,5 +1,6 @@
 ﻿using Avalonia.Headless.XUnit;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Avalonia.Controls.WebView.Tests;
@@ -7,10 +8,12 @@ namespace Avalonia.Controls.WebView.Tests;
 public class NativeWebDialogTests : HeadlessTestsBase
 {
     [AvaloniaFact]
-    public void Should_Initialize_As_Headless()
+    public async Task Should_Initialize_As_Headless()
     {
         var webDialog = new NativeWebDialog();
         webDialog.Show();
+
+        await WaitForAdapterCreation(webDialog);
 
         Assert.Equal("HeadlessWebViewAdapter", webDialog.TryGetWebViewPlatformHandle()?.HandleDescriptor);
     }
@@ -94,7 +97,7 @@ public class NativeWebDialogTests : HeadlessTestsBase
     }
 
     [AvaloniaFact]
-    public void Should_Raise_AdapterCreated_And_AdapterDestroyed()
+    public async Task Should_Raise_AdapterCreated_And_AdapterDestroyed()
     {
         var dialog = new NativeWebDialog();
         bool initialized = false, destroyed = false;
@@ -102,6 +105,9 @@ public class NativeWebDialogTests : HeadlessTestsBase
         dialog.AdapterDestroyed += (_, _) => destroyed = true;
 
         dialog.Show();
+
+        await WaitForAdapterCreation(dialog);
+
         Assert.True(initialized);
 
         dialog.Close();

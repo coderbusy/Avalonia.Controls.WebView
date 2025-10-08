@@ -4,15 +4,17 @@
       netstandard2.0;
       net8.0;net8.0-android
     </TargetFrameworks>
+    <Description>Avalonia WebView component enables embedding web content in Avalonia applications for use cases like documentation, dashboards, and interactive content.</Description>
     <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
     <RootNamespace>Avalonia.Controls</RootNamespace>
     <CopyLocalLockFileAssemblies Condition="'$(ILMergeBuild)' == 'true'">true</CopyLocalLockFileAssemblies>
     <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
     <AvnLicensingEmitBuildTime>true</AvnLicensingEmitBuildTime>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/CHANGELOG.md"))</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AvaloniaUI.Licensing" Version="2.0.0-cibuild000081" />
+    <PackageReference Include="AvaloniaUI.Licensing" Version="$(AvaloniaLicensingVersion)" />
     <ProjectReference Include="..\Avalonia.Controls.WebView.Core\Avalonia.Controls.WebView.Core.csproj" PrivateAssets="all" />
   </ItemGroup>
 
@@ -21,10 +23,8 @@
   </ItemGroup>
 
   <Import Project="../Avalonia.Controls.WebView.Core/IncludeBuildItems.props" />
-  <Import Project="$(RepositoryPropsRoot)/Constants.targets" />
-  <Import Project="$(RepositoryPropsRoot)/PackEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/NullableEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/PolyfillEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/SignEnable.targets" />
-  <Import Project="$(RepositoryPropsRoot)/TrimmingEnable.targets" />
+  <Import Project="$(RepositoryTargetsRoot)/PackEnable.targets" />
+  <Import Project="$(RepositoryTargetsRoot)/SignEnable.targets" />
 </Project>
+
+

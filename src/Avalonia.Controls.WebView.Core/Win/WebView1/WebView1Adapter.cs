@@ -5,89 +5,77 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
-using Avalonia.Controls.Platform;
 using Avalonia.Controls.Win.WebView1.Interop;
-using Avalonia.Controls.Win.WebView2;
-using Avalonia.Logging;
 using Avalonia.Media;
 using Avalonia.Platform;
-using Avalonia.Threading;
 
 namespace Avalonia.Controls.Win.WebView1;
 
 [SupportedOSPlatform("windows6.1")]
-internal sealed class WebView1Adapter : IWebViewAdapter, IWindowsWebView1PlatformHandle
+internal sealed class WebView1Adapter(IWebViewControl control, IWebViewControlSite site, IPlatformHandle handle, WebView1Process process)
+    : IWebViewAdapter, IWindowsWebView1PlatformHandle
 {
-    private readonly WebView1Process _process;
-    private IWebViewControl? _webViewControl;
-    private IWebViewControlSite? _webViewControlSite;
+    private IWebViewControl? _webViewControl = control;
+    // ReSharper disable once SuspiciousTypeConversion.Global
+    private IWebViewControlSite? _webViewControlSite = site;
     private Action? _subscriptions;
 
-    public WebView1Adapter(IPlatformHandle parent, IPlatformHandle handle, WebView1Process process)
-    {
-        process.AddOne();
-        _process = process;
-        Handle = handle.Handle;
-        Initialize(parent);
-    }
-
-    public IntPtr Handle { get; }
+    public IntPtr Handle { get; } = handle.Handle;
     public string? HandleDescriptor => "HWDN";
 
-    private async void Initialize(IPlatformHandle parent)
+    public static Task<WebViewAdapter.NativeWebViewAdapterBuilder> CreateBuilder(
+        WebView1Process process)
     {
-        try
+        return Task.FromResult<WebViewAdapter.NativeWebViewAdapterBuilder>((parent, createChild) =>
         {
             // Seems like WebView1 doesn't support transparency at all
             // WindowsUtility.MakeHwndTransparent(parent.Handle);
 
-            if (!PInvoke.GetWindowRect(new HWND(Handle), out var rect))
-                rect = RECT.FromXYWH(0, 0, 100, 100);
+            var thisHandle = createChild(parent);
+            var task = InitializeAsync(thisHandle, process);
+            return new WebViewAdapter.AdapterWrapper(thisHandle, task);
 
-            var control = await _process.CreateWebViewControl(Handle, rect.Width, rect.Height);
-            if (control.get_Settings() is { } settings)
+            static async Task<IWebViewAdapter> InitializeAsync(IPlatformHandle thisHandle, WebView1Process process)
             {
-                settings.put_IsJavaScriptEnabled(true);
-                settings.put_IsScriptNotifyAllowed(true);
+                if (!PInvoke.GetWindowRect(new HWND(thisHandle.Handle), out var rect))
+                    rect = RECT.FromXYWH(0, 0, 100, 100);
+
+                var control = await process.CreateWebViewControl(thisHandle.Handle, rect.Width, rect.Height);
+                if (control.get_Settings() is { } settings)
+                {
+                    settings.put_IsJavaScriptEnabled(true);
+                    settings.put_IsScriptNotifyAllowed(true);
+                }
+                
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                // IWebViewControlSite can be queried from the IWebViewControl
+                var site = (IWebViewControlSite)control;
+
+                // Doesn't work for some reason.
+                // Instead injecting script in the NavigationCompleted
+                // if (control is IWebViewControl2 control2)
+                // {
+                //      var initScript =
+                //         new HStringInterop("""
+                //                            window.invokeCSharpAction = function(data) {
+                //                                var message = typeof data === 'object' ? JSON.stringify(data) : data;
+                //                                window.external.notify(message);
+                //                            };
+                //                            """);
+                //     control2.AddInitializeScript(initScript.Handle);
+                // }
+
+                
+                site.put_IsVisible(true);
+                var webView = new WebView1Adapter(control, site, thisHandle, process);
+                process.AddOne();
+                webView.SizeChanged(default);
+                webView._subscriptions = webView.AddHandlers(control);
+                return webView;
             }
-
-            // Doesn't work for some reason.
-            // Instead injecting script in the NavigationCompleted
-            // if (control is IWebViewControl2 control2)
-            // {
-            //      var initScript =
-            //         new HStringInterop("""
-            //                            window.invokeCSharpAction = function(data) {
-            //                                var message = typeof data === 'object' ? JSON.stringify(data) : data;
-            //                                window.external.notify(message);
-            //                            };
-            //                            """);
-            //     control2.AddInitializeScript(initScript.Handle);
-            // }
-
-            _webViewControl = control;
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            // IWebViewControlSite can be queried from the IWebViewControl
-            _webViewControlSite = (IWebViewControlSite)control;
-
-            _webViewControlSite.put_IsVisible(true);
-            SizeChanged(default);
-
-            _subscriptions = AddHandlers(_webViewControl);
-
-            IsInitialized = true;
-            Initialized?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception ex)
-        {
-            Logger.TryGet(LogEventLevel.Error, "WebView")?
-                .Log(null, "WebView1 initialization failed with unhandled exception", ex);
-        }
+        });
     }
 
-    public bool IsInitialized { get; private set; }
-
-    public event EventHandler? Initialized;
     public event EventHandler<WebViewNewWindowRequestedEventArgs>? NewWindowRequested;
     public event EventHandler<WebMessageReceivedEventArgs>? WebMessageReceived;
     public event EventHandler<WebResourceRequestedEventArgs>? WebResourceRequested;
@@ -185,7 +173,7 @@ internal sealed class WebView1Adapter : IWebViewAdapter, IWindowsWebView1Platfor
 
     public void SizeChanged(PixelSize containerSize)
     {
-        Dispatcher.UIThread.Post(() =>
+        WebViewDispatcher.InvokeAsync(() =>
         {
             if (PInvoke.GetWindowRect(new HWND(Handle), out var rect)
                 && _webViewControlSite is not null)
@@ -240,7 +228,7 @@ internal sealed class WebView1Adapter : IWebViewAdapter, IWindowsWebView1Platfor
     {
         // Since process was technically created on UI thread, it's expected to release it on UI thread.
         // Not to mention, this method call might be done on finalizer thread.
-        Dispatcher.UIThread.InvokeAsync(() => _process.ReleaseOne());
+        WebViewDispatcher.InvokeAsync(process.ReleaseOne);
     }
 
     public void Dispose()

@@ -38,7 +38,6 @@ namespace Avalonia.Controls.WebView.Core.Browser
             Initialized?.Invoke(this, EventArgs.Empty);
         }
         
-        public bool IsInitialized { get; private set; }
         public void SizeChanged(PixelSize containerSize) { }
 
         public bool CanGoBack => WebViewInterop.CanGoBack(Object);
@@ -58,7 +57,6 @@ namespace Avalonia.Controls.WebView.Core.Browser
             set { Navigate(value); }
         }
 
-        public event EventHandler? Initialized;
         public event EventHandler<WebViewNavigationCompletedEventArgs>? NavigationCompleted;
         public event EventHandler<WebViewNavigationStartingEventArgs>? NavigationStarted;
 
