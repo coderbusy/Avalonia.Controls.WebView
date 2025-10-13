@@ -71,7 +71,7 @@ jobs:
 
   publish-xpf-release:
     runs-on: [self-hosted, Linux]
-    needs: [build, publish-nightly-release]
+    needs: build
     if: github.event_name == 'workflow_dispatch'
     steps:
 
@@ -96,7 +96,7 @@ jobs:
 
   publish-accelerate-release:
     runs-on: [self-hosted, Linux]
-    needs: [build, publish-nightly-release]
+    needs: build
     if: github.event_name == 'workflow_dispatch'
     steps:
 
