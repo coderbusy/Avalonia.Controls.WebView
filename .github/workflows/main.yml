@@ -49,7 +49,7 @@ jobs:
   publish-nightly-release:
     runs-on: [self-hosted, Linux]
     needs: build
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
     steps:
 
       - uses: actions/download-artifact@v4
