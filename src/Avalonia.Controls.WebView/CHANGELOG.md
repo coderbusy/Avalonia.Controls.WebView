@@ -1,5 +1,6 @@
 # 11.3.11
 
+- First public NuGet release!
 - Adds `NativeWebView.ShowPrintUI` and `NativeWebView.PrintToPdfStreamAsync` methods for printing web content, supported on Windows, macOS and Linux GTK (with NativeWebDialog)
 
 # 11.3.10
