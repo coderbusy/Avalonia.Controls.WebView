@@ -25,10 +25,10 @@ jobs:
           submodules: 'recursive'
     - uses: actions/setup-dotnet@v4
       with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '9.0.305'
 
     - name: Install workloads
-      run: dotnet workload install android
+      run: dotnet workload install android --version 9.0.305
 
     - name: CreateNugetPackages
       run: dotnet run --project ${{github.workspace}}/build/_build.csproj -- --target CreateNugetPackages --configuration Release --output ${{github.workspace}}/artifacts/packages/
@@ -46,31 +46,8 @@ jobs:
           path: ${{github.workspace}}/artifacts/packages/Avalonia.Xpf.Controls.WebView.*.nupkg
           retention-days: 1
 
-  publish-nightly-release:
-    runs-on: [self-hosted, Linux]
-    needs: build
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
-    steps:
-
-      - uses: actions/download-artifact@v4
-        with:
-            name: xpf
-            path: ./nupkgs
-      - uses: actions/download-artifact@v4
-        with:
-            name: avalonia
-            path: ./nupkgs
-
-      - name: Publish Nightly release
-        # TODO: replace with new feed when available
-        run: dotnet nuget push ./nupkgs/**/*.nupkg --api-key ${{secrets.INTERNAL_FEED_API_KEY}} --source ${{ vars.INTERNAL_FEED_UPLOAD_URL }}
-
-      - name: Clean packages
-        if: always()
-        run: rm -rf ./nupkgs
-
   publish-xpf-release:
-    runs-on: [self-hosted, Linux]
+    runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'workflow_dispatch'
     steps:
@@ -95,8 +72,8 @@ jobs:
       run: rm -rf ./nupkgs
 
   publish-accelerate-release:
-    runs-on: [self-hosted, Linux]
-    needs: build
+    runs-on: ubuntu-latest
+    needs: [build, publish-xpf-release]
     if: github.event_name == 'workflow_dispatch'
     steps:
 
