@@ -100,6 +100,7 @@ internal unsafe class AppleView : NSManagedObjectBase
         set => Libobjc.void_objc_msgSend(Handle, s_setOpaque, value ? 1 : 0);
     }
 
+    [SupportedOSPlatform("macos")]
     public bool DrawsBackground
     {
         get => ValueForKey(s_drawsBackground) == NSNumber.Yes.Handle;

@@ -1,3 +1,7 @@
+# 11.3.14
+
+- Fixed crash when using `NativeWebView.Background` on iOS
+
 # 11.3.13
 
 - Improves Mono AOT compatibility, removing warnings

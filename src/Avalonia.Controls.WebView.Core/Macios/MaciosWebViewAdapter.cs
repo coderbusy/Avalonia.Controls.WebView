@@ -72,7 +72,8 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
 
         _webView = new WKWebView(_config) { NavigationDelegate = _navDelegate };
         _webView.Opaque = false;
-        _webView.DrawsBackground = false;
+        if (OperatingSystemEx.IsMacOS())
+            _webView.DrawsBackground = false;
         _webView.PerformKeyEquivalent += WebViewOnPerformKeyEquivalent;
         _webView.BecomeFirstResponder += OnWebViewOnBecomeFirstResponder;
         _webView.ResignFirstResponder += OnWebViewOnResignFirstResponder;
