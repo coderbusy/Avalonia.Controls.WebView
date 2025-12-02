@@ -408,6 +408,22 @@ public partial class MainView : UserControl
         e.Request.Headers.TrySet("X-MyHeader", $"Time: {DateTime.Now:O}");
     }
 
+    private void Offscreen_EnvironmentRequested(object? sender, WebViewEnvironmentRequestedEventArgs e)
+    {
+        if (e is AP.WindowsWebView2EnvironmentRequestedEventArgs webView2)
+        {
+            webView2.ExperimentalOffscreen = true;
+        }
+        else if (e is AP.GtkWebViewEnvironmentRequestedEventArgs gtk)
+        {
+            gtk.ExperimentalOffscreen = true;
+        }
+        else
+        {
+            throw new NotSupportedException();
+        }
+    }
+
 #if AVALONIA
     private KeyModifiers GetKeyModifiers(KeyEventArgs e) => e.KeyModifiers;
 #elif WPF

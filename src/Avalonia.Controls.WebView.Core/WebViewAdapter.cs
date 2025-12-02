@@ -79,8 +79,16 @@ internal static class WebViewAdapter
                     && Win.WebView2.CoreWebView2Environment.TryFindWebView2Runtime(args.BrowserExecutableFolder) !=
                     IntPtr.Zero)
                 {
-                    var builder = await Win.WebView2.WebView2HwndAdapter.CreateBuilder(args);
-                    return new NativeHostAdapterFactory(builder);
+                    if (args.ExperimentalOffscreen && OperatingSystemEx.IsWindowsAtLeast(10, 0, 17763))
+                    {
+                        var builder = await Win.WebView2.WebView2CompAdapter.CreateBuilder(args);
+                        return new CompositorHostAdapterFactory(builder);
+                    }
+                    else
+                    {
+                        var builder = await Win.WebView2.WebView2HwndAdapter.CreateBuilder(args);
+                        return new NativeHostAdapterFactory(builder);
+                    }
                 }
             }
             {

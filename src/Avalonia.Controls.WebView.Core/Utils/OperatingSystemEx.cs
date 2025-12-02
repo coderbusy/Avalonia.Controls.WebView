@@ -10,6 +10,8 @@ internal sealed class OperatingSystemEx
 #if NET6_0_OR_GREATER
     [SupportedOSPlatformGuard("windows6.1")] // win7
     public static bool IsWindows() => OperatingSystem.IsWindowsVersionAtLeast(6, 1);
+    [SupportedOSPlatformGuard("windows")]
+    public static bool IsWindowsAtLeast(int i, int i1, int i2) => OperatingSystem.IsWindowsVersionAtLeast(i, i1, i2);
     [SupportedOSPlatformGuard("macos")]
     public static bool IsMacOS() => OperatingSystem.IsMacOS();
     [SupportedOSPlatformGuard("linux")]
@@ -30,6 +32,8 @@ internal sealed class OperatingSystemEx
 #else
     [SupportedOSPlatformGuard("windows6.1")]
     public static bool IsWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    [SupportedOSPlatformGuard("windows")]
+    public static bool IsWindowsAtLeast(int i, int i1, int i2) => IsWindows();
     [SupportedOSPlatformGuard("macos")]
     public static bool IsMacOS() => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     [SupportedOSPlatformGuard("linux")]

@@ -17,6 +17,16 @@ public sealed class WindowsWebView2EnvironmentRequestedEventArgs : WebViewEnviro
     internal bool PreferWebView1Instead { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether to enable offscreen composition mode.
+    /// WebView will render into an offscreen buffer before presenting to the screen.
+    /// It allows to avoid airspace issues.
+    /// </summary>
+    /// <remarks>
+    /// This mode is powered by ICoreWebView2CompositionController.
+    /// </remarks>
+    public bool ExperimentalOffscreen { get; set; }
+
+    /// <summary>
     /// Gets or sets an existing ICoreWebView2Environment COM reference handle that the webview adapter will use instead of managing its own.
     /// </summary>
     public IntPtr ExplicitEnvironment { get; set; }

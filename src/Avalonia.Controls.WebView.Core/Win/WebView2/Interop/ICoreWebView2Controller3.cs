@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
+// ReSharper disable InconsistentNaming
 
 namespace Avalonia.Controls.Win.WebView2.Interop;
 
