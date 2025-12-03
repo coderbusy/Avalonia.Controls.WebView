@@ -35,6 +35,7 @@ internal struct GdkEvent
     [FieldOffset(0)] public GdkEventMotion motion;
     [FieldOffset(0)] public GdkEventButton button;
     [FieldOffset(0)] public GdkEventScroll scroll;
+    [FieldOffset(0)] public GdkEventCrossing crossing;
     [FieldOffset(0)] public GdkEventKey key;
 }
 
@@ -94,6 +95,23 @@ internal struct GdkEventScroll
     public Double delta_x;
     public Double delta_y;
     public bool is_stop;//public guint is_stop : 1;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+internal struct GdkEventCrossing
+{
+    public GdkEventType type;
+    public IntPtr window;
+    public SByte send_event;
+    public IntPtr subwindow;
+    public UInt32 time;
+    public Double x;
+    public Double y;
+    public Double x_root, y_root;
+    public Int32 mode;
+    public Int32 detail;
+    public bool focus;
+    public UInt32 state;
 }
 
 [Flags]

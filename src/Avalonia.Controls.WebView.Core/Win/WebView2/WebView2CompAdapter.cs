@@ -250,20 +250,30 @@ internal partial class WebView2CompAdapter
         return true;
     }
 
-    public bool PointerInput(PointerPoint point, double dpi, KeyModifiers modifiers)
+    public bool PointerInput(PointerPoint point, int clickCount, double dpi, KeyModifiers modifiers)
     {
         var virtualKeys = KeyModifiersToVirtualKey(modifiers, point);
         var position = ToPoint(point.Position, dpi);
         var changeType = point.Properties.PointerUpdateKind switch
         {
+            PointerUpdateKind.LeftButtonPressed when clickCount == 2 => COREWEBVIEW2_MOUSE_EVENT_KIND
+                .COREWEBVIEW2_MOUSE_EVENT_KIND_LEFT_BUTTON_DOUBLE_CLICK,
             PointerUpdateKind.LeftButtonPressed => COREWEBVIEW2_MOUSE_EVENT_KIND
                 .COREWEBVIEW2_MOUSE_EVENT_KIND_LEFT_BUTTON_DOWN,
+            PointerUpdateKind.MiddleButtonPressed when clickCount == 2 => COREWEBVIEW2_MOUSE_EVENT_KIND
+                .COREWEBVIEW2_MOUSE_EVENT_KIND_MIDDLE_BUTTON_DOUBLE_CLICK,
             PointerUpdateKind.MiddleButtonPressed => COREWEBVIEW2_MOUSE_EVENT_KIND
                 .COREWEBVIEW2_MOUSE_EVENT_KIND_MIDDLE_BUTTON_DOWN,
+            PointerUpdateKind.RightButtonPressed when clickCount == 2 => COREWEBVIEW2_MOUSE_EVENT_KIND
+                .COREWEBVIEW2_MOUSE_EVENT_KIND_RIGHT_BUTTON_DOUBLE_CLICK,
             PointerUpdateKind.RightButtonPressed => COREWEBVIEW2_MOUSE_EVENT_KIND
                 .COREWEBVIEW2_MOUSE_EVENT_KIND_RIGHT_BUTTON_DOWN,
+            PointerUpdateKind.XButton1Pressed when clickCount == 2 => COREWEBVIEW2_MOUSE_EVENT_KIND
+                .COREWEBVIEW2_MOUSE_EVENT_KIND_X_BUTTON_DOUBLE_CLICK,
             PointerUpdateKind.XButton1Pressed => COREWEBVIEW2_MOUSE_EVENT_KIND
                 .COREWEBVIEW2_MOUSE_EVENT_KIND_X_BUTTON_DOWN,
+            PointerUpdateKind.XButton2Pressed when clickCount == 2 => COREWEBVIEW2_MOUSE_EVENT_KIND
+                .COREWEBVIEW2_MOUSE_EVENT_KIND_X_BUTTON_DOUBLE_CLICK,
             PointerUpdateKind.XButton2Pressed => COREWEBVIEW2_MOUSE_EVENT_KIND
                 .COREWEBVIEW2_MOUSE_EVENT_KIND_X_BUTTON_DOWN,
             PointerUpdateKind.LeftButtonReleased => COREWEBVIEW2_MOUSE_EVENT_KIND
@@ -281,6 +291,17 @@ internal partial class WebView2CompAdapter
             _ => throw new ArgumentOutOfRangeException(nameof(point.Properties.PointerUpdateKind))
         };
         controller.SendMouseInput(changeType, virtualKeys, 0, position);
+        return true;
+    }
+
+    public bool PointerLeaveInput(PointerPoint point, double dpi, KeyModifiers modifiers)
+    {
+        // WebView2 expects leave events without position or modifier info.
+        controller.SendMouseInput(
+            COREWEBVIEW2_MOUSE_EVENT_KIND.COREWEBVIEW2_MOUSE_EVENT_KIND_LEAVE,
+            COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS.COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_NONE,
+            0,
+            default);
         return true;
     }
 

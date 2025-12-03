@@ -157,7 +157,7 @@ internal abstract unsafe class GtkOffscreenWebViewAdapter : GtkWebViewAdapter,
         });
     }
 
-    public bool PointerInput(PointerPoint point, double dpi, KeyModifiers modifiers)
+    public bool PointerInput(PointerPoint point, int _, double dpi, KeyModifiers modifiers)
     {
         var (eventType, button) = point.Properties.PointerUpdateKind switch
         {
@@ -206,6 +206,20 @@ internal abstract unsafe class GtkOffscreenWebViewAdapter : GtkWebViewAdapter,
                 ev->button.state = ToGtk(modifiers, point.Properties);
                 ev->button.device = gdevice;
             }
+
+            return state.Send();
+        });
+    }
+
+    public bool PointerLeaveInput(PointerPoint point, double dpi, KeyModifiers modifiers)
+    {
+        return RunOnGlibThread(() =>
+        {
+            using var state = new EventSendState(GdkEventType.GDK_LEAVE_NOTIFY, WebViewHandle);
+            var ev = state.Event;
+            ev->crossing.x = point.Position.X * dpi;
+            ev->crossing.y = point.Position.Y * dpi;
+            ev->crossing.time = 0;
 
             return state.Send();
         });

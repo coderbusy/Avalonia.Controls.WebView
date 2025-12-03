@@ -403,7 +403,8 @@ internal interface IWebViewAdapterWithCookieManager : IWebViewAdapter
 internal interface IWebViewAdapterWithOffscreenInput : IWebViewAdapter
 {
     bool KeyInput(bool press, PhysicalKey physical, string? symbol, KeyModifiers modifiers);
-    bool PointerInput(PointerPoint point, double dpi, KeyModifiers modifiers);
+    bool PointerInput(PointerPoint point, int clickCount, double dpi, KeyModifiers modifiers);
+    bool PointerLeaveInput(PointerPoint point, double dpi, KeyModifiers modifiers);
     bool PointerWheelInput(Vector delta, PointerPoint point, double dpi, KeyModifiers modifiers);
 }
 

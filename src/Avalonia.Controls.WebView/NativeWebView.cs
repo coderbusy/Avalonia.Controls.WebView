@@ -717,7 +717,7 @@ namespace Avalonia.Xpf.Controls
         {
             if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.PointerInput(e.GetCurrentPoint(this), VisualRoot!.RenderScaling, e.KeyModifiers);
+                e.Handled = input.PointerInput(e.GetCurrentPoint(this), e.ClickCount, VisualRoot!.RenderScaling, e.KeyModifiers);
             }
             base.OnPointerPressed(e);
         }
@@ -726,7 +726,7 @@ namespace Avalonia.Xpf.Controls
         {
             if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.PointerInput(e.GetCurrentPoint(this), VisualRoot!.RenderScaling, e.KeyModifiers);
+                e.Handled = input.PointerInput(e.GetCurrentPoint(this), 1, VisualRoot!.RenderScaling, e.KeyModifiers);
             }
             base.OnPointerReleased(e);
         }
@@ -735,9 +735,18 @@ namespace Avalonia.Xpf.Controls
         {
             if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.PointerInput(e.GetCurrentPoint(this), VisualRoot!.RenderScaling, e.KeyModifiers);
+                e.Handled = input.PointerInput(e.GetCurrentPoint(this), 1, VisualRoot!.RenderScaling, e.KeyModifiers);
             }
             base.OnPointerMoved(e);
+        }
+
+        protected override void OnPointerExited(PointerEventArgs e)
+        {
+            if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
+            {
+                e.Handled = input.PointerLeaveInput(e.GetCurrentPoint(this), VisualRoot!.RenderScaling, e.KeyModifiers);
+            }
+            base.OnPointerExited(e);
         }
 
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
