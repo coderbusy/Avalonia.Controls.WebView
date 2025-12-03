@@ -1,9 +1,7 @@
-﻿using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using Avalonia.Controls.Win.Interop;
 
-namespace Avalonia.Controls.Win.WebView1.Interop;
+namespace Avalonia.Controls.Win.Interop;
 
 #if COM_SOURCE_GEN
 [GeneratedComInterface(Options = ComInterfaceOptions.ComObjectWrapper)]
@@ -11,8 +9,8 @@ namespace Avalonia.Controls.Win.WebView1.Interop;
 [ComImport]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 #endif
-[Guid("728D4022-700D-4FE0-AFA5-40299C58DBFD")]
-internal partial interface IHttpMethod : IInspectable
+[Guid("A96D83D7-9371-4517-9245-D0824AC12C74")]
+internal partial interface IDispatcherQueueStatics
 {
-    IntPtr Method();
+    IDispatcherQueue? GetForCurrentThread();
 }

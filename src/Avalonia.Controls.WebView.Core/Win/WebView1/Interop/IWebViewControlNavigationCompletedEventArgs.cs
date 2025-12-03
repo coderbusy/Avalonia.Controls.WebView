@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
+using Avalonia.Controls.Win.Interop;
 
 namespace Avalonia.Controls.Win.WebView1.Interop;
 

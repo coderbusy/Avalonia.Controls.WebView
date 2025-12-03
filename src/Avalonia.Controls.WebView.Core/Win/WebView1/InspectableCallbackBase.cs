@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using Avalonia.Controls.Win.Interop;
 using Avalonia.Controls.Win.WebView1.Interop;
 using Avalonia.Controls.Win.WebView2;
 

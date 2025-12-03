@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Avalonia.Controls.Win.Interop;
 using Avalonia.Controls.Win.WebView1.Interop;
 using Avalonia.Controls.Win.WebView2;
 

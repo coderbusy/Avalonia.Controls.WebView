@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace Avalonia.Controls.Win.WebView1.Interop;
+namespace Avalonia.Controls.Win.Interop;
 
 #if COM_SOURCE_GEN
 [GeneratedComInterface]
