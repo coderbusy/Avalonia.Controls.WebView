@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  release_nightly:
+  nightly:
     uses: AvaloniaUI/build-common/.github/workflows/library-cicd.yml@main
     with:
       artifact_glob: Avalonia.Controls.WebView.*.nupkg
