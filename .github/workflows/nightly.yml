@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  release_avalonia:
+  release_nightly:
     uses: AvaloniaUI/build-common/.github/workflows/release-library.yml@main
     with:
       artifact_name: avalonia
