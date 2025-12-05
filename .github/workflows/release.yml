@@ -1,0 +1,41 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      nuget:
+          description: 'Push to the Public NuGet'
+          required: true
+          type: boolean
+          default: false
+      create_release:
+          description: 'Create GitHub Release'
+          required: true
+          type: boolean
+          default: true
+
+jobs:
+
+  release-for-avalonia:
+    if: ${{inputs.nuget}}
+    uses: AvaloniaUI/build-common/.github/workflows/library-cicd.yml@main
+    with:
+      artifact_glob: Avalonia.Controls.WebView.*.nupkg
+      validate_release_branch: true
+      create_github_release: ${{inputs.create_release}}
+      release_changelog_file: ${{github.workspace}}/src/Avalonia.Controls.WebView/CHANGELOG.md
+    secrets:
+      checkout_token: ${{secrets.SUBMODULE_TOKEN}}
+      nuget_api_key: ${{secrets.NUGET_FEED_API_KEY}}
+
+  release-for-xpf:
+    if: ${{inputs.nuget}}
+    uses: AvaloniaUI/build-common/.github/workflows/library-cicd.yml@main
+    with:
+      artifact_glob: Avalonia.Xpf.Controls.WebView.*.nupkg
+      nuget_feed: ${{vars.XPF_FEED_UPLOAD_URL}}
+      validate_release_branch: true
+    secrets:
+      checkout_token: ${{secrets.SUBMODULE_TOKEN}}
+      nuget_api_key: ${{secrets.XPF_FEED_API_KEY}}
+
