@@ -2,6 +2,7 @@
 
 - New WebViewAdapterInfo API to retrieve WebView engine and availability information
 - Implemented Android printing functions
+- Implemented `PrintToPdfStreamAsync(WebViewPrintSettings)` overload
 - Fixed Windows 7 support for WebView2
 - Experimental WebView2 offscreen rendering, can be enabled via WindowsWebView2EnvironmentRequestedEventArgs
 

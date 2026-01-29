@@ -29,7 +29,7 @@ using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
 namespace Avalonia.Controls.Android;
 
 internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterWithInputRedirect,
-    IWebViewAdapterWithCookieManager, IAndroidWebViewPlatformHandle, IWebViewWithPrintWithOptions
+    IWebViewAdapterWithCookieManager, IAndroidWebViewPlatformHandle, IWebViewWithPrint
 {
     private const string PostAvWebViewMessageName = "postAvWebViewMessage";
     private static bool s_canSetDataDirectorySuffix = true;

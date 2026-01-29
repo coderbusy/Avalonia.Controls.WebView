@@ -424,9 +424,6 @@ internal interface IWebViewWithPrint : IWebViewAdapter
 {
     bool ShowPrintUI();
     Task<Stream> PrintToPdfStreamAsync();
-}
-
-internal interface IWebViewWithPrintWithOptions : IWebViewWithPrint
-{
     Task<Stream> PrintToPdfStreamAsync(WebViewPrintSettings settings);
 }
+
