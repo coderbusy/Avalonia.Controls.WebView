@@ -16,7 +16,7 @@ namespace Avalonia.Controls.Win.WebView2;
 
 [SupportedOSPlatform("windows6.1")] // win7
 internal abstract partial class WebView2BaseAdapter(ICoreWebView2Controller controller)
-    : IWebViewAdapterWithCookieManager, IWebViewAdapterWithFocus, IWindowsWebView2PlatformHandle, IWebViewWithPrint
+    : IWebViewAdapterWithCookieManager, IWebViewAdapterWithFocus, IWindowsWebView2PlatformHandle, IWebViewWithPrintWithOptions
 {
     private EventHandler<WebResourceRequestedEventArgs>? _webResourceRequested;
     private Action? _subscriptions;
@@ -192,7 +192,7 @@ internal abstract partial class WebView2BaseAdapter(ICoreWebView2Controller cont
             throw new InvalidOperationException("WebView Adapter is not initialized");
         }
 
-        if (TryGetWebView2() is not ICoreWebView2_16 webView16)
+        if (webView is not ICoreWebView2_16 webView16)
         {
             return false;
         }
@@ -201,7 +201,10 @@ internal abstract partial class WebView2BaseAdapter(ICoreWebView2Controller cont
         return true;
     }
 
-    public Task<Stream> PrintToPdfStreamAsync()
+    public Task<Stream> PrintToPdfStreamAsync(WebViewPrintSettings settings) => PrintToPdfStreamAsyncInternal(settings);
+    public Task<Stream> PrintToPdfStreamAsync() => PrintToPdfStreamAsyncInternal(null);
+
+    private Task<Stream> PrintToPdfStreamAsyncInternal(WebViewPrintSettings? settings)
     {
         if (TryGetWebView2() is not ICoreWebView2_16 webView)
         {
@@ -209,13 +212,21 @@ internal abstract partial class WebView2BaseAdapter(ICoreWebView2Controller cont
         }
 
         var printSettings = ((ICoreWebView2Environment6)webView.Environment()).CreatePrintSettings();
-        // remove margins to match GTK and Apple implementations
-        printSettings.put_MarginLeft(0);
-        printSettings.put_MarginRight(0);
-        printSettings.put_MarginTop(0);
-        printSettings.put_MarginBottom(0);
+        // by default, remove margins to match GTK and Apple implementations
+        printSettings.put_MarginLeft(settings?.MarginLeft ?? 0);
+        printSettings.put_MarginRight(settings?.MarginRight ?? 0);
+        printSettings.put_MarginTop(settings?.MarginTop ?? 0);
+        printSettings.put_MarginBottom(settings?.MarginBottom ?? 0);
         printSettings.put_ShouldPrintHeaderAndFooter(false);
         // printSettings.put_ShouldPrintBackgrounds(false);
+
+        if (settings is not null)
+        {
+            printSettings.put_Orientation(settings.Orientation == WebViewPrintOrientation.Landscape ?
+                COREWEBVIEW2_PRINT_ORIENTATION.COREWEBVIEW2_PRINT_ORIENTATION_LANDSCAPE :
+                COREWEBVIEW2_PRINT_ORIENTATION.COREWEBVIEW2_PRINT_ORIENTATION_PORTRAIT);
+            printSettings.put_ScaleFactor(settings.ScaleFactor);
+        }
 
         var handler = new WebView2PrintToPdfStreamCompletedHandler();
         webView.PrintToPdfStream(printSettings, handler);
