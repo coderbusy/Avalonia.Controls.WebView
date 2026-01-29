@@ -15,7 +15,7 @@ using static Avalonia.Controls.Gtk.AvaloniaGtk;
 
 namespace Avalonia.Controls.Gtk;
 
-internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebViewPlatformHandle, IWebViewWithPrint
+internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebViewPlatformHandle, IWebViewWithPrintWithOptions
 {
     private const string PostAvWebViewMessageName = "postAvWebViewMessage";
 
@@ -266,7 +266,10 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
         return true;
     }
 
-    public async Task<Stream> PrintToPdfStreamAsync()
+    public Task<Stream> PrintToPdfStreamAsync(WebViewPrintSettings settings) => PrintToPdfStreamAsyncInternal(settings);
+    public Task<Stream> PrintToPdfStreamAsync() => PrintToPdfStreamAsyncInternal(null);
+
+    private async Task<Stream> PrintToPdfStreamAsyncInternal(WebViewPrintSettings? settings)
     {
         var tempFile = Path.GetTempFileName();
         GtkPrintOperation? operation = null; 
@@ -275,6 +278,12 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
             await RunOnGlibThreadAsync(() =>
             {
                 operation = new GtkPrintOperation(WebViewHandle);
+
+                if (settings is not null)
+                {
+                    operation.ApplySettings(settings);
+                }
+                
                 operation.PrintToFile(tempFile);
             }).ConfigureAwait(false);
 
@@ -283,7 +292,7 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
 #if NET6_0_OR_GREATER
             await
 #endif
-                using var stream = File.OpenRead(tempFile);
+            using var stream = File.OpenRead(tempFile);
             var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);

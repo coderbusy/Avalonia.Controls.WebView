@@ -211,6 +211,9 @@ internal static unsafe partial class GtkInterop
     public static extern void webkit_print_operation_set_print_settings(IntPtr operation, IntPtr settings);
 
     [DllImport(LibWebKit)]
+    public static extern void webkit_print_operation_set_page_setup(IntPtr operation, IntPtr pageSetup);
+
+    [DllImport(LibWebKit)]
     public static extern IntPtr gtk_print_settings_new();
 
 #if NET7_0_OR_GREATER
@@ -220,6 +223,24 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibWebKit)]
     internal static extern void gtk_print_settings_set(IntPtr webView, string key, string value);
 #endif
+
+    [DllImport(LibGtk)]
+    internal static extern IntPtr gtk_page_setup_new();
+
+    [DllImport(LibGtk)]
+    internal static extern void gtk_page_setup_set_orientation(IntPtr pageSetup, int orientation);
+
+    [DllImport(LibGtk)]
+    internal static extern void gtk_page_setup_set_top_margin(IntPtr pageSetup, double margin, int unit);
+
+    [DllImport(LibGtk)]
+    internal static extern void gtk_page_setup_set_bottom_margin(IntPtr pageSetup, double margin, int unit);
+
+    [DllImport(LibGtk)]
+    internal static extern void gtk_page_setup_set_left_margin(IntPtr pageSetup, double margin, int unit);
+
+    [DllImport(LibGtk)]
+    internal static extern void gtk_page_setup_set_right_margin(IntPtr pageSetup, double margin, int unit);
 
     [DllImport(LibGtk)]
     internal static extern IntPtr gtk_scrolled_window_new(IntPtr hadjustment, IntPtr vadjustment);
