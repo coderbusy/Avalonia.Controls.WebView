@@ -234,7 +234,7 @@ internal abstract unsafe class GtkOffscreenWebViewAdapter : GtkWebViewAdapter,
             var gdevice = gdk_seat_get_pointer(seat);
 
             var x = point.Position.X * dpi;
-            var y = point.Position.X * dpi;
+            var y = point.Position.Y * dpi;
 
             using var state = new EventSendState(GdkEventType.GDK_SCROLL, WebViewHandle);
             var ev = state.Event;
