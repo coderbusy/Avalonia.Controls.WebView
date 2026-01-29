@@ -110,8 +110,6 @@ internal class MaciosWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapterW
         set => Navigate(value);
     }
 
-    public WebViewAdapterInfo Info => field ??= GetWkWebViewInfo();
-
     public Color DefaultBackground
     {
         set

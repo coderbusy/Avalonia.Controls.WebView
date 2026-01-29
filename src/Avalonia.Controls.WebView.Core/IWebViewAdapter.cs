@@ -357,8 +357,6 @@ internal interface IWebView
 
 internal interface IWebViewAdapter : IWebView, IDisposable, IPlatformHandle
 {
-    WebViewAdapterInfo Info { get; }
-
     Color DefaultBackground { set; }
 
     void SizeChanged(PixelSize containerSize);

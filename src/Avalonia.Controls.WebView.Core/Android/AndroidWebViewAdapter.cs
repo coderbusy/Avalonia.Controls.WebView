@@ -95,8 +95,6 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     public IntPtr Handle => WebView.Handle;
     public string HandleDescriptor => "Android.Webkit.WebView";
 
-    public WebViewAdapterInfo Info => field ??= GetAndroidWebViewInfo();
-
     public Media.Color DefaultBackground
     {
         set
@@ -284,7 +282,7 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
         string? version;
         try
         {
-            (engine, version) = !OperatingSystem.IsAndroidVersionAtLeast(26) ?
+            (engine, version) = OperatingSystem.IsAndroidVersionAtLeast(26) ?
                 (WebViewEngine.Blink, WebView.CurrentWebViewPackage?.VersionName) :
                 (WebViewEngine.Blink, null);
         }

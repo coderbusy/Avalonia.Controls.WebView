@@ -53,11 +53,22 @@ namespace Avalonia.Xpf.Controls
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source), typeof(Uri), typeof(NativeWebView),
             new PropertyMetadata(new Uri("about:blank"), SourcePropertyChangedCallback));
+
+        private static readonly DependencyPropertyKey AdapterInfoPropertyKey =
+            DependencyProperty.RegisterReadOnly(
+                name: nameof(AdapterInfo),
+                propertyType: typeof(Core.WebViewAdapterInfo),
+                ownerType: typeof(NativeWebView),
+                typeMetadata: new FrameworkPropertyMetadata());
 #elif AVALONIA
         public static readonly StyledProperty<Uri> SourceProperty = AvaloniaProperty.Register<NativeWebView, Uri>(
             nameof(Source), new Uri("about:blank"));
         public static readonly StyledProperty<IBrush?> BackgroundProperty =
             Border.BackgroundProperty.AddOwner<NativeWebView>();
+        public static readonly DirectProperty<NativeWebView, Core.WebViewAdapterInfo?> AdapterInfoProperty = AvaloniaProperty
+            .RegisterDirect<NativeWebView, Core.WebViewAdapterInfo?>(
+                nameof(AdapterInfo),
+                o => o.AdapterInfo);
 
         // Container.Sizing was added in 11.3, but we want to use this property before that, with a reasoable fallback (see MeasureOverride)
         private static readonly Action<NativeWebView>? s_setSizing =
@@ -261,6 +272,17 @@ namespace Avalonia.Xpf.Controls
             set => SetValue(BackgroundProperty, value);
         }
 
+        public Core.WebViewAdapterInfo? AdapterInfo
+        {
+#if WPF
+            get => (Core.WebViewAdapterInfo)GetValue(AdapterInfoPropertyKey.DependencyProperty);
+            private set => SetValue(AdapterInfoPropertyKey, value);
+#elif AVALONIA
+            get;
+            private set => SetAndRaise(AdapterInfoProperty, ref field, value);
+#endif
+        }
+
         /// <inheritdoc/>
         public Core.NativeWebViewCommandManager? TryGetCommandManager() =>
             TryGetAdapter() switch
@@ -415,6 +437,7 @@ namespace Avalonia.Xpf.Controls
             controlHostImpl.AdapterDestroyed += ControlHostImplOnAdapterDeinitialized;
 
             _controlHostImplTcs.TrySetResult(controlHostImpl);
+            AdapterInfo = adapterFactory?.Info ?? Core.WebViewAdapterInfo.PlatformNotSupported();
 
 #if AVALONIA
             VisualChildren.Add((Control)controlHostImpl);

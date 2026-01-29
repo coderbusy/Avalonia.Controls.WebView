@@ -86,8 +86,6 @@ internal sealed class WebView1Adapter(IWebViewControl control, IWebViewControlSi
 
     public bool CanGoForward => _webViewControl?.get_CanGoForward() ?? false;
 
-    public WebViewAdapterInfo Info => field ??= GetWebView1Info();
-
     public Color DefaultBackground
     {
         set

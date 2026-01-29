@@ -20,7 +20,6 @@ internal abstract partial class WebView2BaseAdapter(ICoreWebView2Controller cont
 {
     private EventHandler<WebResourceRequestedEventArgs>? _webResourceRequested;
     private Action? _subscriptions;
-    private string? _customBrowserExecutable;
 
     public abstract IntPtr Handle { get; }
     public abstract string? HandleDescriptor { get; }
@@ -76,7 +75,6 @@ internal abstract partial class WebView2BaseAdapter(ICoreWebView2Controller cont
     public event EventHandler? GotFocus;
     public event EventHandler<IWebViewAdapterWithFocus.LostFocusDirection>? LostFocus;
 
-    public WebViewAdapterInfo Info => field ??= GetWebView2Info(_customBrowserExecutable);
     public Color DefaultBackground
     {
         set
@@ -234,7 +232,6 @@ internal abstract partial class WebView2BaseAdapter(ICoreWebView2Controller cont
 
     public async Task InitializeAsync(WindowsWebView2EnvironmentRequestedEventArgs environmentArgs)
     {
-        _customBrowserExecutable = environmentArgs.BrowserExecutableFolder;
         var addScriptCompletion = new AddScriptToExecuteOnDocumentCreatedCompletedHandler();
         var webView = TryGetWebView2() ?? throw new InvalidOperationException("WebView2 is not initialized.");
         webView.AddScriptToExecuteOnDocumentCreated(

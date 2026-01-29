@@ -157,8 +157,6 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
         set => Navigate(value);
     }
 
-    public WebViewAdapterInfo Info => field ??= GetWebKitGtkInfo();
-
     public virtual Color DefaultBackground
     {
         set

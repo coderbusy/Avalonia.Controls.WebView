@@ -8,6 +8,11 @@ namespace Avalonia.Controls;
 public enum WebViewAdapterType
 {
     /// <summary>
+    /// Unknown or unsupported adapter.
+    /// </summary>
+    Unknown = 0,
+    
+    /// <summary>
     /// Microsoft Edge WebView2.
     /// </summary>
     /// <remarks>
@@ -152,8 +157,8 @@ public record WebViewAdapterInfo(
     }
 #pragma warning restore CA1416
 
-    internal static WebViewAdapterInfo PlatformNotSupported(WebViewAdapterType type) => new(
-        type,
+    internal static WebViewAdapterInfo PlatformNotSupported(WebViewAdapterType? type = null) => new(
+        type ?? WebViewAdapterType.Unknown,
         WebViewEngine.Unknown,
         IsSupported: false,
         IsInstalled: false,

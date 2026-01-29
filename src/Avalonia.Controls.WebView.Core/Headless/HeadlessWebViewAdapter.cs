@@ -64,8 +64,6 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
     public IntPtr Handle { get; } = new(Interlocked.Increment(ref s_headlessHandleCounted));
     public string HandleDescriptor => "HeadlessWebViewAdapter";
 
-    public WebViewAdapterInfo Info => field ??= GetHeadlessInfo();
-
     public Color DefaultBackground
     {
         set
