@@ -2,7 +2,7 @@
     <Import Project="../../src/Avalonia.Controls.WebView/build/Avalonia.Controls.WebView.props" />
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
         <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
     </PropertyGroup>
