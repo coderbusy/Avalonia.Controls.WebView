@@ -102,16 +102,16 @@
         <TabItem Header="WebAuthenticationBroker">
             <StackPanel>
                 <TextBox x:Name="RequestUri"
-                         UseFloatingWatermark="True"
-                         Watermark="Request Uri" />
+                         UseFloatingPlaceholder="True"
+                         PlaceholderText="Request Uri" />
                 <TextBox x:Name="RedirectUri"
-                         UseFloatingWatermark="True"
-                         Watermark="Redirect Uri" />
+                         UseFloatingPlaceholder="True"
+                         PlaceholderText="Redirect Uri" />
                 <Button Content="Go" Click="WebAuthenticationBrokerButton_OnClick" />
                 <TextBox x:Name="CallbackUri"
                          AcceptsReturn="True"
-                         UseFloatingWatermark="True"
-                         Watermark="Callback Uri" />
+                         UseFloatingPlaceholder="True"
+                         PlaceholderText="Callback Uri" />
             </StackPanel>
         </TabItem>
     </TabControl>
