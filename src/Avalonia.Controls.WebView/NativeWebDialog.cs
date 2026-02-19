@@ -225,11 +225,7 @@ namespace Avalonia.Xpf.Controls
         }
 
         /// <inheritdoc/>
-        public void NavigateToString(
-#if NET8_0_OR_GREATER
-            [StringSyntax("html")]
-#endif
-            string text)
+        public void NavigateToString([StringSyntax("html")] string text)
         {
             if (TryGetAdapter() is { } adapter)
                 adapter.NavigateToString(text);
@@ -414,7 +410,7 @@ namespace Avalonia.Xpf.Controls
 #else
             Core.INativeWebViewDialog dialogImpl;
             // Special case for GTK, as we want to use GTK window instead of Avalonia window there.
-            if (Core.OperatingSystemEx.IsLinux() && !Core.WebViewAdapter.UseHeadless)
+            if (OperatingSystem.IsLinux() && !Core.WebViewAdapter.UseHeadless)
             {
                 dialogImpl = await GtkNativeWebViewDialog.CreateAsync(args => EnvironmentRequested?.Invoke(this, args));
             }

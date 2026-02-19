@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using AvPlatform = global::Avalonia.Platform;
@@ -355,11 +354,7 @@ namespace Avalonia.Xpf.Controls
         }
 
         /// <inheritdoc/>
-        public void NavigateToString(
-#if NET8_0_OR_GREATER
-            [StringSyntax("html")]
-#endif
-            string text)
+        public void NavigateToString([StringSyntax("html")] string text)
         {
             if (TryGetAdapter() is { } adapter)
                 adapter.NavigateToString(text);

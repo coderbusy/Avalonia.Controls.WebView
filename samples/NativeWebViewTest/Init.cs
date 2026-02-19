@@ -3,9 +3,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Windows.Threading;
 using Avalonia;
-using Avalonia.Styling;
 using AvaloniaUI.Xpf;
-using AvaloniaUI.Xpf.WpfAbstractions;
 
 public class Init
 {

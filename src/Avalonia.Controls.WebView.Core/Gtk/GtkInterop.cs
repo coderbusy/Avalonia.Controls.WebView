@@ -27,18 +27,12 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibWebKit)]
     public static extern uint webkit_get_micro_version();
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibGLib, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial uint g_log_set_handler(string? logDomain, uint logLevels, IntPtr callback, IntPtr userData);
-#else
-    [DllImport(LibGLib)]
-    internal static extern uint g_log_set_handler(string? logDomain, uint logLevels, IntPtr callback, IntPtr userData);
-#endif
 
     [DllImport(LibGLib)]
     internal static extern uint g_timeout_add(uint interval, IntPtr callback, IntPtr userData);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial IntPtr webkit_website_data_manager_new(
         string prop1Key, string prop1Value,
@@ -48,17 +42,6 @@ internal static unsafe partial class GtkInterop
     internal static partial IntPtr webkit_website_data_manager_new(
         string prop1Key, string prop1Value,
         IntPtr nil);
-#else
-    [DllImport(LibWebKit)]
-    internal static extern IntPtr webkit_website_data_manager_new(
-        string prop1Key, string prop1Value,
-        string prop2Key, string prop2Value,
-        IntPtr nil);
-    [DllImport(LibWebKit)]
-    internal static extern IntPtr webkit_website_data_manager_new(
-        string prop1Key, string prop1Value,
-        IntPtr nil);
-#endif
 
     [DllImport(LibWebKit)]
     internal static extern IntPtr webkit_web_context_new_with_website_data_manager(IntPtr dataManager);
@@ -84,13 +67,8 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibWebKit)]
     internal static extern void webkit_settings_set_enable_developer_extras(IntPtr webView, bool enabled);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial void webkit_settings_set_user_agent_with_application_details(IntPtr webView, string? appName, string? version);
-#else
-    [DllImport(LibWebKit)]
-    internal static extern void webkit_settings_set_user_agent_with_application_details(IntPtr webView, string? appName, string? version);
-#endif
 
     [DllImport(LibWebKit)]
     internal static extern IntPtr webkit_web_view_get_settings(IntPtr webView);
@@ -110,15 +88,9 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGLib)]
     internal static extern IntPtr g_main_context_default();
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibGLib)]
     [return: MarshalAs(UnmanagedType.I1)]
     internal static partial bool g_main_context_is_owner(IntPtr context);
-#else
-    [DllImport(LibGLib)]
-    [return: MarshalAs(UnmanagedType.I1)]
-    internal static extern bool g_main_context_is_owner(IntPtr context);
-#endif
 
     [DllImport(LibWebKit)]
     internal static extern IntPtr webkit_web_view_get_user_content_manager(IntPtr webView);
@@ -126,7 +98,6 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibWebKit)]
     internal static extern void webkit_user_content_manager_add_script(IntPtr manager, IntPtr userScript);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]
     [return: MarshalAs(UnmanagedType.I1)]
     internal static partial bool webkit_user_content_manager_register_script_message_handler(IntPtr manager, string messageHandler);
@@ -142,22 +113,6 @@ internal static unsafe partial class GtkInterop
 
     [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial IntPtr webkit_user_script_new(string script, int injected_frames, int injection_time, IntPtr whitelist, IntPtr blacklist);
-#else
-    [DllImport(LibWebKit)]
-    internal static extern bool webkit_user_content_manager_register_script_message_handler(IntPtr manager, string messageHandler);
-
-    [DllImport(LibWebKit)]
-    internal static extern void webkit_web_view_load_uri(IntPtr webView, string uri);
-
-    [DllImport(LibWebKit)]
-    internal static extern void webkit_web_view_load_html(IntPtr webView, string content, string? baseUri);
-
-    [DllImport(LibWebKit)]
-    internal static extern void webkit_web_view_run_javascript(IntPtr webView, string script, IntPtr cancellable, IntPtr callback, IntPtr userData);
-
-    [DllImport(LibWebKit)]
-    internal static extern IntPtr webkit_user_script_new(string script, int injected_frames, int injection_time, IntPtr whitelist, IntPtr blacklist);
-#endif
 
     [DllImport(LibWebKit)]
     internal static extern bool webkit_web_view_can_go_back(IntPtr webView);
@@ -216,13 +171,8 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibWebKit)]
     public static extern IntPtr gtk_print_settings_new();
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial void gtk_print_settings_set(IntPtr settings, string key, string value);
-#else
-    [DllImport(LibWebKit)]
-    internal static extern void gtk_print_settings_set(IntPtr webView, string key, string value);
-#endif
 
     [DllImport(LibGtk)]
     internal static extern IntPtr gtk_page_setup_new();
@@ -274,13 +224,8 @@ internal static unsafe partial class GtkInterop
     [DllImport (LibGObject)]
     internal static extern void g_object_unref(IntPtr handle);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibGObject, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial void g_variant_get(IntPtr variant, string formatString, out string? result);
-#else
-    [DllImport (LibGObject, CharSet = CharSet.Ansi)]
-    internal static extern void g_variant_get(IntPtr variant, string formatString, out string? result);
-#endif
 
     [DllImport(LibGtk)]
     internal static extern IntPtr gtk_window_new(int type);
@@ -309,19 +254,11 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGtk)]
     internal static extern bool gtk_window_get_resizable(IntPtr window);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibGtk)]
     internal static partial void gtk_window_set_geometry_hints(IntPtr window, IntPtr geometry_widget, ref GdkGeometry geometry, GdkWindowHints geom_mask);
 
     [LibraryImport(LibGtk)]
     internal static partial void gtk_window_get_size(IntPtr window, out int width, out int height);
-#else
-    [DllImport(LibGtk)]
-    internal static extern void gtk_window_set_geometry_hints(IntPtr window, IntPtr geometry_widget, ref GdkGeometry geometry, GdkWindowHints geom_mask);
-
-    [DllImport(LibGtk)]
-    internal static extern void gtk_window_get_size(IntPtr window, out int width, out int height);
-#endif
 
     [DllImport(LibGtk)]
     internal static extern void gtk_window_set_position(IntPtr window, int positionType);
@@ -341,13 +278,8 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGtk)]
     internal static extern IntPtr gtk_widget_set_visual(IntPtr widget, IntPtr visual);
 
-#if NET8_0_OR_GREATER
     [LibraryImport(LibGtk)]
     internal static partial IntPtr gtk_widget_set_app_paintable(IntPtr widget, [MarshalAs(UnmanagedType.Bool)] bool paintable);
-#else
-    [DllImport(LibGtk)]
-    internal static extern IntPtr gtk_widget_set_app_paintable(IntPtr widget, bool paintable);
-#endif
 
     [DllImport(LibGtk)]
     internal static extern void gtk_widget_realize(IntPtr gtkWidget);
@@ -373,14 +305,9 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGtk)]
     internal static extern IntPtr gdk_keymap_get_for_display(IntPtr display);
 
-#if NET7_0_OR_GREATER
     [LibraryImport (LibGdk)]
     [return: MarshalAs(UnmanagedType.I1)]
     internal static partial bool gdk_keymap_translate_keyboard_state(IntPtr keymap, uint hardware_keycode, GdkModifierType state, int group, out uint keyval, out int effective_group, out int level, out int consumed_modifiers);
-#else
-    [DllImport(LibGdk)]
-    internal static extern bool gdk_keymap_translate_keyboard_state(IntPtr keymap, uint hardware_keycode, GdkModifierType state, int group, out uint keyval, out int effective_group, out int level, out int consumed_modifiers);
-#endif
 
     [DllImport(LibGdk)]
     internal static extern GdkModifierType gdk_keymap_get_modifier_state(IntPtr keymap);
@@ -451,25 +378,14 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGdk)]
     public static extern IntPtr gdk_pixbuf_add_alpha(nint pixbuf, bool substituteColor, byte r, byte g, byte b);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibGdk)]
     public static partial void gdk_window_get_root_coords(IntPtr raw, int x, int y, out int rootX, out int rootY);
-#else
-
-    [DllImport(LibGdk)]
-    public static extern void gdk_window_get_root_coords(IntPtr raw, int x, int y, out int rootX, out int rootY);
-#endif
 
     [DllImport(LibGtk)]
     internal static extern IntPtr gtk_window_get_title(IntPtr window);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibGtk, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial void gtk_window_set_title(IntPtr window, string title);
-#else
-    [DllImport(LibGtk)]
-    internal static extern void gtk_window_set_title(IntPtr window, string title);
-#endif
 
     [DllImport(LibGtk)]
     internal static extern void gtk_window_set_default_size(IntPtr window, int width, int height);
@@ -483,13 +399,8 @@ internal static unsafe partial class GtkInterop
     [DllImport(LibGtk)]
     internal static extern bool gtk_widget_has_focus(IntPtr widget);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibGObject, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial ulong g_signal_connect_data(nint instance, string detailed_signal, nint c_handler, nint data, nint destroy_data, GConnectFlags connect_flags);
-#else
-    [DllImport(LibGObject)]
-    internal static extern ulong g_signal_connect_data(nint instance, string detailed_signal, nint c_handler, nint data, nint destroy_data, GConnectFlags connect_flags);
-#endif
 
     [DllImport(LibGObject)]
     internal static extern void g_signal_handler_disconnect(IntPtr instance, ulong handlerId);
@@ -538,7 +449,6 @@ internal static unsafe partial class GtkInterop
         delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, void> func,
         GCHandle user_data);
 
-#if NET7_0_OR_GREATER
     [LibraryImport(LibSoup, StringMarshalling = StringMarshalling.Utf8)]
     public static partial string? soup_message_headers_get_list(IntPtr headers, string name);
     [LibraryImport(LibSoup, StringMarshalling = StringMarshalling.Utf8)]
@@ -549,18 +459,6 @@ internal static unsafe partial class GtkInterop
     public static partial void soup_message_headers_append(IntPtr headers, string name, string value);
     [LibraryImport(LibSoup, StringMarshalling = StringMarshalling.Utf8)]
     public static partial void soup_message_headers_remove(IntPtr headers, string name);
-#else
-    [DllImport(LibSoup)]
-    public static extern string soup_message_headers_get_list(IntPtr headers, string name);
-    [DllImport(LibSoup)]
-    public static extern string soup_message_headers_get_one(IntPtr headers, string name);
-    [DllImport(LibSoup)]
-    public static extern void soup_message_headers_replace(IntPtr headers, string name, string value);
-    [DllImport(LibSoup)]
-    public static extern void soup_message_headers_append(IntPtr headers, string name, string value);
-    [DllImport(LibSoup)]
-    public static extern void soup_message_headers_remove(IntPtr headers, string name);
-#endif
 
     internal struct GError
     {

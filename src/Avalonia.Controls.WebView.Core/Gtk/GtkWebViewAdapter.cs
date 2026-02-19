@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -289,10 +288,7 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
 
             await operation!.Task.ConfigureAwait(false);
 
-#if NET6_0_OR_GREATER
-            await
-#endif
-            using var stream = File.OpenRead(tempFile);
+            await using var stream = File.OpenRead(tempFile);
             var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
@@ -604,7 +600,7 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
     
     internal static DetailedWebViewAdapterInfo GetWebKitGtkInfo(WebViewEmbeddingScenario scenarios = WebViewEmbeddingScenario.NativeDialog)
     {
-        if (!OperatingSystemEx.IsLinux())
+        if (!OperatingSystem.IsLinux())
         {
             return WebViewAdapterInfo.PlatformNotSupported(WebViewAdapterType.WebKitGtk);
         }

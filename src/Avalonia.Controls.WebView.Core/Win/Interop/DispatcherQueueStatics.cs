@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
@@ -18,9 +17,6 @@ internal static partial class DispatcherQueueStatics
             NativeWinRTMethods.CreateActivationFactory<IDispatcherQueueStatics>("Windows.System.DispatcherQueue");
     }
 
-#if NET6_0 // unnecessary in .NET 7+ or .NET 5
-    [UnconditionalSuppressMessage("Trimming", "IL2050")]
-#endif
     public static unsafe IDispatcherQueue GetOrCreateOnCurrentThread()
     {
         var statics = s_statics ??
@@ -41,14 +37,9 @@ internal static partial class DispatcherQueueStatics
         return controller.GetDispatcherQueue();
     }
 
-#if NET7_0_OR_GREATER
     [LibraryImport("coremessaging.dll")]
     private static partial void CreateDispatcherQueueController(DispatcherQueueOptions options,
         out IDispatcherQueueController dispatcherQueueController);
-#else
-    [DllImport("coremessaging.dll")]
-    private static extern void CreateDispatcherQueueController(DispatcherQueueOptions options, out IDispatcherQueueController dispatcherQueueController);
-#endif
 
     private enum DISPATCHERQUEUE_THREAD_APARTMENTTYPE
     {

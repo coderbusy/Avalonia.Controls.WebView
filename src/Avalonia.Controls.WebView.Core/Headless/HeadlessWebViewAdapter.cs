@@ -268,12 +268,8 @@ internal partial class HeadlessWebViewAdapter : IWebViewAdapterWithOffscreenBuff
     }
 
     private const string JavaScriptCallRegex = """(?<func>[\w\.]+)\s*\(\s*(?:['"](?<arg1>[^'"]*)['"])*\)""";
-#if NET8_0_OR_GREATER
     [GeneratedRegex(JavaScriptCallRegex)]
     private static partial Regex MatchJavaScriptCall();
-#else
-    private static Regex MatchJavaScriptCall() => new Regex(JavaScriptCallRegex);
-#endif
 
     private Task<HeadlessWebViewEnvironmentRequestedEventArgs.ScriptResult?> DefaultScriptEngine(string script)
     {

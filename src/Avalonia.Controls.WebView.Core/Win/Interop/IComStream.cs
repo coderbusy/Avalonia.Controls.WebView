@@ -5,12 +5,7 @@ using System.Runtime.InteropServices.Marshalling;
 
 namespace Avalonia.Controls.Win.Interop;
 
-#if COM_SOURCE_GEN
 [GeneratedComInterface]
-#else
-[ComImport]
-[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-#endif
 [Guid("0000000c-0000-0000-C000-000000000046")]
 internal partial interface IComStream
 {
@@ -92,11 +87,7 @@ internal unsafe class DataStreamFromComStream(IComStream stream) : Stream
         return bytesRead;
     }
 
-    public
-#if NET6_0_OR_GREATER
-        override
-#endif
-        int Read(Span<byte> buffer)
+    public override int Read(Span<byte> buffer)
     {
         if (_stream is null)
             throw new ObjectDisposedException(nameof(DataStreamFromComStream));
@@ -154,11 +145,7 @@ internal unsafe class DataStreamFromComStream(IComStream stream) : Stream
         throw new IOException();
     }
 
-    public
-#if NET6_0_OR_GREATER
-        override
-#endif
-        void Write(ReadOnlySpan<byte> buffer)
+    public override void Write(ReadOnlySpan<byte> buffer)
     {
         if (_stream is null)
             throw new ObjectDisposedException(nameof(DataStreamFromComStream));

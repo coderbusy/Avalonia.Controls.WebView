@@ -66,11 +66,7 @@ public abstract class WebViewWebRequestHeaders : IReadOnlyDictionary<string, str
     public abstract bool TryRemove(string name);
 
     public abstract bool ContainsKey(string key);
-#if NET6_0_OR_GREATER
     public abstract bool TryGetValue(string key, [MaybeNullWhen(false)] out string value);
-#else
-    public abstract bool TryGetValue(string key, out string value);
-#endif
 
     public abstract IEnumerable<string> Keys { get; }
     public abstract IEnumerable<string> Values { get; }
@@ -268,9 +264,7 @@ internal interface IWebView
     /// </summary>
     Uri Source
     {
-#if NET6_0_OR_GREATER
         [return: System.Diagnostics.CodeAnalysis.MaybeNull]
-#endif
         get;
         set;
     }

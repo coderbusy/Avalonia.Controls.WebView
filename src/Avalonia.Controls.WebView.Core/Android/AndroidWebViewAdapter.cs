@@ -2,7 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Android.Graphics;
 using Android.Graphics.Pdf;
 using Android.Print;
-using Android.Print.Pdf;
 using Android.Runtime;
 using Android.Views;
 using Android.Webkit;
@@ -40,7 +39,8 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     {
         WebView.EnableSlowWholeDocumentDraw();
     }
-    
+
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(JavaScriptInterface))]
     public AndroidWebViewAdapter(IPlatformHandle parent, AndroidWebViewEnvironmentRequestedEventArgs environmentArgs)
         : this(
             (parent as AndroidViewControlHandle)?.View.Context ?? global::Android.App.Application.Context,
@@ -434,11 +434,12 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
             UnavailableReason: null,
             SupportedScenarios: scenarios);
     }
-    
+
     private class JavaScriptInterface(AndroidWebViewAdapter adapter) : Java.Lang.Object
     {
         [Export("postMessage")]
         [JavascriptInterface]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "JavaScriptInterface is rooted by WebView adapter")]
         public void PostMessage(string message)
         {
             WebViewDispatcher.InvokeAsync(() =>

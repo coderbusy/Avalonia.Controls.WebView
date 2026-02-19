@@ -118,20 +118,7 @@ internal sealed class GtkNativeWebViewDialog : INativeWebViewDialog, IGtkWebView
                 return null;
             }
 
-#if NET5_0_OR_GREATER
             return Marshal.PtrToStringUTF8(titlePtr);
-#else
-            // Custom UTF8 conversion
-            var length = 0;
-            while (Marshal.ReadByte(titlePtr, length) != 0)
-            {
-                length++;
-            }
-
-            var buffer = new byte[length];
-            Marshal.Copy(titlePtr, buffer, 0, length);
-            return System.Text.Encoding.UTF8.GetString(buffer);
-#endif
         });
         set => RunOnGlibThreadAsync(() => gtk_window_set_title(_windowHandle, value ?? string.Empty));
     }

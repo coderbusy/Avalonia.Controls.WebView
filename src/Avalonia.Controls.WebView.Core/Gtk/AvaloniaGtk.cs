@@ -15,7 +15,6 @@ internal static class AvaloniaGtk
 {
     static AvaloniaGtk()
     {
-#if NET6_0_OR_GREATER
         var map = new Dictionary<string, string[]>
         {
             [GtkInterop.LibGtk] = ["libgtk-3.so.0", "libgtk-3.so"],
@@ -60,7 +59,6 @@ internal static class AvaloniaGtk
 
         HasSoup3 = NativeLibrary.TryLoad("libsoup-3.0.so.0", out _) ||
                    NativeLibrary.TryLoad("libsoup-3.0.so", out _);
-#endif
     }
 
     public static bool HasSoup3 { get; }
@@ -158,7 +156,7 @@ internal static class AvaloniaGtk
     
     public static Task<T> RunTask<T>(Func<T> callback)
     {
-        if (!OperatingSystemEx.IsLinux())
+        if (!OperatingSystem.IsLinux())
             throw new PlatformNotSupportedException("GTK is only supported on Linux");
 
         if (CachedDelegate.IsAvailable)

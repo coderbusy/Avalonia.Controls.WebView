@@ -1,3 +1,8 @@
+# 12.0.0-preview1
+
+- Compatibility with Avalonia 12.0, while keeping 11.1 support
+- Dropped .NET Standard and .NET Framework support
+
 # 11.3.16
 
 - New WebViewAdapterInfo API to retrieve WebView engine and availability information

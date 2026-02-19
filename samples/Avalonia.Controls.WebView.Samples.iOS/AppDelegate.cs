@@ -1,6 +1,4 @@
 using Foundation;
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.iOS;
 
 namespace Avalonia.Controls.WebView.Samples.iOS;
