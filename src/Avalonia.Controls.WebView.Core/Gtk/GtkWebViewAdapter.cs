@@ -47,6 +47,7 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
     private static readonly unsafe IntPtr s_resourceLoadStartedCallback =
         new((delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, IntPtr, void>)&ResourceLoadStartedCallback);
 
+    private readonly IntPtr _settings;
     private GtkSignal? _loadChangedSignal;
     private GtkSignal? _decidePolicySignal;
     private GtkSignal? _focusInSignal;
@@ -125,14 +126,14 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
 
         g_object_ref_sink(WebViewHandle);
 
-        var settings = webkit_web_view_get_settings(WebViewHandle);
+        _settings = webkit_web_view_get_settings(WebViewHandle);
         if (args.EnableDevTools)
         {
-            webkit_settings_set_enable_developer_extras(settings, true);
+            webkit_settings_set_enable_developer_extras(_settings, true);
         }
         if (args.ApplicationNameForUserAgent is { Length: > 0 } appUserAgent)
         {
-            webkit_settings_set_user_agent_with_application_details(settings, appUserAgent, null);
+            webkit_settings_set_user_agent_with_application_details(_settings, appUserAgent, null);
         }
 
         _loadChangedSignal = new GtkSignal(WebViewHandle, "load-changed", s_loadChangedCallback, this);
@@ -149,6 +150,19 @@ internal abstract class GtkWebViewAdapter : IWebViewAdapterWithFocus, IGtkWebVie
 
     public bool CanGoBack => RunOnGlibThread(() => webkit_web_view_can_go_back(WebViewHandle));
     public bool CanGoForward => RunOnGlibThread(() => webkit_web_view_can_go_forward(WebViewHandle));
+
+    public string? UserAgent
+    {
+        get
+        {
+            var ptr = RunOnGlibThread(() => webkit_settings_get_user_agent(_settings));
+            return Marshal.PtrToStringUTF8(ptr);
+        }
+        set
+        {
+            RunOnGlibThread(() => webkit_settings_set_user_agent(_settings, value));
+        }
+    }
 
     public Uri Source
     {

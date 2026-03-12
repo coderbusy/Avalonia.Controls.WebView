@@ -181,6 +181,8 @@ internal unsafe class WebBrowserAdapter : IWebViewAdapter
     {
     }
 
+    public string? UserAgent { get => null; set { } }
+
     public void SetParent(IPlatformHandle parent)
     {
         if (parent.HandleDescriptor != "HWND")

@@ -100,6 +100,8 @@ internal sealed class WebView1Adapter(IWebViewControl control, IWebViewControlSi
         }
     }
 
+    public string? UserAgent { get => null; set { } }
+
     public Uri Source
     {
         get

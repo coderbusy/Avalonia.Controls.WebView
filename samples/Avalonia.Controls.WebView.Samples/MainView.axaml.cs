@@ -408,6 +408,31 @@ public partial class MainView : UserControl
         e.Request.Headers.TrySet("X-MyHeader", $"Time: {DateTime.Now:O}");
     }
 
+    private void SetUserAgent_Click(object? sender, RoutedEventArgs e)
+    {
+        if (UserAgentInput.Text is { Length: > 0 } ua)
+        {
+            UserAgentWebView.UserAgent = ua;
+            UserAgentWebView.Refresh();
+        }
+    }
+
+    private void ResetUserAgent_Click(object? sender, RoutedEventArgs e)
+    {
+        UserAgentWebView.UserAgent = null;
+        UserAgentWebView.Refresh();
+    }
+
+    private void GetUserAgent_Click(object? sender, RoutedEventArgs e)
+    {
+        UserAgentInput.Text = UserAgentWebView.UserAgent;
+    }
+
+    private void UserAgentWebView_OnAdapterCreated(object? sender, AC.WebViewAdapterEventArgs e)
+    {
+        UserAgentInput.Text = UserAgentWebView.UserAgent;
+    }
+
     private void Offscreen_EnvironmentRequested(object? sender, AC.WebViewEnvironmentRequestedEventArgs e)
     {
         if (e is AP.WindowsWebView2EnvironmentRequestedEventArgs webView2)

@@ -70,6 +70,12 @@ internal static unsafe partial class GtkInterop
     [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]
     internal static partial void webkit_settings_set_user_agent_with_application_details(IntPtr webView, string? appName, string? version);
 
+    [LibraryImport(LibWebKit, StringMarshalling = StringMarshalling.Utf8)]
+    internal static partial void webkit_settings_set_user_agent(IntPtr settings, string? userAgent);
+
+    [DllImport(LibWebKit)]
+    internal static extern IntPtr webkit_settings_get_user_agent(IntPtr settings);
+
     [DllImport(LibWebKit)]
     internal static extern IntPtr webkit_web_view_get_settings(IntPtr webView);
 

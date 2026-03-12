@@ -42,6 +42,16 @@ internal abstract partial class WebView2BaseAdapter(ICoreWebView2Controller cont
 
     public bool CanGoForward => TryGetWebView2()?.GetCanGoForward() == 1;
 
+    public string? UserAgent
+    {
+        get => TryGetWebView2()?.GetSettings() is ICoreWebView2Settings2 settings2 ? settings2.UserAgent() : null;
+        set
+        {
+            if (TryGetWebView2()?.GetSettings() is ICoreWebView2Settings2 settings2)
+                settings2.SetUserAgent(value ?? "");
+        }
+    }
+
     public Uri Source
     {
         get => Uri.TryCreate(TryGetWebView2()?.GetSource(), UriKind.Absolute, out var url) ? url : null!;

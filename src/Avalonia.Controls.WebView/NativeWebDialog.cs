@@ -61,6 +61,21 @@ namespace Avalonia.Xpf.Controls
         /// <inheritdoc/>
         public bool CanGoForward => TryGetAdapter()?.CanGoForward ?? false;
 
+        /// <summary>
+        /// Gets or sets the user agent string used by the WebView for HTTP requests.
+        /// Returns null if the underlying adapter is not yet initialized or the platform does not support reading the user agent.
+        /// Setting to null resets to the default user agent.
+        /// </summary>
+        public string? UserAgent
+        {
+            get => TryGetAdapter()?.UserAgent;
+            set
+            {
+                if (TryGetAdapter() is { } adapter)
+                    adapter.UserAgent = value;
+            }
+        }
+
         /// <inheritdoc/>
         public Uri Source
         {

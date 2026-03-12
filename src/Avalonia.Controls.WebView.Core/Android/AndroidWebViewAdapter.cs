@@ -35,6 +35,16 @@ internal class AndroidWebViewAdapter : IWebViewAdapterWithFocus, IWebViewAdapter
     private readonly JavaScriptInterface _jsInterface;
     private WebView? _webView;
 
+    public string? UserAgent
+    {
+        get => _webView?.Settings.UserAgentString;
+        set
+        {
+            if (_webView is { } webView)
+                webView.Settings.UserAgentString = value ?? "";
+        }
+    }
+
     static AndroidWebViewAdapter()
     {
         WebView.EnableSlowWholeDocumentDraw();

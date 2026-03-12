@@ -353,6 +353,13 @@ internal interface IWebViewAdapter : IWebView, IDisposable, IPlatformHandle
 {
     Color DefaultBackground { set; }
 
+    /// <summary>
+    /// Gets or sets the user agent string used by the WebView for HTTP requests.
+    /// Returns null if the platform does not support reading the user agent, or if the default user agent is in use.
+    /// Setting to null resets to the default user agent.
+    /// </summary>
+    string? UserAgent { get; set; }
+
     void SizeChanged(PixelSize containerSize);
 
     void SetParent(IPlatformHandle parent);

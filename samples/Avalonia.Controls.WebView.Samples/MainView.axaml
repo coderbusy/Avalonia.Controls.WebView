@@ -41,6 +41,24 @@
             <NativeWebView Source="https://httpbin.io/headers"
                            WebResourceRequested="Headers_OnWebResourceRequested" />
         </TabItem>
+        <TabItem Header="User Agent">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                            Margin="10">
+                    <TextBox x:Name="UserAgentInput"
+                             Width="500"
+                             Watermark="Custom user agent string..." />
+                    <Button Content="Set" Click="SetUserAgent_Click" />
+                    <Button Content="Reset" Click="ResetUserAgent_Click" />
+                    <Button Content="Get" Click="GetUserAgent_Click" />
+                </StackPanel>
+                <NativeWebView x:Name="UserAgentWebView"
+                               Source="https://httpbin.io/user-agent"
+                               AdapterCreated="UserAgentWebView_OnAdapterCreated" />
+            </DockPanel>
+        </TabItem>
         <TabItem Header="GetUserMedia">
             <NativeWebView Source="https://webrtc.github.io/samples/"
                            NewWindowRequested="NativeWebView_OnNewWindowRequested" />
