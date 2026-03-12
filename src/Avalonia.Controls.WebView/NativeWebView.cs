@@ -639,6 +639,8 @@ namespace Avalonia.Xpf.Controls
         }
 
 #elif AVALONIA
+        private double GetRenderScaling() => TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
+
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
@@ -654,7 +656,7 @@ namespace Avalonia.Xpf.Controls
             else if (change.Property == IsVisibleProperty)
             {
                 _ = Dispatcher.UIThread.InvokeAsync(() => TryGetAdapter()?.SizeChanged(
-                    PixelSize.FromSize(Bounds.Size, VisualRoot!.RenderScaling)), DispatcherPriority.Background);
+                    PixelSize.FromSize(Bounds.Size, GetRenderScaling())), DispatcherPriority.Background);
             }
             else if (change.Property == BackgroundProperty)
             {
@@ -665,7 +667,7 @@ namespace Avalonia.Xpf.Controls
         protected override void OnSizeChanged(SizeChangedEventArgs e)
         {
             base.OnSizeChanged(e);
-            TryGetAdapter()?.SizeChanged(PixelSize.FromSize(e.NewSize, VisualRoot!.RenderScaling));
+            TryGetAdapter()?.SizeChanged(PixelSize.FromSize(e.NewSize, GetRenderScaling()));
         }
 
         private void EnsureBackground(IBrush? background)
@@ -675,7 +677,7 @@ namespace Avalonia.Xpf.Controls
                 if (background is null)
                 {
                     var topLevel = TopLevel.GetTopLevel(this);
-                    while (topLevel is IPopupHost)
+                    while (topLevel is not Window && topLevel is not null)
                         topLevel = TopLevel.GetTopLevel(topLevel.Parent as Visual);
                     background = topLevel?.Background ?? Brushes.White;
                 }
@@ -739,7 +741,7 @@ namespace Avalonia.Xpf.Controls
         {
             if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.PointerInput(e.GetCurrentPoint(this), e.ClickCount, VisualRoot!.RenderScaling, e.KeyModifiers);
+                e.Handled = input.PointerInput(e.GetCurrentPoint(this), e.ClickCount, GetRenderScaling(), e.KeyModifiers);
             }
             base.OnPointerPressed(e);
         }
@@ -748,7 +750,7 @@ namespace Avalonia.Xpf.Controls
         {
             if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.PointerInput(e.GetCurrentPoint(this), 1, VisualRoot!.RenderScaling, e.KeyModifiers);
+                e.Handled = input.PointerInput(e.GetCurrentPoint(this), 1, GetRenderScaling(), e.KeyModifiers);
             }
             base.OnPointerReleased(e);
         }
@@ -757,7 +759,7 @@ namespace Avalonia.Xpf.Controls
         {
             if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.PointerInput(e.GetCurrentPoint(this), 1, VisualRoot!.RenderScaling, e.KeyModifiers);
+                e.Handled = input.PointerInput(e.GetCurrentPoint(this), 1, GetRenderScaling(), e.KeyModifiers);
             }
             base.OnPointerMoved(e);
         }
@@ -766,7 +768,7 @@ namespace Avalonia.Xpf.Controls
         {
             if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.PointerLeaveInput(e.GetCurrentPoint(this), VisualRoot!.RenderScaling, e.KeyModifiers);
+                e.Handled = input.PointerLeaveInput(e.GetCurrentPoint(this), GetRenderScaling(), e.KeyModifiers);
             }
             base.OnPointerExited(e);
         }
@@ -775,7 +777,7 @@ namespace Avalonia.Xpf.Controls
         {
             if (TryGetAdapter() is IWebViewAdapterWithOffscreenInput input)
             {
-                e.Handled = input.PointerWheelInput(e.Delta, e.GetCurrentPoint(this), VisualRoot!.RenderScaling, e.KeyModifiers);
+                e.Handled = input.PointerWheelInput(e.Delta, e.GetCurrentPoint(this), GetRenderScaling(), e.KeyModifiers);
             }
             base.OnPointerWheelChanged(e);
         }
