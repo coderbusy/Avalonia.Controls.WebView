@@ -8,13 +8,14 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   
-    <AvaloniaVersion>12.0.0-preview2</AvaloniaVersion>
+    <AvaloniaVersion>11.1.0</AvaloniaVersion>
     <AvaloniaSampleVersion>12.0.0-preview2</AvaloniaSampleVersion>
 
     <!-- CS0067: The event '' is never used -->
     <!-- NU1900: Error occurred while getting package vulnerability data -->
     <!-- NU5104: A stable release of a package should not have a prerelease dependency -->
-    <NoWarn>$(NoWarn);CS0067;NU1900;NU5104;NU1902;NU1903</NoWarn>
+    <!-- NU1801: Unable to load the service index (XPF) -->
+    <NoWarn>$(NoWarn);CS0067;NU1900;NU5104;NU1902;NU1903;NU1801</NoWarn>
 
     <RepoRoot Condition="'$(RepoRoot)' == ''">$(MSBuildThisFileDirectory)</RepoRoot>
     <PackageOutputPath>$(RepoRoot)\artifacts\packages</PackageOutputPath>
