@@ -1,5 +1,6 @@
 #if BROWSER
 using System;
+using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 
@@ -9,6 +10,8 @@ using Avalonia.Platform;
 
 namespace Avalonia.Controls.Browser
 {
+    // Note: this adapter is not yet compatible with WASM multithreading.
+    // In order to support that we need to use only async JS interop, but IWebViewAdapter API is not compatible with that.
     [SupportedOSPlatform("browser")]
     internal class BrowserIFrameAdapter : JSObjectControlHandle, IWebViewAdapter
     {
@@ -17,7 +20,7 @@ namespace Avalonia.Controls.Browser
         private Action? _subscriptions;
         private Uri? _lastSrc;
 
-        private BrowserIFrameAdapter() : base(WebViewInterop.CreateElement("iframe"))
+        private BrowserIFrameAdapter(JSObject iframe) : base(iframe)
         {
         }
 
@@ -25,10 +28,11 @@ namespace Avalonia.Controls.Browser
             BrowserWebViewEnvironmentRequestedEventArgs environmentArgs)
         {
             await s_importModule.Value;
+            var iframe = await WebViewInterop.CreateElement("iframe");
 
             return (_, _) =>
             {
-                var adapter = new BrowserIFrameAdapter();
+                var adapter = new BrowserIFrameAdapter(iframe);
                 return new WebViewAdapter.AdapterWrapper(adapter, InitializeAsync(adapter, environmentArgs));
             };
 

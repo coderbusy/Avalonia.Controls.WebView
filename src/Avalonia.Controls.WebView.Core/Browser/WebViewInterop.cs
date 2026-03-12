@@ -25,7 +25,7 @@ namespace Avalonia.Controls.Browser
         public static partial Task CloseAuthWindow(string windowId);
 
         [JSImport("globalThis.document.createElement")]
-        public static partial JSObject CreateElement(string tagName);
+        public static partial Task<JSObject> CreateElement(string tagName);
 
         [JSImport("getActualLocation", "av-webview")]
         public static partial string? GetActualLocation(JSObject iframe);
