@@ -111,5 +111,8 @@ internal static partial class WebViewInterop
         JSObject popup,
         [JSMarshalAs<JSType.Function>]
         Action onClose);
+
+    [JSImport("globalThis.navigator.userAgent.valueOf")]
+    public static partial string GetNavigatorUserAgent();
 }
 #endif
