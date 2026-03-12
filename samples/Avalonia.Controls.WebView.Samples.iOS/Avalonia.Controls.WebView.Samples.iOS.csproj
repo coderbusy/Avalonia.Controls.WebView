@@ -5,6 +5,7 @@
     <UseInterpreter>true</UseInterpreter>
     <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
+    <ValidateXCodeVersion>false</ValidateXCodeVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <CodesignKey>Apple Development: maxkatz6@outlook.com (DN2P3PH6J5)</CodesignKey>
