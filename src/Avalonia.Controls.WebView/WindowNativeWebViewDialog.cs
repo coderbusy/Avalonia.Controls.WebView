@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !ANDROID && !BROWSER
+using System;
 using System.Threading.Tasks;
 using Core = Avalonia.Controls;
 using Avalonia.Platform;
@@ -138,3 +139,4 @@ namespace Avalonia.Xpf.Controls
 #endif
     }
 }
+#endif

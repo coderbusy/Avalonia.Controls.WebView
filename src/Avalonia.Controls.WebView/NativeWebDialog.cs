@@ -387,9 +387,13 @@ namespace Avalonia.Xpf.Controls
         /// <summary>
         /// If dialog is based on a <see cref="Window"/>, returns its instance to allow full control.
         /// </summary>
+#if ANDROID || BROWSER
+        public Window? TryGetWindow() => null;
+#else
         public Window? TryGetWindow() => GetOrInitialize() is { IsCompleted: true, IsFaulted: false } task ?
             task.Result as WindowNativeWebViewDialog :
             null;
+#endif
 
         internal async Task<bool> Show(IPlatformHandle owner) => (await GetOrInitialize()).Show(owner);
 
