@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using Avalonia.Controls.Gtk;
 using AvPlatform = Avalonia.Platform;
 using Core = Avalonia.Controls;
 using IPlatformHandle = Avalonia.Platform.IPlatformHandle;
@@ -421,18 +420,9 @@ namespace Avalonia.Xpf.Controls
 #elif BROWSER
             var dialogImpl = new Browser.BrowserWindowNativeWebViewDialog(args => EnvironmentRequested?.Invoke(this, args));
 #else
-            Core.INativeWebViewDialog dialogImpl;
-            // Special case for GTK, as we want to use GTK window instead of Avalonia window there.
-            if (OperatingSystem.IsLinux() && !Core.WebViewAdapter.UseHeadless)
-            {
-                dialogImpl = await GtkNativeWebViewDialog.CreateAsync(args => EnvironmentRequested?.Invoke(this, args));
-            }
-            else
-            {
-                // Don't await factoryTask here, we want to get Window accessible as early as possible
-                var factoryTask = Core.WebViewAdapter.CreateFactory(args => EnvironmentRequested?.Invoke(this, args));   
-                dialogImpl = new WindowNativeWebViewDialog(factoryTask);
-            }
+            // Don't await factoryTask here, we want to get Window accessible as early as possible
+            var factoryTask = Core.WebViewAdapter.CreateFactory(args => EnvironmentRequested?.Invoke(this, args));
+            Core.INativeWebViewDialog dialogImpl = new WindowNativeWebViewDialog(factoryTask);
 #endif
 
             dialogImpl.AdapterCreated += DialogImplOnAdapterCreated;
