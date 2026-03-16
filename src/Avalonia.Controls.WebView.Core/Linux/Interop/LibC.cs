@@ -5,10 +5,22 @@ namespace Avalonia.Controls.Linux.Interop;
 /// <summary>
 /// Interop for standard C library functions.
 /// </summary>
-internal static partial class LibC
+internal static unsafe partial class LibC
 {
     [LibraryImport("libc", StringMarshalling = StringMarshalling.Utf8)]
     public static partial int setenv(string name, string value, int overwrite);
+
+    [LibraryImport("libc")]
+    public static partial int poll(GPollFD* fds, nint nfds, int timeout);
+
+    [LibraryImport("libc")]
+    public static partial int eventfd(uint initval, int flags);
+
+    [LibraryImport("libc")]
+    public static partial nint write(int fd, void* buf, nint count);
+
+    [LibraryImport("libc")]
+    public static partial int close(int fd);
 }
 
 /// <summary>

@@ -237,6 +237,27 @@ internal static unsafe partial class WpeInterop
     public static partial bool g_main_context_pending(IntPtr context);
 
     [LibraryImport(LibGLib)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool g_main_context_acquire(IntPtr context);
+
+    [LibraryImport(LibGLib)]
+    public static partial void g_main_context_release(IntPtr context);
+
+    [LibraryImport(LibGLib)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool g_main_context_prepare(IntPtr context, int* priority);
+
+    [LibraryImport(LibGLib)]
+    public static partial int g_main_context_query(IntPtr context, int maxPriority, int* timeout, GPollFD* fds, int nFds);
+
+    [LibraryImport(LibGLib)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool g_main_context_check(IntPtr context, int maxPriority, GPollFD* fds, int nFds);
+
+    [LibraryImport(LibGLib)]
+    public static partial void g_main_context_dispatch(IntPtr context);
+
+    [LibraryImport(LibGLib)]
     public static partial void g_free(IntPtr mem);
 
     [LibraryImport(LibGLib)]

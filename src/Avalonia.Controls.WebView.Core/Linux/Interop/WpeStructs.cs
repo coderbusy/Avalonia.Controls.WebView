@@ -85,6 +85,17 @@ internal static class WpeViewActivityState
 }
 
 /// <summary>
+/// Matches GLib's GPollFD and POSIX struct pollfd on Linux.
+/// </summary>
+[StructLayout(LayoutKind.Sequential)]
+internal struct GPollFD
+{
+    public int Fd;
+    public ushort Events;
+    public ushort Revents;
+}
+
+/// <summary>
 /// SHM buffer exported by WPEBackend-fdo via the generic (non-EGL) export path.
 /// Maps to struct wpe_fdo_shm_exported_buffer.
 /// </summary>
