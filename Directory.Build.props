@@ -8,8 +8,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   
-    <AvaloniaVersion>12.0.0-rc1</AvaloniaVersion>
-    <AvaloniaSampleVersion>12.0.0-rc1</AvaloniaSampleVersion>
+    <AvaloniaVersion>12.0.0</AvaloniaVersion>
+    <AvaloniaSampleVersion>12.0.0</AvaloniaSampleVersion>
 
     <!-- CS0067: The event '' is never used -->
     <!-- NU1900: Error occurred while getting package vulnerability data -->
