@@ -19,7 +19,7 @@ internal class NSUUID : NSObject
     {
         const int size = 16;
         var buffer = stackalloc byte[size];
-        _ = value.TryWriteBytes(new Span<byte>(buffer, size));
+        _ = value.TryWriteBytes(new Span<byte>(buffer, size), true, out _);
 
         var uuid = new NSUUID();
         _ = Libobjc.intptr_objc_msgSend(uuid.Handle, s_initWithUUIDBytes, new IntPtr(buffer));
